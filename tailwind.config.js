@@ -10,7 +10,20 @@ module.exports = {
     './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#f56e26',
+        red: '#FF3B30',
+        gray: {
+          78: '#787486',
+          '9f': '#9FA6B2',
+          d9: '#D9D9D9',
+          ee: '#EEEEEE',
+          fa: '#FAFAFA',
+          98: '#989898',
+        },
+      },
+    },
   },
   plugins: [],
 };
