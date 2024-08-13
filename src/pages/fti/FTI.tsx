@@ -1,5 +1,5 @@
-const FTI = () => {
-  return <div>FTI</div>;
+const Fti = () => {
+  return <div>Fti</div>;
 };
 
-export default FTI;
+export default Fti;

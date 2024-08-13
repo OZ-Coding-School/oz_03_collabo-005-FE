@@ -1,5 +1,5 @@
-const FTIResultId = () => {
-  return <div>FTIResultId</div>;
+const FtiResultId = () => {
+  return <div>FtiResultId</div>;
 };
 
-export default FTIResultId;
+export default FtiResultId;
