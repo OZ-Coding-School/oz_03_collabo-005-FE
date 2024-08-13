@@ -1,4 +1,4 @@
-import FTI from './FTI';
-import FTIResultId from './FTIResultId';
-import FTITest from './FTITest';
-export { FTI, FTIResultId, FTITest };
+import Fti from './Fti';
+import FtiResultId from './FtiResultId';
+import FtiTest from './FtiTest';
+export { Fti, FtiResultId, FtiTest };

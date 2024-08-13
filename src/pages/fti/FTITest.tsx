@@ -1,7 +1,5 @@
-const FTITest = () => {
-  return (
-    <div>FTITest</div>
-  )
-}
+const FtiTest = () => {
+  return <div>FtiTest</div>;
+};
 
-export default FTITest
+export default FtiTest;
