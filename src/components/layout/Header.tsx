@@ -1,5 +1,70 @@
+import { useLocation, Link } from 'react-router-dom';
+import { RxArrowLeft } from 'react-icons/rx';
+import HeaderLanding from './HeaderLanding';
+
 const Header = () => {
-  return <div className="sticky h-[72px]">Header</div>;
+  const location = useLocation();
+
+  const isLandingPage = location.pathname === '/';
+
+  const isFlavorPage = location.pathname === '/Flavor';
+  const isFlavorTestPage = location.pathname === '/FlavorTest';
+  const isFoodsPage = location.pathname === '/Foods';
+  const isFtiPage = location.pathname === '/Fti';
+
+  const isThunderPage = location.pathname === '/Thunder';
+  const isBoardPage = location.pathname === '/Board';
+
+  const isSigninPage = location.pathname === '/Signin';
+  const isSignupPage = location.pathname === '/signup';
+  const isResetPasswordPage = location.pathname === '/signin/resetpassword';
+
+  const isMyProfilePage = location.pathname === '/MyProfile';
+  const isMyProfileEditPage = location.pathname === '/MyProfileEdit';
+
+  // 페이지에 따른 타이틀 변경.
+  const changeTitle = () => {
+    if (isFlavorPage) return '미각 DNA 검사';
+    if (isFlavorTestPage) return '미각 DNA 검사';
+    if (isFoodsPage) return '개인별 음식 추천';
+    if (isThunderPage) return '소셜 다이닝';
+    if (isFtiPage) return 'Fti 검사';
+    if (isBoardPage) return '맛있는 발견';
+
+    if (isSigninPage) return '로그인';
+    if (isSignupPage) return '회원가입';
+
+    if (isMyProfileEditPage) return '프로필 수정';
+    if (isResetPasswordPage) return '비밀번호를 잊어버렸어요';
+  };
+
+  if (isLandingPage) {
+    return <HeaderLanding />;
+  }
+
+  return (
+    <div className="fixed z-50 mt-0 flex h-[72px] w-full items-center bg-white px-2 py-5 text-xl font-semibold">
+      {/* 뒤로가기 버튼 활성화되어야 할 페이지
+      MyProfile, Foods, Flavor, Fti, Thunder, Board, Signin, Signup, ResetPassword */}
+      <div className="flex w-full items-center justify-center">
+        {(isMyProfilePage ||
+          isFoodsPage ||
+          isFlavorPage ||
+          isFtiPage ||
+          isThunderPage ||
+          isBoardPage ||
+          isSigninPage ||
+          isSignupPage ||
+          isResetPasswordPage) && (
+          <Link to="/" className="flex items-center">
+            <RxArrowLeft size={25} />
+          </Link>
+        )}
+
+        <div className={`flex-1 ${isLandingPage ? 'text-right' : 'ml-[20px]'}`}>{changeTitle()}</div>
+      </div>
+    </div>
+  );
 };
 
 export default Header;
