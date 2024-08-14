@@ -21,7 +21,7 @@ const Landing = () => {
           멋진메뉴는 알려준다!
         </div>
         <Link
-          to="/Flavor"
+          to="/flavor"
           className="ml-[350px] mt-4 flex h-12 w-40 items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-center font-bold text-white hover:bg-orange-600">
           입맛 설정하기
         </Link>
@@ -45,7 +45,7 @@ const Landing = () => {
 
         <div className="flex justify-center">
           <Link
-            to="/Foods"
+            to="/foods"
             className="gray-400 mt-4 flex h-12 w-32 items-center justify-center rounded-[20px] bg-white px-4 py-2 font-bold hover:bg-orange-600 hover:text-white">
             더보기 <RiArrowRightSLine size={20} />
           </Link>
@@ -68,7 +68,7 @@ const Landing = () => {
         </p>
         <div className="flex justify-center">
           <Link
-            to="/Fti"
+            to="/FTI"
             className="gray-400 mt-4 flex h-12 w-32 items-center justify-center rounded-[20px] bg-white px-4 py-2 font-bold hover:bg-orange-600 hover:text-white">
             더보기 <RiArrowRightSLine size={20} />
           </Link>
@@ -89,7 +89,7 @@ const Landing = () => {
         </p>
         <div className="flex justify-center">
           <Link
-            to="/Thunder"
+            to="/thunder"
             className="gray-400 mt-4 flex h-12 w-32 items-center justify-center rounded-[20px] bg-white px-4 py-2 font-bold hover:bg-orange-600 hover:text-white">
             더보기 <RiArrowRightSLine size={20} />
           </Link>
@@ -111,7 +111,7 @@ const Landing = () => {
         </p>
         <div className="flex justify-center">
           <Link
-            to="/Board"
+            to="/board"
             className="gray-400 mt-4 flex h-12 w-32 items-center justify-center rounded-[20px] bg-white px-4 py-2 font-bold hover:bg-orange-600 hover:text-white">
             더보기 <RiArrowRightSLine size={20} />
           </Link>
