@@ -6,7 +6,7 @@ const Layout = () => {
   return (
     <div className="flex h-full flex-col justify-between">
       <Header />
-      <div className="grow">
+      <div className="mt-[72px] grow">
         <Outlet />
       </div>
       <Nav />
