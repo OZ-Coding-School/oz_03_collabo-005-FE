@@ -40,7 +40,7 @@ const Flavor = () => {
             className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
             취소
           </button>
-          <Link to="/Signin" className="flex-1">
+          <Link to="/signin" className="flex-1">
             <button className="w-full rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
               로그인
             </button>
