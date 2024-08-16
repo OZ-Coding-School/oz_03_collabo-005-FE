@@ -4,7 +4,7 @@ import { useUserStore } from '../../store/store';
 import { useForm } from 'react-hook-form';
 import imageCompression from 'browser-image-compression';
 import Button from '../../components/common/Button';
-// import axios from 'axios';
+import ProfileModal from '../../components/myprofile/ProfileModal';
 
 type FormData = {
   nickname: string;
@@ -16,6 +16,9 @@ const MyProfileEdit = () => {
   const [profileImg, setProfileImg] = useState(user?.profileImageUrl || '/images/anonymous_avatars.svg');
   const [compressedFile, setCompressedFile] = useState<File | null>(null);
   const [duplicateNickname, setDuplicateNickname] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [originalFileName, setOriginalFileName] = useState<string>('profileImage');
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -24,24 +27,38 @@ const MyProfileEdit = () => {
     },
   });
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputImageChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const file = e.target.files[0];
       if (file) {
-        try {
-          const options = {
-            maxSizeMB: 1,
-            fileType: 'image/webp',
-          };
-          const compressedFile = await imageCompression(file, options);
-          setCompressedFile(compressedFile);
-          const compressedImageUrl = URL.createObjectURL(compressedFile);
-          setProfileImg(compressedImageUrl);
-        } catch (error) {
-          // 모달로 변경할 것
-          alert('이미지 불러오기에 실패했습니다. 다시 시도해주세요.');
-        }
+        setOriginalFileName(file.name);
+        //이미지 파일을 fileReader가 읽음
+        const reader = new FileReader();
+        // 읽기에 성공하면 내부코드를 실행함. result에 데이터 URL이 저장됨. readAsDataURL보다 먼저 정의 되어야 하는 이유는 이벤트는 실행되기 전에 먼저 정의되어 있어야 하기 때문. 41줄이 실행완료되면 reader.onload가 실행될 것
+        reader.onload = () => {
+          // 모달에서 이미지를 미리보기로 보기 위해서 preview로 전달함
+          setPreview(reader.result as string);
+          setIsModalOpen(true);
+        };
+        reader.readAsDataURL(file);
       }
+    }
+  };
+
+  const handleCroppedImageToWebp = async (croppedFile: File) => {
+    // 사실 모달에서 이미지 크롭하면서 webp로 전환을 하지만, 용량까지 맞춰주진 않기 때문에 굳이 한번 더 함
+    try {
+      const options = {
+        maxSizeMB: 1,
+        fileType: 'image/webp',
+      };
+      const compressedFile = await imageCompression(croppedFile, options);
+      setCompressedFile(compressedFile);
+      // 압축된 이미지의 미리보기를 위한 URL
+      const compressedImageUrl = URL.createObjectURL(compressedFile);
+      setProfileImg(compressedImageUrl);
+    } catch (error) {
+      console.error('이미지를 변환하는 중에 ' + error + '가 발생 했습니다.');
     }
   };
 
@@ -60,22 +77,12 @@ const MyProfileEdit = () => {
     formData.forEach((value, key) => {
       console.log(key, value);
     });
-    // if (user) {
-    //   setUser({ id: user.id, nickname: data.nickname, profileImageUrl: profileImg });
-    // }
-    // alert('프로필 변경이 완료되었습니다.');
-
-    // try {
-    //   const response = await axios.put('/api/user/profile', formData);
-    // } catch (error) {
-    //   console.error('프로필 수정 제출에 실패하여 ' + error + '가 발생했습니다.');
-    // }
+    // formData를 서버에 제출할 코드
   };
 
   const handleNicknameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const nickname = e.target.value;
     console.log(nickname);
-    // nickname을 서버로 전송해서, 중복여부 확인, 통과면 빈문자열로
     setDuplicateNickname('사용할 수 없는 닉네임 입니다.');
   };
 
@@ -93,7 +100,7 @@ const MyProfileEdit = () => {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => handleImageChange(e)}
+            onChange={(e) => handleInputImageChanged(e)}
           />
           <label
             htmlFor="profileImg"
@@ -104,7 +111,7 @@ const MyProfileEdit = () => {
         ) : (
           <Link
             to={'/FTI'}
-            className="mt-3 flex h-[5vh] w-[33%] items-center justify-center rounded-lg bg-[#F5E3DB] text-[1rem] font-bold xs:h-[6vh] xs:w-[40%] xs:text-[13px]">
+            className="mt-3 flex h-[62px] w-[33%] items-center justify-center rounded-lg bg-[#F5E3DB] text-[1rem] font-bold xs:h-[42px] xs:w-[40%] xs:text-[13px]">
             FTI 설정하기
           </Link>
         )}
@@ -116,9 +123,9 @@ const MyProfileEdit = () => {
         <input
           id="nickname"
           type="text"
-          className="h-[56px] w-full rounded-lg border py-[15px] pl-[15px] focus:border-gray-98 xs:h-[45px]"
+          className={`${duplicateNickname && 'border-primary'} h-[56px] w-full rounded-lg border py-[15px] pl-[15px] focus:border-gray-98 xs:h-[45px]`}
           {...register('nickname', { required: true })}
-          onBlur={handleNicknameBlur} // Add this line to attach the blur event handler
+          onBlur={handleNicknameBlur}
         />
         <p className="ml-1 text-[12px] text-red">{duplicateNickname}</p>
         <label htmlFor="introduce" className="mb-2 mt-5 block font-medium xs:mb-1 xs:mt-2 xs:text-[14px]">
@@ -138,6 +145,14 @@ const MyProfileEdit = () => {
           저장하기
         </Button>
       </div>
+      {isModalOpen && preview && (
+        <ProfileModal
+          preview={preview}
+          modalClose={() => setIsModalOpen(false)}
+          handleCroppedImageToWebp={handleCroppedImageToWebp}
+          originalFileName={originalFileName} // 동적으로 저장된 파일 이름을 전달
+        />
+      )}
     </form>
   );
 };
