@@ -25,7 +25,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
             <p className="text-[16px] text-[#AD5E33] xs:text-[12px]">{user.ftiType}</p>
           ) : (
             <Link to={'/FTI'} className="text-[16px] text-[#AD5E33] xs:text-[12px]">
-              테스트를 통해 FTI타입을 확인해보세요.
+              테스트를 통해 FTI타입을 확인해보세요
             </Link>
           )}
         </div>
