@@ -46,7 +46,7 @@ const Header = () => {
   }
 
   return (
-    <div className="fixed z-50 mt-0 flex h-[72px] w-full items-center bg-white px-2 py-5 text-xl font-semibold">
+    <div className="fixed z-50 mt-0 flex h-[72px] w-full max-w-[600px] items-center bg-white px-2 py-5 text-xl font-semibold">
       {/* 뒤로가기 버튼 활성화되어야 할 페이지
       MyProfile, Foods, Flavor, Fti, Thunder, Board, Signin, Signup, ResetPassword, MyProfileThunder, MyProfileBoard */}
       <div className="flex w-full items-center justify-center">

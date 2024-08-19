@@ -4,7 +4,7 @@ import Nav from './Nav';
 
 const Layout = () => {
   return (
-    <div className="flex h-full flex-col justify-between">
+    <div className="mx-auto flex h-full max-w-[600px] flex-col justify-between">
       <Header />
       <div className="mt-[72px] grow">
         <Outlet />

@@ -23,9 +23,9 @@
   }
 
   #root {
-    max-width: 600px;
     height: 100vh;
     margin: 0 auto;
+    overflow-y: scroll;
   }
 
   input {
