@@ -1,7 +1,7 @@
 const HeaderLanding = () => {
   return (
-    <div className="fixed z-50 mt-0 flex h-[72px] w-full items-center justify-center bg-white px-2 py-5 text-xl font-semibold">
-      <div className="ml-[265px] w-full flex-1">밥피엔스</div>
+    <div className="fixed z-50 mt-0 flex h-[72px] w-full max-w-[600px] items-center justify-center bg-white px-2 py-5 text-xl font-semibold">
+      <div className="ml-[265px] w-full max-w-[600px] flex-1">밥피엔스</div>
     </div>
   );
 };
