@@ -74,7 +74,7 @@ const ProfileModal: React.FC<ModalProps> = ({ preview, modalClose, handleCropped
     );
     // 캔버스에 그려진 이미지를 Bolb으로 전환하여 반환함.
     return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob!), 'image/wepb');
+      canvas.toBlob((blob) => resolve(blob!));
     });
   };
 
@@ -82,11 +82,11 @@ const ProfileModal: React.FC<ModalProps> = ({ preview, modalClose, handleCropped
     e.preventDefault();
     if (imgRef.current && completedCrop) {
       const croppedImageBlob = await executeImageCrop(imgRef.current, completedCrop);
-      // 아래 두줄은 잘린 이미지의 파일명을 기존 이미지명에 cropped-를 붙여서 유지하기
-
+      // 원본 파일의 타입을 그대로 사용
+      const originalFileType = imgRef.current.src.split(';')[0].split(':')[1];
       const newFileName = `cropped-${originalFileName}`;
       const croppedImageFile = new File([croppedImageBlob], newFileName, {
-        type: 'image/webp',
+        type: originalFileType, // 원본 파일의 타입을 사용
       });
       handleCroppedImageToWebp(croppedImageFile);
       modalClose();

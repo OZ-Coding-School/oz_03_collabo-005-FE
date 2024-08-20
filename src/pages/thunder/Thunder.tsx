@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { ReactNode } from 'react';
 import { meetingList } from '../../data/meetingList';
-import { IoMdCheckmark, IoIosArrowDown } from 'react-icons/io';
+
 import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
+import RoundedButton from '../../components/thunder/RoundedButton';
+import SelectionItem from '../../components/thunder/SelectionItem';
 
 const Thunder = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,7 +55,8 @@ const Thunder = () => {
                 appointmentTime={item.appointment_time}
                 title={item.title}
                 genderGroup={item.gender_group}
-                ageGroup={item.age_group}></ThunderCard>
+                ageGroup={item.age_group}
+              />
             );
           })}
         </div>
@@ -83,35 +85,3 @@ const Thunder = () => {
 };
 
 export default Thunder;
-
-interface RoundedButtonProps {
-  children: ReactNode;
-  onClick: () => void;
-}
-
-const RoundedButton = ({ children, onClick }: RoundedButtonProps) => {
-  return (
-    <button
-      className="flex h-8 items-center justify-between rounded-2xl border-2 border-solid border-[#D7D7D7] px-3 text-[14px] leading-5 text-[#333333] xs:border-[1px]"
-      onClick={onClick}>
-      {children} <IoIosArrowDown className="ml-1" />
-    </button>
-  );
-};
-
-interface SelectionItemProps {
-  item: string;
-  isSelected: boolean;
-  onClick: () => void;
-}
-
-const SelectionItem = ({ item, isSelected, onClick }: SelectionItemProps) => {
-  return (
-    <div
-      className={`flex w-full cursor-pointer items-center justify-between ${isSelected ? 'font-bold text-primary' : ''}`}
-      onClick={onClick}>
-      {item}
-      {isSelected && <IoMdCheckmark className="text-2xl font-bold" />}
-    </div>
-  );
-};
