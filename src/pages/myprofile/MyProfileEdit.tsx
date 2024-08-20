@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import imageCompression from 'browser-image-compression';
 import Button from '../../components/common/Button';
 import ProfileModal from '../../components/myprofile/ProfileModal';
+import { motion } from 'framer-motion';
 
 type FormData = {
   nickname: string;
@@ -19,6 +20,7 @@ const MyProfileEdit = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [originalFileName, setOriginalFileName] = useState<string>('profileImage');
+  const [isLoading, setIsLoading] = useState(false);
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -46,11 +48,10 @@ const MyProfileEdit = () => {
   };
 
   const handleCroppedImageToWebp = async (croppedFile: File) => {
-    // 사실 모달에서 이미지 크롭하면서 webp로 전환을 하지만, 용량까지 맞춰주진 않기 때문에 굳이 한번 더 함
     try {
+      setIsLoading(true);
       const options = {
         maxSizeMB: 1,
-        fileType: 'image/webp',
       };
       const compressedFile = await imageCompression(croppedFile, options);
       setCompressedFile(compressedFile);
@@ -59,6 +60,8 @@ const MyProfileEdit = () => {
       setProfileImg(compressedImageUrl);
     } catch (error) {
       console.error('이미지를 변환하는 중에 ' + error + '가 발생 했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -90,11 +93,20 @@ const MyProfileEdit = () => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex h-[35%] flex-col items-center justify-evenly p-[1rem]">
         <div className="relative mb-3 flex w-[30%] items-center justify-center pt-[30%] xs:w-[35%] xs:pt-[35%]">
-          <img
-            className="absolute inset-0 h-full w-full rounded-full object-cover"
-            src={profileImg}
-            alt="프로필 이미지"
-          />
+          {isLoading ? (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
+              <div className="h-10 w-10 rounded-full border-4 border-primary border-t-transparent" />
+            </motion.div>
+          ) : (
+            <img
+              className="absolute inset-0 h-full w-full rounded-full object-cover"
+              src={profileImg}
+              alt="프로필 이미지"
+            />
+          )}
           <input
             id="profileImg"
             type="file"
@@ -104,7 +116,8 @@ const MyProfileEdit = () => {
           />
           <label
             htmlFor="profileImg"
-            className="absolute bottom-2 right-2 h-[20%] w-[20%] cursor-pointer bg-[url('/images/edit_pencil.svg')] bg-cover"></label>
+            className="absolute bottom-2 right-2 h-[20%] w-[20%] cursor-pointer bg-[url('/images/edit_pencil.svg')] bg-cover xs:h-[30px] xs:w-[30px]"
+          />
         </div>
         {user?.ftiType ? (
           <p className="text-[1rem] font-medium">{user?.ftiType}</p>
@@ -150,7 +163,7 @@ const MyProfileEdit = () => {
           preview={preview}
           modalClose={() => setIsModalOpen(false)}
           handleCroppedImageToWebp={handleCroppedImageToWebp}
-          originalFileName={originalFileName} // 동적으로 저장된 파일 이름을 전달
+          originalFileName={originalFileName}
         />
       )}
     </form>
