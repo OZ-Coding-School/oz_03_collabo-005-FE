@@ -20,6 +20,7 @@ const MyProfile = () => {
         'https://plus.unsplash.com/premium_photo-1664203067979-47448934fd97?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aHVtYW58ZW58MHx8MHx8fDA%3D',
       nickname: '족발러버',
       introduce: '족발러버입니다. 잘 부탁드려요~!',
+      ftiType: '고독한 미식가(AIN)',
     });
     // 유저 토큰 없거나 확인 실패하면 undefined로 설정
     // setUser(undefined);

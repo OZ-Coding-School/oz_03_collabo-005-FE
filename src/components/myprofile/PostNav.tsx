@@ -40,7 +40,7 @@ const PostNav: React.FC<List> = ({ list, setSelectedItem }) => {
       ))}
       <span
         ref={indicatorRef}
-        className="absolute bottom-0 h-[3px] bg-primary transition-all duration-300"
+        className="absolute bottom-0 h-[3px] bg-primary duration-300"
         style={{ left: 0, width: '120px' }}
       />
     </div>

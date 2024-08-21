@@ -11,6 +11,7 @@ import Home from './pages/Home/Home.tsx';
 import Landing from './pages/Home/Landing.tsx';
 import ProfileId from './pages/profile/ProfileId.tsx';
 import Terms from './pages/terms/Terms.tsx';
+import ImageOverview from './pages/Image/ImageOverview.tsx';
 
 function App() {
   return (
@@ -66,6 +67,8 @@ function App() {
         <Route path="terms" element={<Terms />} />
 
         <Route path="profile/:Id" element={<ProfileId />} />
+
+        <Route path="image" element={<ImageOverview />} />
       </Route>
     </Routes>
   );

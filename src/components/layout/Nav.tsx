@@ -11,12 +11,27 @@ const Nav = () => {
 
   const isMyProfilePath = location.pathname === '/myprofile'; // 프로필
   const isMyProfileEditPath = location.pathname === '/myprofile/myprofileedit'; // 프로필
+  const isMyProfileThunder = location.pathname === '/myprofile/myprofilethunder'; // 프로필
+  const isMyProfileBoard = location.pathname === '/myprofile/myprofileboard'; // 프로필
 
   const isSigninPath = location.pathname === '/signin'; // 로그인 페이지
   const isSignupPath = location.pathname === '/signup'; // 회원가입 페이지
 
+  const isProfilePath = location.pathname.startsWith('/profile/'); // 프로필 페이지
+
+  const isImgPath = location.pathname === '/image'; // 이미지 상세보기
+
   // Signin, Signup, Flavor, MyProfile 페이지에서는 Navbar가 보이지 않게 설정.
-  if (isSigninPath || isSignupPath || isFlavorPath || isMyProfileEditPath) {
+  if (
+    isSigninPath ||
+    isSignupPath ||
+    isFlavorPath ||
+    isMyProfileEditPath ||
+    isMyProfileThunder ||
+    isMyProfileBoard ||
+    isProfilePath ||
+    isImgPath
+  ) {
     return null;
   }
 
