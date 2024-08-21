@@ -23,6 +23,10 @@ const Header = () => {
   const isMyProfileBoardPage = location.pathname === '/myprofile/myprofileboard';
   const isMyProfileThunderPage = location.pathname === '/myprofile/myprofilethunder';
 
+  const isProfilePath = location.pathname.startsWith('/profile/');
+
+  const isImgPath = location.pathname === '/image';
+
   // 페이지에 따른 타이틀 변경.
   const changeTitle = () => {
     if (isFlavorPage) return '미각 DNA 검사';
@@ -39,6 +43,10 @@ const Header = () => {
     if (isMyProfilePage) return '프로필 수정';
     if (isMyProfileBoardPage) return '나의 맛있는 발견';
     if (isMyProfileThunderPage) return '나의 소셜 다이닝';
+
+    if (isProfilePath) return '프로필 ';
+
+    if (isImgPath) return '이미지 상세보기';
   };
 
   if (isLandingPage) {
@@ -60,7 +68,9 @@ const Header = () => {
           isSignupPage ||
           isResetPasswordPage ||
           isMyProfileThunderPage ||
-          isMyProfileBoardPage) && (
+          isMyProfileBoardPage ||
+          isProfilePath ||
+          isImgPath) && (
           <Link to="/" className="flex items-center">
             <RxArrowLeft size={25} />
           </Link>

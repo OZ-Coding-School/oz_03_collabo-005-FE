@@ -7,10 +7,12 @@ import { Link } from 'react-router-dom';
 const MyProfileThunder = () => {
   // 유저 확인해서 로그인 안되어있으면 redirect
   const [selectedItem, setSelectedItem] = useState<string>('작성한 글');
+
   useEffect(() => {
     // selectedItem으로 데이터 통신하면 됨. 그리고 그 결과로 아래에서 meetingList를 대체
     console.log(selectedItem);
   }, [selectedItem]);
+
   return (
     <>
       <PostNav list={['작성한 글', '참여 내역', '좋아요']} setSelectedItem={setSelectedItem} />
