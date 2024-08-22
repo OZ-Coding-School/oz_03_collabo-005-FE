@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { RiArrowRightSLine } from 'react-icons/ri';
+import ContentLoader from 'react-content-loader';
 
 const Landing = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -13,22 +15,34 @@ const Landing = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="mx-auto flex max-w-full flex-col items-center">
       {/* 첫 번째 section */}
-      <div className="relative z-10 h-[600px] w-full max-w-[800px] bg-gradient-to-r from-neutral-200 to-neutral-400 p-4 text-center">
-        <div className="mt-40 text-[50px] font-bold text-white">
+      <div className="relative z-10 h-[600px] w-full max-w-[800px] bg-gradient-to-r from-neutral-200 to-neutral-400 p-4 text-center xs:h-[500px]">
+        <div className="mt-40 text-[40px] font-bold text-white xs:mt-[30px] xs:text-[32px]">
           밥은 못해줘도 <br />
           멋진메뉴는 알려준다!
         </div>
         <Link
           to="/flavor"
-          className="ml-[350px] mt-4 flex h-12 w-40 items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-center font-bold text-white hover:bg-orange-600">
+          className="ml-[340px] mr-[200px] mt-5 flex h-12 w-40 items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-center font-bold text-white hover:bg-orange-600 xs:ml-[100px] xs:mr-[100px] xs:mt-10 xs:items-center xs:justify-center">
           입맛 설정하기
         </Link>
+        {!isImageLoaded && (
+          <ContentLoader
+            height={200}
+            width={200}
+            speed={2}
+            backgroundColor="#f3f3f3"
+            foregroundColor="#ecebeb"
+            className="absolute bottom-0 left-0">
+            <circle cx="100" cy="100" r="100" />
+          </ContentLoader>
+        )}
         <img
           src="/images/HomeMonkey.svg"
           alt="monkey"
-          className={`absolute bottom-0 left-0 transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute bottom-0 left-0 flex-col transition-opacity transition-transform duration-1000 ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'} ${isImageLoaded ? 'block' : 'hidden'}`}
+          onLoad={() => setIsImageLoaded(true)}
         />
       </div>
 
@@ -39,8 +53,8 @@ const Landing = () => {
           나의 입맛을 알아서 척척! <br />
           입맛 예언자 밥피엔스
         </p>
-        <p className="mt-10 text-lg text-gray-500">
-          원초적 맛 본능을 깨우는 메뉴 추천으로, 매일 새로운 맛<br />의 모험을 시작해보세요
+        <p className="mt-10 text-lg text-gray-500 xs:text-[17px]">
+          원초적 맛 본능을 깨우는 메뉴 추천으로, <br /> 매일 새로운 맛의 모험을 시작해보세요
         </p>
 
         <div className="flex justify-center">
@@ -50,7 +64,23 @@ const Landing = () => {
             더보기 <RiArrowRightSLine size={20} />
           </Link>
         </div>
-        <img src="/images/HomeExample.svg" alt="example" className="mx-auto mb-20 mt-20" />
+        {!isImageLoaded && (
+          <ContentLoader
+            height={200}
+            width={200}
+            speed={2}
+            backgroundColor="#f3f3f3"
+            foregroundColor="#ecebeb"
+            className="mx-auto mb-20 mt-20">
+            <circle cx="100" cy="100" r="100" />
+          </ContentLoader>
+        )}
+        <img
+          src="/images/HomeExample.svg"
+          alt="example"
+          className={`mx-auto mb-20 mt-20 ${isImageLoaded ? 'block' : 'hidden'}`}
+          onLoad={() => setIsImageLoaded(true)}
+        />
       </div>
 
       {/* 세 번째 section */}
@@ -60,7 +90,7 @@ const Landing = () => {
           당신의 음식 DNA를 찾아서 <br />
           미식 탐험이 시작됩니다.
         </p>
-        <p className="mt-10 text-gray-500">
+        <p className="mt-10 text-gray-500 xs:text-[17px]">
           밥피엔스의 FTI 검사로 나의 성향을 발견하세요.
           <br />
           MBTI보다 재밌는 나만의 미식 탐험!
@@ -73,7 +103,23 @@ const Landing = () => {
             더보기 <RiArrowRightSLine size={20} />
           </Link>
         </div>
-        <img src="/images/HomeExample.svg" alt="example" className="mx-auto mb-20 mt-20" />
+        {!isImageLoaded && (
+          <ContentLoader
+            height={200}
+            width={200}
+            speed={2}
+            backgroundColor="#f3f3f3"
+            foregroundColor="#ecebeb"
+            className="mx-auto mb-20 mt-20">
+            <circle cx="100" cy="100" r="100" />
+          </ContentLoader>
+        )}
+        <img
+          src="/images/HomeExample.svg"
+          alt="example"
+          className={`mx-auto mb-20 mt-20 ${isImageLoaded ? 'block' : 'hidden'}`}
+          onLoad={() => setIsImageLoaded(true)}
+        />
       </div>
 
       {/* 네 번째 section  - thunder*/}
@@ -83,7 +129,7 @@ const Landing = () => {
           우리는 입맛으로 통한다. <br />
           메뉴와 만남이 어우러지는 소셜다이닝
         </p>
-        <p className="mt-10 text-gray-500">
+        <p className="mt-10 text-gray-500 xs:text-[17px]">
           입맛 친구들과 즐거운 만남, <br />
           밥피엔스와 함께라면 매 끼니가 특별해 집니다.
         </p>
@@ -94,7 +140,23 @@ const Landing = () => {
             더보기 <RiArrowRightSLine size={20} />
           </Link>
         </div>
-        <img src="/images/HomeExample.svg" alt="example" className="mx-auto mb-20 mt-20" />
+        {!isImageLoaded && (
+          <ContentLoader
+            height={200}
+            width={200}
+            speed={2}
+            backgroundColor="#f3f3f3"
+            foregroundColor="#ecebeb"
+            className="mx-auto mb-20 mt-20">
+            <circle cx="100" cy="100" r="100" />
+          </ContentLoader>
+        )}
+        <img
+          src="/images/HomeExample.svg"
+          alt="example"
+          className={`mx-auto mb-20 mt-20 ${isImageLoaded ? 'block' : 'hidden'}`}
+          onLoad={() => setIsImageLoaded(true)}
+        />
       </div>
 
       {/* 다섯번째 section- review*/}
@@ -104,7 +166,7 @@ const Landing = () => {
           맛의 트렌드를 공유하고 <br />
           새로운 경험을 나눠보세요.
         </p>
-        <p className="mt-10 text-gray-500">
+        <p className="mt-10 text-gray-500 xs:text-[17px]">
           즐거움 가득한 음식이야기
           <br />
           맛있는 후기를 공유하고 미식의 즐거움을 나눠보세요
@@ -116,7 +178,23 @@ const Landing = () => {
             더보기 <RiArrowRightSLine size={20} />
           </Link>
         </div>
-        <img src="/images/HomeExample.svg" alt="example" className="mx-auto mb-20 mt-20" />
+        {!isImageLoaded && (
+          <ContentLoader
+            height={200}
+            width={200}
+            speed={2}
+            backgroundColor="#f3f3f3"
+            foregroundColor="#ecebeb"
+            className="mx-auto mb-20 mt-20">
+            <circle cx="100" cy="100" r="100" />
+          </ContentLoader>
+        )}
+        <img
+          src="/images/HomeExample.svg"
+          alt="example"
+          className={`mx-auto mb-20 mt-20 ${isImageLoaded ? 'block' : 'hidden'}`}
+          onLoad={() => setIsImageLoaded(true)}
+        />
       </div>
 
       {/* 여섯번째 section 아이콘 영역
