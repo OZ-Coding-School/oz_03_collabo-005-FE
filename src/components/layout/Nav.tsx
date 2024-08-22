@@ -4,8 +4,9 @@ const Nav = () => {
   const location = useLocation();
   const isHomePath = location.pathname === '/';
 
-  const isThunderPath = location.pathname === '/thunder'; // 입맛 설정하기
-  const isFlavorPath = location.pathname === '/flavor'; // 소셜 다이닝
+  const isThunderPath = location.pathname === '/thunder'; // 소셜다이닝 게시글 목록
+  const isThunderpostPath = location.pathname.startsWith('/thunder/'); // 소셜다이닝 게시글 상세
+  const isFlavorPath = location.pathname === '/flavor'; // 입맛 검사
 
   const isBoardPath = location.pathname === '/board'; // 맛있는 발견
 
@@ -21,11 +22,12 @@ const Nav = () => {
 
   const isImgPath = location.pathname === '/image'; // 이미지 상세보기
 
-  // Signin, Signup, Flavor, MyProfile 페이지에서는 Navbar가 보이지 않게 설정.
+  // Signin, Signup, Flavor, ThunderPost, MyProfile 페이지에서는 Navbar가 보이지 않게 설정.
   if (
     isSigninPath ||
     isSignupPath ||
     isFlavorPath ||
+    isThunderpostPath ||
     isMyProfileEditPath ||
     isMyProfileThunder ||
     isMyProfileBoard ||
@@ -36,15 +38,17 @@ const Nav = () => {
   }
 
   return (
-    <div className="fixed bottom-0 flex h-[75px] w-full max-w-[600px] items-center justify-between bg-white">
+    <div className="fixed bottom-0 z-50 flex h-[75px] w-full max-w-[600px] items-center justify-between bg-white xs:fixed">
       <Link to="/" className="flex flex-col items-center justify-center text-center">
-        <img className="mb-2 ml-10" src={isHomePath ? '/images/Home.svg' : '/images/HomeInactive.svg'} alt="홈" />
-        <span className={`ml-10 text-center font-medium ${isHomePath ? 'text-orange-800' : 'text-gray-400'}`}>홈</span>
+        <img className="mb-2 ml-[40px]" src={isHomePath ? '/images/Home.svg' : '/images/HomeInactive.svg'} alt="홈" />
+        <span className={`ml-[40px] text-center font-medium ${isHomePath ? 'text-orange-800' : 'text-gray-400'}`}>
+          홈
+        </span>
       </Link>
 
       <Link to="/thunder" className="flex flex-col items-center justify-center text-center">
         <img
-          className="mb-2"
+          className="ml-4/1 mb-2"
           src={isThunderPath ? '/images/SocialDiningActive.svg' : '/images/SocialDining.svg'}
           alt="소셜 다이닝"
         />
@@ -67,11 +71,12 @@ const Nav = () => {
 
       <Link to="/myprofile" className="flex flex-col items-center justify-center text-center">
         <img
-          className="mb-2 mr-10"
+          className="mr-4/1 mb-2 mr-10"
           src={isMyProfilePath ? '/images/ProfileActive.svg' : '/images/ProfileInactive.svg'}
           alt="프로필"
         />
-        <span className={`mr-10 text-center font-medium ${isMyProfilePath ? 'text-orange-800' : 'text-gray-400'}`}>
+        <span
+          className={`mr-4/1 mr-10 text-center font-medium ${isMyProfilePath ? 'text-orange-800' : 'text-gray-400'}`}>
           프로필
         </span>
       </Link>
