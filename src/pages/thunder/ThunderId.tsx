@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import ModalCenter from '../../components/common/ModalCenter';
 import ContentLoader from 'react-content-loader';
 
+// ThunderId - 소셜다이닝 글 목록 조회
 interface Meeting {
   id: number;
   user_id: number;
@@ -28,6 +29,7 @@ const ThunderId = () => {
   const [isParticipatingCancelModalOpen, setIsParticipatingCancelModalOpen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>({
+    // 로컬에서 샘플데이터 테스트 진행
     id: 1,
     user_id: 1,
     title: '점심 마라탕 같이 드실분!',
