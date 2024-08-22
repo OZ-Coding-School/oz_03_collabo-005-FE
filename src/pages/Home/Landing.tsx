@@ -35,7 +35,9 @@ const Landing = () => {
             backgroundColor="#f3f3f3"
             foregroundColor="#ecebeb"
             className="absolute bottom-0 left-0">
-            <circle cx="100" cy="100" r="100" />
+            <rect x="0" y="56" rx="3" ry="3" width="500" height="10" />
+            <rect x="0" y="72" rx="3" ry="3" width="400" height="10" />
+            <rect x="0" y="88" rx="3" ry="3" width="300" height="10" />
           </ContentLoader>
         )}
         <img
