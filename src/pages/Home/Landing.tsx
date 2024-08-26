@@ -18,16 +18,16 @@ const Landing = () => {
     <div className="mx-auto flex max-w-full flex-col items-center">
       {/* 첫 번째 section */}
       <div className="relative z-10 h-[600px] w-full max-w-[800px] bg-gradient-to-r from-neutral-200 to-neutral-400 p-4 text-center xs:h-[500px]">
-        <div className="mt-40 text-[40px] font-bold text-white xs:mt-[30px] xs:text-[32px]">
+        <div className="mt-40 text-[40px] font-bold text-white xs:mt-24 xs:text-[32px]">
           밥은 못해줘도 <br />
           멋진메뉴는 알려준다!
         </div>
         <Link
           to="/flavor"
-          className="ml-[340px] mr-[200px] mt-5 flex h-12 w-40 items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-center font-bold text-white hover:bg-orange-600 xs:ml-[100px] xs:mr-[100px] xs:mt-10 xs:items-center xs:justify-center">
+          className="ml-[340px] mr-[200px] mt-5 flex h-12 w-40 items-center justify-center rounded-xl bg-orange-500 px-4 py-2 text-center font-bold text-white hover:bg-orange-600 xs:mx-auto xs:items-center xs:justify-center">
           입맛 설정하기
         </Link>
-        {!isImageLoaded && (
+        {/* {!isImageLoaded && (
           <ContentLoader
             height={200}
             width={200}
@@ -39,11 +39,11 @@ const Landing = () => {
             <rect x="0" y="72" rx="3" ry="3" width="400" height="10" />
             <rect x="0" y="88" rx="3" ry="3" width="300" height="10" />
           </ContentLoader>
-        )}
+        )} */}
         <img
           src="/images/HomeMonkey.svg"
           alt="monkey"
-          className={`absolute bottom-0 left-0 flex-col transition-opacity transition-transform duration-1000 ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'} ${isImageLoaded ? 'block' : 'hidden'}`}
+          className={`absolute bottom-0 left-0 flex-col transition-transform duration-1000 ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'} ${isImageLoaded ? 'block' : 'hidden'} xs:w-[200px]`}
           onLoad={() => setIsImageLoaded(true)}
         />
       </div>

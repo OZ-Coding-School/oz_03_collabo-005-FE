@@ -7,6 +7,7 @@ const Nav = () => {
   const isThunderPath = location.pathname === '/thunder'; // 소셜다이닝 게시글 목록
   const isThunderpostPath = location.pathname.startsWith('/thunder/'); // 소셜다이닝 게시글 상세
   const isFlavorPath = location.pathname === '/flavor'; // 입맛 검사
+  const isFlavorTestPage = location.pathname === '/flavor/test';
 
   const isBoardPath = location.pathname === '/board'; // 맛있는 발견
 
@@ -32,51 +33,56 @@ const Nav = () => {
     isMyProfileThunder ||
     isMyProfileBoard ||
     isProfilePath ||
-    isImgPath
+    isImgPath ||
+    isFlavorTestPage
   ) {
     return null;
   }
 
   return (
-    <div className="fixed bottom-0 z-50 flex h-[75px] w-full max-w-[600px] items-center justify-between bg-white xs:fixed">
-      <Link to="/" className="flex flex-col items-center justify-center text-center">
-        <img className="mb-2 ml-[40px]" src={isHomePath ? '/images/Home.svg' : '/images/HomeInactive.svg'} alt="홈" />
-        <span className={`ml-[40px] text-center font-medium ${isHomePath ? 'text-orange-800' : 'text-gray-400'}`}>
+    <div className="fixed bottom-0 z-50 flex h-[75px] w-full max-w-[600px] justify-around bg-white xs:h-[65px]">
+      <Link to="/" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
+        <img
+          className="mb-2 xs:mb-0 xs:w-[14px]"
+          src={isHomePath ? '/images/Home.svg' : '/images/HomeInactive.svg'}
+          alt="홈"
+        />
+        <span className={`text-center font-medium ${isHomePath ? 'text-orange-800' : 'text-gray-400'} xs:text-[14px]`}>
           홈
         </span>
       </Link>
 
-      <Link to="/thunder" className="flex flex-col items-center justify-center text-center">
+      <Link to="/thunder" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
         <img
-          className="ml-4/1 mb-2"
+          className="mb-2 xs:mb-0 xs:w-[14px]"
           src={isThunderPath ? '/images/SocialDiningActive.svg' : '/images/SocialDining.svg'}
           alt="소셜 다이닝"
         />
-
-        <span className={`text-center font-medium ${isThunderPath ? 'text-orange-800' : 'text-gray-400'}`}>
+        <span
+          className={`text-center font-medium ${isThunderPath ? 'text-orange-800' : 'text-gray-400'} xs:text-[14px]`}>
           소셜 다이닝
         </span>
       </Link>
 
-      <Link to="/board" className="flex flex-col items-center justify-center text-center">
+      <Link to="/board" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
         <img
-          className="mb-2"
+          className="mb-2 xs:mb-0 xs:w-[14px]"
           src={isBoardPath ? '/images/DeliciousInFinder.svg' : '/images/DeliciousFinder.svg'}
           alt="맛있는 발견"
         />
-        <span className={`text-center font-medium ${isBoardPath ? 'text-orange-800' : 'text-gray-400'}`}>
+        <span className={`text-center font-medium ${isBoardPath ? 'text-orange-800' : 'text-gray-400'} xs:text-[14px]`}>
           맛있는 발견
         </span>
       </Link>
 
-      <Link to="/myprofile" className="flex flex-col items-center justify-center text-center">
+      <Link to="/myprofile" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
         <img
-          className="mr-4/1 mb-2 mr-10"
+          className="mb-2 xs:mb-0 xs:w-[14px]"
           src={isMyProfilePath ? '/images/ProfileActive.svg' : '/images/ProfileInactive.svg'}
           alt="프로필"
         />
         <span
-          className={`mr-4/1 mr-10 text-center font-medium ${isMyProfilePath ? 'text-orange-800' : 'text-gray-400'}`}>
+          className={`text-center font-medium ${isMyProfilePath ? 'text-orange-800' : 'text-gray-400'} xs:text-[14px]`}>
           프로필
         </span>
       </Link>
