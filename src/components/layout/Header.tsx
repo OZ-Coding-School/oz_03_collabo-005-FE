@@ -59,7 +59,7 @@ const Header = () => {
   }
 
   return (
-    <div className="fixed z-50 ml-2 mt-0 flex h-[72px] w-full max-w-[600px] items-center bg-white px-2 py-5 text-xl font-semibold xs:ml-[10px]">
+    <div className="fixed z-50 mt-0 flex h-[72px] w-full max-w-[600px] items-center bg-white px-4 py-5 text-xl font-semibold xs:h-[52px] xs:pl-[10px]">
       {/* 뒤로가기 버튼 활성화되어야 할 페이지
       MyProfile, Foods, Flavor, Fti, Thunder, Board, Signin, Signup, ResetPassword, MyProfileThunder, MyProfileBoard */}
       <div className="flex w-full items-center justify-center">
@@ -77,13 +77,16 @@ const Header = () => {
           isMyProfileThunderPage ||
           isMyProfileBoardPage ||
           isProfilePath ||
-          isImgPath) && (
+          isImgPath ||
+          isFlavorTestPage) && (
           <button onClick={() => navigate(-1)} className="flex items-center">
-            <RxArrowLeft size={25} />
+            <RxArrowLeft size={25} className="xs:w-[20px]" />
           </button>
         )}
 
-        <div className={`flex-1 ${isLandingPage ? 'text-right' : 'ml-[20px]'}`}>{changeTitle()}</div>
+        <div className={`flex-1 ${isLandingPage ? 'text-right' : 'ml-[20px]'} xs:ml-[10px] xs:text-[16px]`}>
+          {changeTitle()}
+        </div>
       </div>
     </div>
   );

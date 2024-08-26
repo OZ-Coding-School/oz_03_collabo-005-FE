@@ -7,7 +7,6 @@ import { Foods, FoodsId, FoodsMap } from './pages/foods';
 import { Fti, FtiResultId, FtiTest } from './pages/fti';
 import { MyProfile, MyProfileBoard, MyProfileEdit, MyProfileThunder } from './pages/myprofile';
 import { Thunder, ThunderChat, ThunderId, ThunderPost } from './pages/thunder';
-import Home from './pages/Home/Home.tsx';
 import Landing from './pages/Home/Landing.tsx';
 import ProfileId from './pages/profile/ProfileId.tsx';
 import Terms from './pages/terms/Terms.tsx';
@@ -17,7 +16,6 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route path="home" element={<Home />} />
         <Route index element={<Landing />} />
         <Route path="signup" element={<Signup />} />
 

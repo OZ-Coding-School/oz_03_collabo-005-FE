@@ -152,7 +152,7 @@ const MyProfileEdit = () => {
         />
         <Button
           type="submit"
-          className="mt-10 h-[56px] font-bold xs:mt-8 xs:h-[45px]"
+          className={`mt-10 h-[56px] font-bold xs:mt-8 xs:h-[45px] ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
           buttonSize="normal"
           bgColor="filled">
           저장하기
