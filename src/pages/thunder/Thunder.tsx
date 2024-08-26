@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { meetingList } from '../../data/meetingList';
-
 import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
 import RoundedButton from '../../components/thunder/RoundedButton';
@@ -26,7 +25,7 @@ const Thunder = () => {
 
   return (
     <div className="relative w-full max-w-[600px] p-4 pt-0">
-      <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8">
+      <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
         <h1 className="my-[12px] text-2xl font-bold">음식으로 시작되는 인연</h1>
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between">
           <RoundedButton onClick={() => handleListSelection(true)}>{selectedLocation}</RoundedButton>
@@ -63,7 +62,8 @@ const Thunder = () => {
       )}
       <Link
         to={'/thunder/thunderpost'}
-        className='fixed bottom-[120px] right-[calc(50%-260px)] z-10 h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat xs:bottom-[100px] xs:right-[calc(5%)] xs:h-[53px] xs:w-[53px]'></Link>
+        className='fixed bottom-[120px] right-[calc(50%-260px)] z-10 h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat xs:bottom-[100px] xs:right-[5%] xs:h-[53px] xs:w-[53px]'
+      />
       <ModalBottom isOpen={isModalOpen} onClose={toggleModal}>
         <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
         <div className="flex flex-col gap-[20px] p-[20px]">
