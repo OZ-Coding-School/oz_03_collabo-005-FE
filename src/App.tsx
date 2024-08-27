@@ -57,7 +57,7 @@ function App() {
 
         <Route path="thunder">
           <Route index element={<Thunder />} />
-          <Route path="thunderchat" element={<ThunderChat />} />
+          <Route path="thunderchat/:thunderId" element={<ThunderChat />} />
           <Route path=":thunderId" element={<ThunderId />} />
           <Route path="thunderpost" element={<ThunderPost />} />
         </Route>

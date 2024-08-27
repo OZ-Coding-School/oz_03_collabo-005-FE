@@ -4,12 +4,13 @@ const Nav = () => {
   const location = useLocation();
   const isHomePath = location.pathname === '/';
 
-  const isThunderPath = location.pathname === '/thunder'; // 소셜다이닝 게시글 목록
-  const isThunderpostPath = location.pathname.startsWith('/thunder/'); // 소셜다이닝 게시글 상세
+  const isThunderPath = location.pathname === '/thunder'; // 소셜 다이닝 게시글 목록
+  const isThunderPostPath = location.pathname.startsWith('/thunder/'); // 소셜 다이닝 게시글 상세
   const isFlavorPath = location.pathname === '/flavor'; // 입맛 검사
   const isFlavorTestPage = location.pathname === '/flavor/test';
 
   const isBoardPath = location.pathname === '/board'; // 맛있는 발견
+  const isBoardPostPath = location.pathname.startsWith('/board/'); // 소셜 다이닝
 
   const isMyProfilePath = location.pathname === '/myprofile'; // 프로필
   const isMyProfileEditPath = location.pathname === '/myprofile/myprofileedit'; // 프로필
@@ -28,7 +29,8 @@ const Nav = () => {
     isSigninPath ||
     isSignupPath ||
     isFlavorPath ||
-    isThunderpostPath ||
+    isThunderPostPath ||
+    isBoardPostPath ||
     isMyProfileEditPath ||
     isMyProfileThunder ||
     isMyProfileBoard ||

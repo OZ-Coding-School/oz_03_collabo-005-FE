@@ -8,11 +8,11 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
   onClose,
   onTimeSelect,
 }) => {
-  const [selectedHour, setSelectedHour] = useState(1);
-  const [selectedMinute, setSelectedMinute] = useState(0);
-  const [period, setPeriod] = useState('오후');
-  const [isEditingHour, setIsEditingHour] = useState(false);
-  const [isEditingMinute, setIsEditingMinute] = useState(false);
+  const [selectedHour, setSelectedHour] = useState(12); // 선택된 시간을 저장하는 상태, 초기값 1시
+  const [selectedMinute, setSelectedMinute] = useState(12); // 선택된 분을 저장 초기값 0분
+  const [period, setPeriod] = useState('오전'); // 오전/오후를 저장 초기값 '오후'
+  const [isEditingHour, setIsEditingHour] = useState(false); // 시간을 편집 중인지 여부 저장 초기값 false
+  const [isEditingMinute, setIsEditingMinute] = useState(false); // 분을 편집 중인지 여부 저장 초기값 false
 
   const handleConfirm = () => {
     const time = `${period} ${selectedHour}:${selectedMinute < 10 ? `0${selectedMinute}` : selectedMinute}`;
@@ -68,7 +68,7 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={togglePeriod}
-                    className={`mt-[20px] h-[40px] w-[100px] rounded-lg px-2 text-[20px] ${period === '오전' ? 'bg-slate-500 text-white' : 'bg-gray-200 text-slate-500'}`}>
+                    className={`mt-[20px] h-[40px] w-[100px] rounded-lg text-[20px] ${period === '오전' ? 'bg-slate-500 text-white' : 'bg-gray-200 text-slate-500'}`}>
                     오전
                   </motion.button>
 
@@ -76,14 +76,14 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={togglePeriod}
-                    className={`mt-[10px] h-[40px] w-[100px] rounded-lg px-2 text-[20px] ${period === '오후' ? 'bg-slate-500 text-white' : 'bg-gray-200 text-slate-500'}`}>
+                    className={`mt-[10px] h-[40px] w-[100px] rounded-lg text-[20px] ${period === '오후' ? 'bg-slate-500 text-white' : 'bg-gray-200 text-slate-500'}`}>
                     오후
                   </motion.button>
                 </div>
 
-                <div className="flex h-16 items-center justify-center" />
+                <div className="flex items-center justify-center" />
               </div>
-              <div className="relative mx-2 flex h-32 w-16 flex-col items-center">
+              <div className="mx-2 flex h-[150px] w-[50px] flex-col items-center">
                 {isEditingHour ? (
                   <input
                     type="number"
@@ -92,7 +92,7 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                     onBlur={() => setIsEditingHour(false)}
                     onClick={handleHourClick}
                     className="text-center text-4xl font-bold text-orange-500"
-                    style={{ width: '100%', height: '100%' }}
+                    style={{ width: '150%', height: '100%' }}
                   />
                 ) : (
                   <Swiper
@@ -104,7 +104,7 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                     {[...Array(12)].map((_, i) => (
                       <SwiperSlide key={i}>
                         <span
-                          className={`text-4xl font-bold ${i + 1 === selectedHour ? 'text-orange-500' : 'text-gray-500'}`}>
+                          className={`text-4xl font-bold ${i + 1 === selectedHour ? 'text-orange-500' : 'bg-gradient-to-t from-gray-100 to-gray-500 bg-clip-text text-left text-transparent'}`}>
                           {i + 1}
                         </span>
                       </SwiperSlide>
@@ -112,8 +112,8 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                   </Swiper>
                 )}
               </div>
-              <span className="mx-1 text-orange-500">:</span>
-              <div className="relative mx-2 flex h-32 w-16 flex-col items-center">
+              <span className="text-orange-500">:</span>
+              <div className="relative flex h-[150px] w-16 flex-col items-center">
                 {isEditingMinute ? (
                   <input
                     type="number"
@@ -122,7 +122,7 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                     onBlur={() => setIsEditingMinute(false)}
                     onClick={handleMinuteClick}
                     className="text-center text-4xl font-bold text-orange-500"
-                    style={{ width: '100%', height: '100%' }}
+                    style={{ width: '150%', height: '100%' }}
                   />
                 ) : (
                   <Swiper
@@ -130,11 +130,12 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                     slidesPerView={3}
                     centeredSlides={true}
                     onSlideChange={(swiper) => setSelectedMinute(swiper.activeIndex * 5)}
-                    onClick={() => setIsEditingMinute(true)}>
+                    onClick={() => setIsEditingMinute(true)}
+                    speed={500}>
                     {[...Array(12)].map((_, i) => (
                       <SwiperSlide key={i}>
                         <span
-                          className={`text-4xl font-bold ${i * 5 === selectedMinute ? 'text-orange-500' : 'text-gray-500'}`}>
+                          className={`text-4xl font-bold ${i * 5 === selectedMinute ? 'text-orange-500' : 'bg-gradient-to-t from-gray-100 to-gray-500 bg-clip-text text-transparent'}`}>
                           {i * 5 < 10 ? `0${i * 5}` : i * 5}
                         </span>
                       </SwiperSlide>
@@ -149,7 +150,7 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                 handleConfirm();
                 onClose();
               }}
-              className="mt-4 h-[50px] w-full rounded-md bg-orange-500 px-4 py-2 text-xl font-bold text-white transition-colors hover:bg-orange-600">
+              className="mt-4 h-[50px] w-full rounded-2xl bg-orange-500 px-4 py-2 text-xl font-bold text-white transition-colors hover:bg-orange-600">
               확인
             </button>
           </motion.div>

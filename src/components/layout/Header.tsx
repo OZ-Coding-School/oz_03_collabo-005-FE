@@ -14,9 +14,11 @@ const Header = () => {
   const isFtiPage = location.pathname === '/FTI';
 
   const isThunderPage = location.pathname === '/thunder';
-  const isThunderDetailPage = location.pathname.startsWith('/thunder/');
-  const isThunderPostPage = location.pathname === '/thunder/thunderpost';
+  const isThunderDetailPage = location.pathname.includes('/thunder');
+  const isThunderPostPage = location.pathname.includes('/thunder/thunderpost');
+  const isThunderChatPage = location.pathname.includes('/thunder/thunderchat');
   const isBoardPage = location.pathname === '/board';
+  const isBoardDetailPage = location.pathname.includes('/board');
 
   const isSigninPage = location.pathname === '/signin';
   const isSignupPage = location.pathname === '/signup';
@@ -38,8 +40,10 @@ const Header = () => {
     if (isThunderPage) return '소셜 다이닝';
     if (isThunderDetailPage) return '소셜 다이닝';
     if (isThunderPostPage) return '소셜 다이닝';
+    if (isThunderChatPage) return '소통방';
     if (isFtiPage) return 'FTI 검사';
     if (isBoardPage) return '맛있는 발견';
+    if (isBoardDetailPage) return '맛있는 발견';
 
     if (isSigninPage) return '로그인';
     if (isSignupPage) return '회원가입';
@@ -61,7 +65,7 @@ const Header = () => {
   return (
     <div className="fixed z-50 mt-0 flex h-[72px] w-full max-w-[600px] items-center bg-white px-4 py-5 text-xl font-semibold xs:h-[52px] xs:pl-[10px]">
       {/* 뒤로가기 버튼 활성화되어야 할 페이지
-      MyProfile, Foods, Flavor, Fti, Thunder, Board, Signin, Signup, ResetPassword, MyProfileThunder, MyProfileBoard */}
+      MyProfile, Foods, Flavor, Fti, Thunder, ThunderChat, Board, Signin, Signup, ResetPassword, MyProfileThunder, MyProfileBoard */}
       <div className="flex w-full items-center justify-center">
         {(isMyProfilePage ||
           isFoodsPage ||
@@ -70,7 +74,9 @@ const Header = () => {
           isThunderPage ||
           isThunderDetailPage ||
           isThunderPostPage ||
+          isThunderChatPage ||
           isBoardPage ||
+          isBoardDetailPage ||
           isSigninPage ||
           isSignupPage ||
           isResetPasswordPage ||
