@@ -22,10 +22,10 @@ const ThunderPost = () => {
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false); // 중앙 모달의 열림/닫힘 상태
   const [isThunderClockModalOpen, setIsThunderClockModalOpen] = useState(false); // clock modal의 열림/닫힘 상태
   const [isThunderCalendarModalOpen, setIsThunderCalendarModalOpen] = useState(false); // 캘린더 모달의 열림/닫힘 상태
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false); // 폼 모달의 열림/닫힘 상태를 관리
-  const [selectedLocation, setSelectedLocation] = useState('지역 선택하기'); // 선택된 위치를 관리
-  const [selectedPayment, setSelectedPayment] = useState(''); // 선택된 결제 방법을 관리
-  const [selectedAgeGroup, setSelectedAgeGroup] = useState(''); // 선택된 연령대를 관리
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false); // 폼 모달의 열림/닫힘 상태
+  const [selectedLocation, setSelectedLocation] = useState('지역 선택하기'); // 선택된 위치
+  const [selectedPayment, setSelectedPayment] = useState(''); // 선택된 결제 방법
+  const [selectedAgeGroup, setSelectedAgeGroup] = useState(''); // 선택된 연령대
   const [selectedGenderGroup, setSelectedGenderGroup] = useState(''); // 선택된 성별 그룹
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // 선택된 날짜
   const [selectedTime, setSelectedTime] = useState<string | null>(null); // 선택된 시간
@@ -33,8 +33,10 @@ const ThunderPost = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]); // 이미지 미리보기
   const [isUploading, setIsUploading] = useState(false); // 업로드 상태
   const [uploadProgress, setUploadProgress] = useState(0); // 업로드 진행률
+  const [currentUploadingIndex, setCurrentUploadingIndex] = useState(0); // 현재 업로드 중인 이미지 인덱스
   const [maxPeople, setMaxPeople] = useState(1); // 최대 인원
   const [representativeImage, setRepresentativeImage] = useState<number | null>(null); // 대표 이미지
+  const [modalMessage, setModalMessage] = useState({ title1: '', title2: '' }); // 모달 메시지
 
   const toggleModal = () => {
     setIsModalOpen((prev) => !prev);
@@ -84,6 +86,7 @@ const ThunderPost = () => {
 
       const compressedFiles = await Promise.all(
         files.map(async (file, index) => {
+          setCurrentUploadingIndex(index + 1);
           const compressedFile = await compressImageToWebp(file);
           setUploadProgress(((index + 1) / files.length) * 100);
           return compressedFile;
@@ -131,7 +134,31 @@ const ThunderPost = () => {
     setMaxPeople((prev) => (prev > 1 ? prev - 1 : 1));
   };
 
+  //  폼 데이터 제출 시 미입력 필드에 따른 Modal 알림
   const onSubmit: SubmitHandler<FormData> = (data) => {
+    const missingFieldsList: string[] = [];
+    if (!selectedPayment) {
+      missingFieldsList.push('지불 방식');
+    }
+    if (!selectedDate) {
+      missingFieldsList.push('날짜');
+    }
+    if (!selectedTime) {
+      missingFieldsList.push('시간');
+    }
+    if (!data.title) {
+      missingFieldsList.push('제목');
+    }
+    if (!data.content) {
+      missingFieldsList.push('내용');
+    }
+
+    if (missingFieldsList.length > 0) {
+      setModalMessage({ title1: '필수항목을 선택해주세요.', title2: missingFieldsList.join(', ') });
+      toggleCenterModal();
+      return;
+    }
+
     console.log(data);
     toggleFormModal();
   };
@@ -217,6 +244,14 @@ const ThunderPost = () => {
               {selectedDate ? selectedDate.toLocaleDateString() : '여기를 눌러 날짜선택'}
             </button>
 
+            {isThunderCalendarModalOpen && (
+              <ThunderCalendarModal
+                isOpen={isThunderCalendarModalOpen}
+                onClose={toggleThunderCalendarModal}
+                onDateSelect={handleDateSelect}
+              />
+            )}
+
             <div className="flex items-center">
               <button
                 type="button"
@@ -291,7 +326,7 @@ const ThunderPost = () => {
             {imagePreviews.length > 0 && (
               <div className="relative ml-2 mt-2 flex flex-wrap items-center">
                 {imagePreviews.map((preview, index) => (
-                  <div key={index} className="relative mb-2 mr-2">
+                  <div className="relative mb-2 mr-2" key={index}>
                     <img
                       src={preview}
                       alt={`미리보기 ${index + 1}`}
@@ -315,20 +350,24 @@ const ThunderPost = () => {
           </div>
           {isUploading && (
             <div className="mb-2 mt-2 text-center font-semibold">
-              사진 업로드 하는 중입니다. 잠시만 기다려주세요.
+              사진 업로드 하는 중입니다. <br />
+              현재 {currentUploadingIndex}장의 사진이 업로드 중입니다.
               <div className="relative pt-1">
-                <div className="flex h-2 overflow-hidden rounded bg-gray-200 text-xs">
-                  <div
+                <div className="flex h-4 overflow-hidden rounded bg-gray-200 text-xs">
+                  <motion.div
                     style={{
-                      width: `${(Math.floor(uploadProgress * 2) / 2).toFixed(1)}%`,
+                      width: `${uploadProgress}%`,
                       transition: 'width 0.1s ease-in-out',
                     }}
                     className="flex flex-col justify-center whitespace-nowrap rounded-xl bg-blue-500 text-center text-white shadow-none"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${uploadProgress}%` }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
                   />
                 </div>
-                <span className="absolute right-0 text-xl font-medium text-blue-500">
-                  {(Math.floor(uploadProgress * 2) / 2).toFixed(1)}%
-                </span>
+              </div>
+              <div className="mt-2">
+                <span className="text-gray-500">이미지 압축을 처리하고 있습니다.</span>
               </div>
             </div>
           )}
@@ -361,8 +400,9 @@ const ThunderPost = () => {
             type="submit"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 1 }}
-            className="mt-4 flex w-full justify-center rounded-xl bg-orange-500 px-4 py-4 font-bold text-white">
-            등록하기
+            className={`mt-4 flex w-full justify-center rounded-xl px-4 py-4 font-bold text-white ${isUploading ? 'animate-gradient bg-gradient-to-r from-orange-500 to-orange-700' : 'bg-orange-500'}`}
+            disabled={isUploading}>
+            {isUploading ? '현재 이미지 처리중입니다' : '등록하기'}
           </motion.button>
 
           {/* 지역을 선택해주세요 modal open */}
@@ -374,7 +414,10 @@ const ThunderPost = () => {
                 <button
                   key={location}
                   className={`ml-4 mt-4 flex items-center justify-between text-left ${selectedLocation === location ? 'text-orange-500' : 'text-gray-800'}`}
-                  onClick={() => handleLocationSelect(location)}>
+                  onClick={() => {
+                    handleLocationSelect(location);
+                    toggleModal();
+                  }}>
                   {location}
                   {selectedLocation === location && <IoMdCheckmark className="ml-2 text-2xl text-orange-500" />}
                 </button>
@@ -398,25 +441,45 @@ const ThunderPost = () => {
           </ModalCenter>
         </div>
       </form>
-
       {/* 폼 제출 테스트에 따른 modal open*/}
+      <ModalCenter
+        isOpen={isCenterModalOpen}
+        onClose={toggleCenterModal}
+        title1={modalMessage.title1}
+        title2={modalMessage.title2}>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 1 }}
+          onClick={toggleCenterModal}
+          className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
+          확인
+        </motion.button>
+      </ModalCenter>
+
       <ModalCenter isOpen={isFormModalOpen} onClose={toggleFormModal} title1="폼 제출 테스트" title2="">
-        <p className="text-center">지불 방식: {selectedPayment}</p>
-        <p className="text-center">연령대: {selectedAgeGroup}</p>
-        <p className="text-center">성별: {selectedGenderGroup}</p>
-        <p className="text-center">
-          약속시간: {selectedDate?.toLocaleDateString()} {selectedTime}
-        </p>
-        <p className="text-center">지역: {selectedLocation}</p>
-        <p className="text-center">제목: {watch('title')}</p>
-        <p className="text-center">내용: {watch('content')}</p>
-        <p className="text-center">이미지 등록-첫번째 사진이 대표사진이 됩니다.</p>
-        <div className="flex flex-wrap justify-center">
-          {imagePreviews.map((preview, index) => (
-            <img key={index} src={preview} alt={`preview-${index}`} className="m-1 h-20 w-20 rounded-xl object-cover" />
-          ))}
-        </div>
-        <p className="text-center">최대인원: {maxPeople}</p>
+        <>
+          <p className="text-center">지불 방식: {selectedPayment}</p>
+          <p className="text-center">연령대: {selectedAgeGroup}</p>
+          <p className="text-center">성별: {selectedGenderGroup}</p>
+          <p className="text-center">
+            약속시간: {selectedDate ? selectedDate.toLocaleDateString() : ''} {selectedTime}
+          </p>
+          <p className="text-center">지역: {selectedLocation}</p>
+          <p className="text-center">제목: {watch('title')}</p>
+          <p className="text-center">내용: {watch('content')}</p>
+          <p className="text-center">이미지 등록-첫번째 사진이 대표사진이 됩니다.</p>
+          <div className="flex flex-wrap justify-center">
+            {imagePreviews.map((preview, index) => (
+              <img
+                key={index}
+                src={preview}
+                alt={`preview-${index}`}
+                className="m-1 h-20 w-20 rounded-xl object-cover"
+              />
+            ))}
+          </div>
+          <p className="text-center">최대인원: {maxPeople}</p>
+        </>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 1 }}
@@ -425,14 +488,6 @@ const ThunderPost = () => {
           확인
         </motion.button>
       </ModalCenter>
-
-      {isThunderCalendarModalOpen && (
-        <ThunderCalendarModal
-          isOpen={isThunderCalendarModalOpen}
-          onClose={toggleThunderCalendarModal}
-          onDateSelect={handleDateSelect}
-        />
-      )}
     </>
   );
 };
