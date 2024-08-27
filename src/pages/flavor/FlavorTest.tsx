@@ -4,6 +4,7 @@ import { flavorTest } from '../../data/flavorTest';
 import ProgressBar from '../../components/flavor/ProgressBar';
 import ModalCenter from '../../components/common/ModalCenter';
 import { Link } from 'react-router-dom';
+import { useUserStore } from '../../store/store';
 
 interface Answer {
   answer: string;
@@ -27,6 +28,8 @@ const FlavorTest = () => {
   const openModalCenter = () => setIsModalCenterOpen(true);
   const closeModalCenter = () => setIsModalCenterOpen(false);
 
+  const { setUser } = useUserStore();
+
   const handleAnswerClick = (answer: Answer) => {
     setSelectedAnswer(answer);
   };
@@ -37,6 +40,7 @@ const FlavorTest = () => {
       if (testOrder < flavorTest.length - 1) {
         setTestOrder((prev) => prev + 1);
         setSelectedAnswer(null);
+        document.getElementById('root')?.scrollTo(0, 0);
       } else {
         // // 마지막 질문에 도달했을 때 서버에 데이터 전송 + 헤더에 토큰
         // try {
@@ -56,6 +60,16 @@ const FlavorTest = () => {
         // }
         console.log(resultAnswer.current);
         openModalCenter();
+        // 화면 잘 바뀌는지 테스트
+        setUser({
+          id: 1,
+          profileImageUrl:
+            'https://plus.unsplash.com/premium_photo-1664203067979-47448934fd97?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aHVtYW58ZW58MHx8MHx8fDA%3D',
+          nickname: '족발러버',
+          introduce: '족발러버입니다. 잘 부탁드려요~!',
+          ftiType: '고독한 미식가(AIN)',
+          spicy_preference: 1,
+        });
       }
     }
   };
