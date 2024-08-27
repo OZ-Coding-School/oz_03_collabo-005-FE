@@ -43,7 +43,7 @@ const Nav = () => {
     <div className="fixed bottom-0 z-50 flex h-[75px] w-full max-w-[600px] justify-around bg-white xs:h-[65px]">
       <Link to="/" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
         <img
-          className="mb-2 xs:mb-0 xs:w-[14px]"
+          className="mb-2 h-[19px] w-[19px] xs:mb-0 xs:w-[14px]"
           src={isHomePath ? '/images/Home.svg' : '/images/HomeInactive.svg'}
           alt="홈"
         />
@@ -54,7 +54,7 @@ const Nav = () => {
 
       <Link to="/thunder" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
         <img
-          className="mb-2 xs:mb-0 xs:w-[14px]"
+          className="mb-2 h-[19px] w-[19px] xs:mb-0 xs:w-[14px]"
           src={isThunderPath ? '/images/SocialDiningActive.svg' : '/images/SocialDining.svg'}
           alt="소셜 다이닝"
         />
@@ -66,7 +66,7 @@ const Nav = () => {
 
       <Link to="/board" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
         <img
-          className="mb-2 xs:mb-0 xs:w-[14px]"
+          className="mb-2 h-[19px] w-[19px] xs:mb-0 xs:w-[14px]"
           src={isBoardPath ? '/images/DeliciousInFinder.svg' : '/images/DeliciousFinder.svg'}
           alt="맛있는 발견"
         />
@@ -77,7 +77,7 @@ const Nav = () => {
 
       <Link to="/myprofile" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
         <img
-          className="mb-2 xs:mb-0 xs:w-[14px]"
+          className="mb-2 h-[19px] w-[19px] xs:mb-0 xs:w-[14px]"
           src={isMyProfilePath ? '/images/ProfileActive.svg' : '/images/ProfileInactive.svg'}
           alt="프로필"
         />
