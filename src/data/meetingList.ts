@@ -8,13 +8,23 @@ export const meetingList = [
     age_group: '20대', // 연령대
     gender_group: '이성', // 젠더 그룹
     appointment_time: '2024-08-20T18:30:00Z', // 약속 시간
-    description:
-      '음식을 사랑하는 사람들이 최신 음식 트렌드에 대해 논의하고 리뷰하는 모임입니다.음식을 사랑하는 사람들이 최신 음식 트렌드에 대해 논의하고 리뷰하는 모임입니다.음식을 사랑하는 사람들이 최신 음식 트렌드에 대해 논의하고 리뷰하는 모임입니다.음식을 사랑하는 사람들이 최신 음식 트렌드에 대해 논의하고 리뷰하는 모임입니다.',
-    image_url:
-      'https://plus.unsplash.com/premium_photo-1663850684986-b9d15f1de6bc?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8JUVDJTlEJThDJUVDJThCJTlEJUVDJTgyJUFDJUVDJUE3JTg0fGVufDB8fDB8fHww', // 이미지 URL
+    description: '소셜 다이닝 게시판 글 테스트.',
+    image_url: [
+      'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop&q=60',
+    ], // 이미지 URL들
     hits: 35,
     created_at: '2024-08-16T12:00:00Z',
     updated_at: '2024-08-16T12:00:00Z',
+    comment: '오늘 점심에는 마라탕, 마라샹궈 같이 먹고싶어요 관심있으시다면',
+    comment_created_at: '2024-08-16T12:00:00Z',
+    comment_updated_at: '2024-08-16T12:00:00Z',
   },
   {
     id: 2,
@@ -128,7 +138,17 @@ export const meetingList = [
     gender_group: '동성', // 젠더 그룹
     appointment_time: '2024-09-25T17:00:00Z', // 약속 시간
     description: '매달 새로운 책을 읽고 함께 토론하는 독서 모임입니다.',
-    image_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&auto=format&fit=crop&q=60', // 이미지 URL
+
+    image_url: [
+      'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop&q=60',
+    ], // 이미지 URL들
     hits: 58,
     created_at: '2024-08-16T21:00:00Z',
     updated_at: '2024-08-16T21:00:00Z',
