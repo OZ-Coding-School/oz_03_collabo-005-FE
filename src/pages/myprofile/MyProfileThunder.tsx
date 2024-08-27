@@ -16,7 +16,7 @@ const MyProfileThunder = () => {
   return (
     <>
       <PostNav list={['작성한 글', '참여 내역', '좋아요']} setSelectedItem={setSelectedItem} />
-      <div className="mb-[72px] p-4 pt-0">
+      <div className="p-4 pt-0">
         {meetingList.length === 0 ? (
           <div className="flex w-full flex-col items-center justify-evenly bg-[#EEEEEE] py-8">
             <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">
