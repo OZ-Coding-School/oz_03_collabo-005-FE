@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { format, isToday, isThisWeek, addWeeks, startOfWeek, endOfWeek, StartOfWeekOptions } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import Badge from './Badge';
+import { formatAppointmentTime } from '../../utils/formatAppointmentTime';
 
 interface ThunderCardProps {
   id: number;
@@ -27,26 +26,6 @@ const ThunderCard: React.FC<ThunderCardProps> = ({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const defaultImageUrl = '/images/CuteEgg.svg';
-
-  const isNextWeek = (date: Date, options: StartOfWeekOptions = { weekStartsOn: 1 }): boolean => {
-    const nextWeekStart = startOfWeek(addWeeks(new Date(), 1), options);
-    const nextWeekEnd = endOfWeek(addWeeks(new Date(), 1), options);
-    return date >= nextWeekStart && date <= nextWeekEnd;
-  };
-
-  const formatAppointmentTime = (appointmentTime: string): string => {
-    const date = new Date(appointmentTime);
-    if (isToday(date)) {
-      return `오늘 ${format(date, 'a h:mm', { locale: ko })}`;
-    } else if (isThisWeek(date, { weekStartsOn: 1 })) {
-      return `이번 주 ${format(date, 'eeee, a h:mm', { locale: ko })}`;
-    } else if (isNextWeek(date, { weekStartsOn: 1 })) {
-      return `다음 주 ${format(date, 'eeee, a h:mm', { locale: ko })}`;
-    } else {
-      return format(date, 'M월 d일 eeee, a h:mm', { locale: ko });
-    }
-  };
-
   const formattedTime = formatAppointmentTime(appointmentTime);
 
   return (
@@ -66,7 +45,7 @@ const ThunderCard: React.FC<ThunderCardProps> = ({
           />
         </div>
         <div className="ml-4 flex h-full grow flex-col justify-between gap-1">
-          <h2 className="text-[20px] font-medium xs:text-[16px]">{title}</h2>
+          <h2 className="line-clamp-2 text-[20px] font-medium xs:text-[16px]">{title}</h2>
           <div className="flex gap-2">
             <Badge label={paymentMethod} />
             <Badge label={genderGroup} />
