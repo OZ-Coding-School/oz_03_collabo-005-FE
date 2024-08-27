@@ -21,6 +21,7 @@ const MyProfile = () => {
       nickname: '족발러버',
       introduce: '족발러버입니다. 잘 부탁드려요~!',
       ftiType: '고독한 미식가(AIN)',
+      spicy_preference: null,
     });
     // 유저 토큰 없거나 확인 실패하면 undefined로 설정
     // setUser(undefined);
