@@ -39,7 +39,7 @@ const MyProfileThunder = () => {
               <ThunderCard
                 key={item.id}
                 id={item.id}
-                imageUrl={item.image_url}
+                imageUrl={Array.isArray(item.image_url) ? item.image_url[0] : item.image_url}
                 description={item.description}
                 paymentMethod={item.payment_method}
                 appointmentTime={item.appointment_time}
