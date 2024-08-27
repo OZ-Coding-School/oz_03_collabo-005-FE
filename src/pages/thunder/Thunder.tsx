@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { meetingList } from '../../data/meetingList';
 import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
@@ -23,10 +23,14 @@ const Thunder = () => {
     setIsSelectedList(isAll);
   };
 
+  useEffect(() => {
+    document.getElementById('root')?.scrollTo(0, 0);
+  }, [selectedLocation, selectedArray]);
+
   return (
     <div className="relative w-full max-w-[600px] p-4 pt-0">
       <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
-        <h1 className="my-[12px] text-2xl font-bold">음식으로 시작되는 인연</h1>
+        <h1 className="my-[12px] text-2xl font-bold xs:text-xl">음식으로 시작되는 인연</h1>
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between">
           <RoundedButton onClick={() => handleListSelection(true)}>{selectedLocation}</RoundedButton>
           <RoundedButton onClick={() => handleListSelection(false)}>{selectedArray}</RoundedButton>

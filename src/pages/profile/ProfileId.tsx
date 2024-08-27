@@ -18,11 +18,11 @@ const ProfileId = () => {
         <p className="text-[22px] font-bold xs:text-[18px]">{user?.nickname}</p>
       </div>
       <div className="flex gap-3 text-[18px] font-medium xs:text-[16px]">
-        <img src="/images/forkknife.svg" alt="fork&knife image" />
+        <img src="/images/forkknife.svg" alt="fork&knife image" className="w-6" />
         {user?.ftiType || '아직 FTI 타입이 없어요'}
       </div>
       <div className="my-10 flex items-center gap-3">
-        <img src="/images/jewelry.svg" alt="jewelry image" className="my-1 self-start" />
+        <img src="/images/jewelry.svg" alt="jewelry image" className="my-1 w-6 self-start" />
         <div className="text-[18px] font-medium xs:text-[16px]">
           내 소개
           <p className="text-[18px] font-normal text-[#2D2C2C] xs:text-[16px]">{user?.introduce}</p>

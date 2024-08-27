@@ -4,10 +4,11 @@ interface ProgressBarProps {
 
 const ProgressBar = ({ widthPercentage }: ProgressBarProps) => {
   return (
-    <div className="relative h-1 w-full rounded-md bg-[#DBDBDB]">
+    <div className="fixed top-[72px] h-1 w-full max-w-[600px] rounded-md bg-[#DBDBDB] xs:top-[52px]">
       <span
         className="absolute left-0 top-0 h-1 rounded-md bg-primary duration-300"
-        style={{ width: `${widthPercentage}%` }}></span>
+        style={{ width: `${widthPercentage}%` }}
+      />
     </div>
   );
 };
