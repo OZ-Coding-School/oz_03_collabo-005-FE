@@ -8,6 +8,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   register?: UseFormRegisterReturn;
   error?: FieldError;
   onChange?: ChangeEventHandler<HTMLInputElement>;
+  isFilled?: boolean;
 }
 
 type InputSize = 'normal';
@@ -16,8 +17,25 @@ const inputClasses = {
   normal: 'w-full',
 };
 
-const Input = ({ title, inputSize, className, register, type, name, placeholder, error, onChange }: InputProps) => {
-  const inputClass = twMerge(inputClasses[inputSize], className);
+const Input = ({
+  title,
+  inputSize,
+  className,
+  register,
+  type,
+  name,
+  placeholder,
+  error,
+  onChange,
+  maxLength,
+  isFilled,
+}: InputProps) => {
+  const inputClass = twMerge(
+    inputClasses[inputSize],
+    className,
+    isFilled ? 'border-gray-98' : 'border-gray-d9',
+    error ? 'border-red' : '',
+  );
   return (
     <div className="flex flex-col">
       <label htmlFor={name} className="mb-[8px]">
@@ -30,9 +48,10 @@ const Input = ({ title, inputSize, className, register, type, name, placeholder,
         name={name}
         placeholder={placeholder}
         onChange={onChange}
-        className={`${inputClass} focus:border-gray-98 border-gray-d9 h-[56px] rounded-lg border py-[15px] pl-[15px]`}
+        className={`${inputClass} h-[56px] rounded-lg border border-gray-d9 py-[15px] pl-[15px] focus:border-gray-98`}
+        maxLength={maxLength}
       />
-      <div className="mb-[24px]">{error?.message && <span className="text-red text-sm">{error.message}</span>}</div>
+      <div className="mb-[24px]">{error?.message && <span className="text-sm text-red">{error.message}</span>}</div>
     </div>
   );
 };
