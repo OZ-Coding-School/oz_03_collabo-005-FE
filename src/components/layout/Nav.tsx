@@ -12,6 +12,8 @@ const Nav = () => {
   const isBoardPath = location.pathname === '/board'; // 맛있는 발견
   const isBoardPostPath = location.pathname.startsWith('/board/'); // 소셜 다이닝
 
+  const isFoodsPage = location.pathname.startsWith('/foods');
+
   const isMyProfilePath = location.pathname === '/myprofile'; // 프로필
   const isMyProfileEditPath = location.pathname === '/myprofile/myprofileedit'; // 프로필
   const isMyProfileThunder = location.pathname === '/myprofile/myprofilethunder'; // 프로필
@@ -36,7 +38,8 @@ const Nav = () => {
     isMyProfileBoard ||
     isProfilePath ||
     isImgPath ||
-    isFlavorTestPage
+    isFlavorTestPage ||
+    isFoodsPage
   ) {
     return null;
   }

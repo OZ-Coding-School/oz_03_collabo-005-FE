@@ -1,8 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { RxArrowLeft } from 'react-icons/rx';
 import HeaderLanding from './HeaderLanding';
+import { useFoodStore } from '../../store/foodStore/foodStore';
 
 const Header = () => {
+  const foodName = useFoodStore((state) => state.foodName);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -11,6 +13,7 @@ const Header = () => {
   const isFlavorPage = location.pathname === '/flavor';
   const isFlavorTestPage = location.pathname === '/flavor/test';
   const isFoodsPage = location.pathname === '/foods';
+  const isFoodsPageId = location.pathname.startsWith('/foods/');
   const isFtiPage = location.pathname === '/FTI';
 
   const isThunderPage = location.pathname === '/thunder';
@@ -37,6 +40,7 @@ const Header = () => {
     if (isFlavorPage) return '미각 DNA 검사';
     if (isFlavorTestPage) return '미각 DNA 검사';
     if (isFoodsPage) return '개인별 음식 추천';
+    if (isFoodsPageId) return `내주변 ${foodName}`;
     if (isThunderPage) return '소셜 다이닝';
     if (isThunderDetailPage) return '소셜 다이닝';
     if (isThunderPostPage) return '소셜 다이닝';
@@ -69,6 +73,7 @@ const Header = () => {
       <div className="flex w-full items-center justify-center">
         {(isMyProfilePage ||
           isFoodsPage ||
+          isFoodsPageId ||
           isFlavorPage ||
           isFtiPage ||
           isThunderPage ||
