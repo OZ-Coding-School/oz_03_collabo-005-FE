@@ -1,6 +1,7 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import { useState } from 'react';
 
 interface InputProps {
   email: string;
@@ -10,14 +11,31 @@ interface InputProps {
 }
 
 const Signup = () => {
+  const [nicknameLength, setNicknameLength] = useState(0);
+  const [filledFields, setFilledFields] = useState({
+    email: false,
+    password: false,
+    confirmPassword: false,
+    nickname: false,
+  });
+
   const {
     register,
     handleSubmit,
     formState: { isSubmitting, errors },
     getValues,
-  } = useForm<InputProps>();
+  } = useForm<InputProps>({
+    mode: 'onBlur',
+  });
 
   const onSubmit: SubmitHandler<InputProps> = (data) => console.log(data);
+
+  const handleInputChange = (fieldName: keyof InputProps) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (fieldName === 'nickname') {
+      setNicknameLength(e.target.value.length);
+    }
+    setFilledFields((prev) => ({ ...prev, [fieldName]: e.target.value.length > 0 }));
+  };
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="px-[16px] pt-[12px]">
@@ -35,6 +53,8 @@ const Signup = () => {
           },
         })}
         error={errors.email}
+        onChange={handleInputChange('email')}
+        isFilled={filledFields.email}
       />
 
       <Input
@@ -51,6 +71,8 @@ const Signup = () => {
           },
         })}
         error={errors.password}
+        onChange={handleInputChange('password')}
+        isFilled={filledFields.password}
       />
 
       <Input
@@ -64,27 +86,31 @@ const Signup = () => {
           validate: (value) => value === getValues('password') || '비밀번호가 일치하지 않습니다.',
         })}
         error={errors.confirmPassword}
+        onChange={handleInputChange('confirmPassword')}
+        isFilled={filledFields.confirmPassword}
       />
 
-      <Input
-        title="닉네임"
-        name="nickname"
-        placeholder="닉네임을 입력하세요."
-        inputSize="normal"
-        type="text"
-        register={register('nickname', {
-          required: '닉네임임을 입력하세요.',
-          minLength: {
-            value: 2,
-            message: '닉네임은 2자 이상이어야 합니다.',
-          },
-          maxLength: {
-            value: 10,
-            message: '닉네임은 10자 이하로 입력하세요.',
-          },
-        })}
-        error={errors.nickname}
-      />
+      <div className="relative">
+        <Input
+          title="닉네임"
+          name="nickname"
+          placeholder="닉네임을 입력하세요."
+          inputSize="normal"
+          type="text"
+          register={register('nickname', {
+            required: '닉네임임을 입력하세요.',
+            minLength: {
+              value: 2,
+              message: '닉네임은 2자 이상이어야 합니다.',
+            },
+          })}
+          error={errors.nickname}
+          onChange={handleInputChange('nickname')}
+          isFilled={filledFields.nickname}
+          maxLength={10}
+        />
+        <div className="absolute right-0 top-[5px] text-sm text-gray-500">{nicknameLength}/10</div>
+      </div>
 
       <Button buttonSize="normal" bgColor="filled" className="h-[48px] font-bold" disabled={isSubmitting} type="submit">
         가입완료
