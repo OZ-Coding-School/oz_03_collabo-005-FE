@@ -1,7 +1,8 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { signinAPI } from '../../api/apis/auth';
 
 interface InputProps {
   email: string;
@@ -15,7 +16,19 @@ const Signin = () => {
     formState: { isSubmitting, errors },
   } = useForm<InputProps>();
 
-  const onSubmit: SubmitHandler<InputProps> = (data) => console.log(data);
+  const navigate = useNavigate();
+
+  const onSubmit: SubmitHandler<InputProps> = async (data) => {
+    try {
+      await signinAPI(data.email, data.password);
+      // 로그인 성공 시 처리 (예: 메인 페이지로 이동)
+      navigate('/');
+      console.log('Signin successful');
+    } catch (error) {
+      // 로그인 실패 시 처리 (예: 에러 메시지 표시)
+      console.error('Signin failed', error);
+    }
+  };
 
   return (
     <div className="px-[16px] pt-[12px]">
