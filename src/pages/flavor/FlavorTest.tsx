@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react';
-// import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
 import { flavorTest } from '../../data/flavorTest';
 import ProgressBar from '../../components/flavor/ProgressBar';
 import ModalCenter from '../../components/common/ModalCenter';
 import { Link } from 'react-router-dom';
 import { useUserStore } from '../../store/store';
+import { authInstance } from '../../api/util/instance';
 
 interface Answer {
   answer: string;
@@ -29,6 +29,10 @@ const FlavorTest = () => {
   const closeModalCenter = () => setIsModalCenterOpen(false);
 
   const { setUser } = useUserStore();
+
+  useEffect(() => {
+    authInstance.get('/api/tasets/questions_list/').then((res) => console.log(res.data));
+  }, []);
 
   const handleAnswerClick = (answer: Answer) => {
     setSelectedAnswer(answer);
