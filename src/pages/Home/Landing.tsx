@@ -2,13 +2,49 @@ import { useEffect, useState } from 'react';
 import FirstSection from '../../components/landing/FirstSection';
 import Section from '../../components/landing/Section';
 import Footer from '../../components/landing/Footer';
-import { useUserStore } from '../../store/store';
 import FoodSection from '../../components/landing/FoodSection';
+import { authInstance, isTokenExpired, refreshAccessToken } from '../../api/util/instance';
+import { getItem } from '../../utils/storage';
 
 const Landing: React.FC = () => {
-  const { user } = useUserStore();
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
+  const [confirmFlavor, setConfirmFlavor] = useState<boolean>(false);
+  const [spicy, setSpicy] = useState<number | null>(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        let token = getItem('access');
+        if (!token || isTokenExpired(token)) {
+          token = await refreshAccessToken();
+        }
+        if (token) {
+          setConfirmFlavor(true);
+        } else {
+          setConfirmFlavor(false);
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      }
+    };
+    checkLoginStatus();
+  }, []);
+
+  useEffect(() => {
+    if (confirmFlavor) {
+      authInstance
+        .get('/api/profile/')
+        .then((res) => {
+          if (res.data) {
+            setSpicy(res.data.spicy_preference);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to fetch profile:', error);
+        });
+    }
+  }, [confirmFlavor]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,8 +55,8 @@ const Landing: React.FC = () => {
 
   return (
     <div className="mx-auto mb-[75px] flex max-w-full flex-col items-center xs:mb-[65px]">
-      <FirstSection isVisible={isVisible} setIsImageLoaded={setIsImageLoaded} user={user} />
-      {user && <FoodSection></FoodSection>}
+      <FirstSection isVisible={isVisible} setIsImageLoaded={setIsImageLoaded} spicy={spicy} />
+      {confirmFlavor && <FoodSection spicy={spicy} setConfirmFlavor={setConfirmFlavor} />}
       <Section
         title="FTI 검사"
         subtitle={

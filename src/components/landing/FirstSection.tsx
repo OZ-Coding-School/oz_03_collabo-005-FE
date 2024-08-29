@@ -1,13 +1,12 @@
 import { Link } from 'react-router-dom';
-import { User } from '../../types/types';
 
 interface FirstSectionProps {
   isVisible: boolean;
   setIsImageLoaded: (loaded: boolean) => void;
-  user: User | undefined;
+  spicy: number | null;
 }
 
-const FirstSection: React.FC<FirstSectionProps> = ({ isVisible, setIsImageLoaded, user }) => (
+const FirstSection: React.FC<FirstSectionProps> = ({ isVisible, setIsImageLoaded, spicy }) => (
   <div className="relative z-10 flex h-[550px] w-full max-w-[800px] flex-col justify-between bg-gradient-to-r from-black/40 to-black/60 p-4 pb-0 xs:h-[440px]">
     <div className="mx-2 mt-14 text-[32px] font-bold text-white xs:mt-7 xs:text-[28px]">
       당신의 미각을 깨우는
@@ -24,9 +23,9 @@ const FirstSection: React.FC<FirstSectionProps> = ({ isVisible, setIsImageLoaded
         onLoad={() => setIsImageLoaded(true)}
       />
       <Link
-        to={user?.spicy_preference ? '/foods' : '/flavor'}
+        to={spicy ? '/foods' : '/flavor'}
         className="mr-20 flex h-12 w-40 items-center justify-center rounded-xl bg-orange-500 px-4 py-2 font-bold text-white hover:bg-orange-600 xs:mr-0 xs:px-3 xs:text-[14px]">
-        {user?.spicy_preference ? '음식 추천받기' : '입맛 설정하기'}
+        {spicy ? '음식 추천받기' : '입맛 설정하기'}
       </Link>
     </div>
   </div>
