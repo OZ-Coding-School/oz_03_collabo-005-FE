@@ -1,7 +1,7 @@
 import { IoMdCheckmark } from 'react-icons/io';
 
 interface SelectionItemProps {
-  item: string;
+  item: string | undefined;
   isSelected: boolean;
   onClick: () => void;
 }

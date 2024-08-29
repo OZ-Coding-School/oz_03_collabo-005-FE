@@ -1,18 +1,75 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { meetingList } from '../../data/meetingList';
 import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
 import RoundedButton from '../../components/thunder/RoundedButton';
 import SelectionItem from '../../components/thunder/SelectionItem';
+import { authInstance } from '../../api/util/instance';
+
+interface Meeting {
+  uuid: string;
+  image_url: string | string[];
+  description: string;
+  payment_method_name: string;
+  meeting_time: string;
+  title: string;
+  gender_group_name: string;
+  age_group_name: string;
+}
+
+interface Category {
+  id: number;
+  location_name?: string;
+  sort_name?: string;
+}
 
 const Thunder = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSelectedList, setIsSelectedList] = useState(true);
-  const locationList = ['전체', '강동, 하남', '강남, 송파'];
-  const listArray = ['가까운 일정 순', '최신 등록 순'];
-  const [selectedLocation, setSelectedLocation] = useState<string>(locationList[0]);
-  const [selectedArray, setSelectedArray] = useState<string>(listArray[0]);
+  const [locationCategories, setLocationCategories] = useState<Category[]>([]);
+  const [timeCategories, setTimeCategories] = useState<Category[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
+  const [selectedTime, setSelectedTime] = useState<number | null>(null);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+
+  const fetchMeetings = (locationId?: number, timeId?: number) => {
+    console.log(locationId, timeId);
+
+    // axios
+    // .get(`http://3.38.180.55/api/meetings/filter/?time_category_id=${1}&location_category_id=${1}}`, {
+    //   headers: {
+    //     Authorization: `Bearer ${accessToken}`,
+    //   },
+    // })
+    //   .then((res) => {
+    //     console.log(res);
+    //     // setMeetings(res.data.meetings);
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error fetching data:', error);
+    //   });
+  };
+
+  useEffect(() => {
+    authInstance
+      .get('/api/meetings/')
+      .then((res) => {
+        setLocationCategories(res.data.location_categories);
+        setSelectedLocation(res.data.location_categories[0].id);
+        setTimeCategories(res.data.time_categories);
+        setSelectedTime(res.data.time_categories[0].id);
+        setMeetings(res.data.meetings);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (selectedLocation !== null && selectedTime !== null) {
+      fetchMeetings(selectedLocation, selectedTime);
+    }
+  }, [selectedLocation, selectedTime]);
 
   const toggleModal = () => {
     setIsModalOpen((prev) => !prev);
@@ -25,18 +82,22 @@ const Thunder = () => {
 
   useEffect(() => {
     document.getElementById('root')?.scrollTo(0, 0);
-  }, [selectedLocation, selectedArray]);
+  }, [selectedLocation, selectedTime]);
 
   return (
     <div className="relative w-full max-w-[600px] p-4 pt-0">
       <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
         <h1 className="my-[12px] text-2xl font-bold xs:text-xl">음식으로 시작되는 인연</h1>
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between">
-          <RoundedButton onClick={() => handleListSelection(true)}>{selectedLocation}</RoundedButton>
-          <RoundedButton onClick={() => handleListSelection(false)}>{selectedArray}</RoundedButton>
+          <RoundedButton onClick={() => handleListSelection(true)}>
+            {locationCategories.find((category) => category.id === selectedLocation)?.location_name || '지역 선택'}
+          </RoundedButton>
+          <RoundedButton onClick={() => handleListSelection(false)}>
+            {timeCategories.find((category) => category.id === selectedTime)?.sort_name || '시간 선택'}
+          </RoundedButton>
         </div>
       </div>
-      {meetingList.length === 0 ? (
+      {meetings.length === 0 ? (
         <div className="mb-[72px] mt-[100px] flex w-full flex-col items-center justify-evenly bg-[#EEEEEE]">
           <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">등록된 일정이 없어요</p>
           <img src="/images/CryingEgg.svg" className="inline-block h-[40vh]" />
@@ -47,18 +108,18 @@ const Thunder = () => {
         </div>
       ) : (
         <div className="mb-[72px] mt-[100px] flex flex-col items-center overflow-auto">
-          {meetingList.map((item) => {
+          {meetings.map((item) => {
             return (
               <ThunderCard
-                key={item.id}
-                id={item.id}
+                key={item.uuid}
+                id={item.uuid}
                 imageUrl={Array.isArray(item.image_url) ? item.image_url[0] : item.image_url}
                 description={item.description}
-                paymentMethod={item.payment_method}
-                appointmentTime={item.appointment_time}
+                paymentMethod={item.payment_method_name}
+                appointmentTime={item.meeting_time}
                 title={item.title}
-                genderGroup={item.gender_group}
-                ageGroup={item.age_group}
+                genderGroup={item.gender_group_name}
+                ageGroup={item.age_group_name}
               />
             );
           })}
@@ -72,13 +133,13 @@ const Thunder = () => {
         <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
         <div className="flex flex-col gap-[20px] p-[20px]">
           <div className="text-[18px] font-bold">{isSelectedList ? '지역 선택' : '정렬 선택'}</div>
-          {(isSelectedList ? locationList : listArray).map((item) => (
+          {(isSelectedList ? locationCategories : timeCategories).map((item) => (
             <SelectionItem
-              key={item}
-              item={item}
-              isSelected={isSelectedList ? selectedLocation === item : selectedArray === item}
+              key={item.id}
+              item={isSelectedList ? item.location_name : item.sort_name}
+              isSelected={isSelectedList ? selectedLocation === item.id : selectedTime === item.id}
               onClick={() => {
-                isSelectedList ? setSelectedLocation(item) : setSelectedArray(item);
+                isSelectedList ? setSelectedLocation(item.id) : setSelectedTime(item.id);
               }}
             />
           ))}

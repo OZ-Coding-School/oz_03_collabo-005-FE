@@ -4,7 +4,7 @@ import Badge from './Badge';
 import { formatAppointmentTime } from '../../utils/formatAppointmentTime';
 
 interface ThunderCardProps {
-  id: number;
+  id: string;
   imageUrl?: string;
   description: string;
   paymentMethod: string;
