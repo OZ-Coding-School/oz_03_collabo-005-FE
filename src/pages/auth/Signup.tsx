@@ -2,6 +2,8 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { useState } from 'react';
+import { signupAPI } from '../../api/apis/auth';
+import { useNavigate } from 'react-router-dom';
 
 interface InputProps {
   email: string;
@@ -19,6 +21,8 @@ const Signup = () => {
     nickname: false,
   });
 
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -28,7 +32,21 @@ const Signup = () => {
     mode: 'onBlur',
   });
 
-  const onSubmit: SubmitHandler<InputProps> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<InputProps> = async (data) => {
+    try {
+      await signupAPI({
+        email: data.email,
+        password: data.password,
+        nickname: data.nickname,
+      });
+      // 회원가입 성공 시 처리 (예: 로그인 페이지로 이동)
+      navigate('/signin');
+      console.log('Signup successful');
+    } catch (error) {
+      // 회원가입 실패 시 처리 (예: 에러 메시지 표시)
+      console.error('Signup failed', error);
+    }
+  };
 
   const handleInputChange = (fieldName: keyof InputProps) => (e: React.ChangeEvent<HTMLInputElement>) => {
     if (fieldName === 'nickname') {
