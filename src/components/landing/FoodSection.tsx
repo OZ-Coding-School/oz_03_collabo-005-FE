@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
 import { IoIosArrowForward } from 'react-icons/io';
 import FoodsCarousel from './FoodsCarousel';
-import { useUserStore } from '../../store/store';
+import { Dispatch, SetStateAction } from 'react';
 
-const FoodSection = () => {
-  const { user } = useUserStore();
+interface FoodSectionProps {
+  spicy: number | null;
+  setConfirmFlavor: Dispatch<SetStateAction<boolean>>;
+}
 
+const FoodSection: React.FC<FoodSectionProps> = ({ spicy, setConfirmFlavor }) => {
   return (
     <div className="relative w-full">
       <div className="flex items-center gap-5 p-4 pb-0">
@@ -14,8 +17,8 @@ const FoodSection = () => {
           더보기
         </Link>
       </div>
-      <FoodsCarousel user={user} />
-      {user?.spicy_preference === null && (
+      <FoodsCarousel spicy={spicy} setConfirmFlavor={setConfirmFlavor} />
+      {!spicy && (
         <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-50">
           <div className="flex h-[40%] w-[80%] flex-col items-center justify-center rounded-lg bg-[#f5f5f5] p-6 xs:h-[50%]">
             <h3 className="mb-4 text-[20px] text-xl font-medium text-[#666666] xs:text-base">

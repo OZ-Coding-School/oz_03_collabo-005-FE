@@ -3,20 +3,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import ModalCenter from '../../components/common/ModalCenter';
 import { motion } from 'framer-motion';
 import ContentLoader from 'react-content-loader';
-import { useUserStore } from '../../store/store';
+import { getItem } from '../../utils/storage';
+import { isTokenExpired, refreshAccessToken } from '../../api/util/instance';
 
 const Flavor = () => {
-  const { user } = useUserStore();
   const navigate = useNavigate();
-
   const [isModalCenterOpen, setIsModalCenterOpen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const openModalCenter = () => setIsModalCenterOpen(true);
   const closeModalCenter = () => setIsModalCenterOpen(false);
 
-  const confirmUser = () => {
-    if (user) {
+  const checkToken = async () => {
+    let token = getItem('access');
+    if (!token || isTokenExpired(token)) {
+      token = await refreshAccessToken();
+    }
+    if (token) {
       navigate('/flavor/test');
     } else {
       openModalCenter();
@@ -47,7 +50,7 @@ const Flavor = () => {
           맞춤형 음식 추천을 위한 첫 단계. 지금 시작하세요
         </p>
         <motion.button
-          onClick={confirmUser}
+          onClick={checkToken}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 1 }}
           className="mt-8 h-full w-[500px] rounded-xl bg-orange-500 px-6 py-3 font-bold text-white hover:bg-orange-600 xs:w-[350px]">

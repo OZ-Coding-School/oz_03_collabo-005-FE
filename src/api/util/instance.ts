@@ -46,7 +46,7 @@ export const baseInstance = axios.create({
 });
 
 // JWT 토큰이 만료되었는지 확인하는 함수
-function isTokenExpired(token: string): boolean {
+export function isTokenExpired(token: string): boolean {
   try {
     const decoded: { exp: number } = jwtDecode(token); // 토큰 디코딩
     const currentTime = Date.now() / 1000; // 현재 시간 (초 단위)
@@ -57,7 +57,7 @@ function isTokenExpired(token: string): boolean {
 }
 
 // 리프레시로 액세스 다시 받는 함수
-async function refreshAccessToken(): Promise<string | null> {
+export async function refreshAccessToken(): Promise<string | null> {
   try {
     const refresh = getCookie('refresh'); // 리프레시 토큰 가져오기
     if (!refresh) {
