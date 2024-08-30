@@ -1,21 +1,47 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { BoardList } from '../../data/BoardList'; // BoardList 데이터 가져오기
+import { authInstance } from '../../api/util/instance'; // authInstance 가져오기
 import BoardCard from '../../components/board/BoardCard'; // BoardCard 컴포넌트 추가
+import { motion } from 'framer-motion'; // framer-motion 적용
 
 const Board = () => {
   const [selectedBoard, setSelectedBoard] = useState<string>('전체'); // 초기값을 '전체'로 설정
+  const [boardList, setBoardList] = useState<any[]>([]); // 게시판 목록 상태 추가
+  const [isLoading, setIsLoading] = useState<boolean>(true); // 로딩 상태 추가
 
   useEffect(() => {
     setSelectedBoard('전체'); // 컴포넌트가 처음 렌더링될 때 '전체'로 설정
+    fetchBoardList(); // 게시판 목록 가져오기
   }, []);
 
+  const fetchBoardList = async () => {
+    try {
+      const response = await authInstance.get('/api/reviews/');
+      setBoardList(response.data.reviews);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('게시판 목록을 가져오는 중 오류가 발생했습니다:', error);
+      setIsLoading(false);
+    }
+  };
+
+  // 카테고리 선택
   const filteredBoardList =
-    selectedBoard === '전체' ? BoardList : BoardList.filter((item) => item.category === selectedBoard);
+    selectedBoard === '전체'
+      ? boardList
+      : boardList.filter((item) => {
+          if (!item) return false;
+          if (selectedBoard === '맛집 추천') {
+            return item.category === 1; // 맛집 추천
+          } else if (selectedBoard === '소셜 다이닝 후기') {
+            return item.category === 2; // 소셜 다이닝 후기
+          }
+          return false;
+        });
 
   return (
-    <div className="relative mb-2 w-full max-w-[600px] p-4 pt-0">
-      <div className="fixed top-[55px] z-20 w-full max-w-[600px] bg-white pr-8">
+    <div className="relative mb-2 h-full w-full max-w-[600px] p-4 pt-0">
+      <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
         <h1 className="my-[12px] text-2xl font-bold xs:text-xl">맛있는 이야기의 시작</h1>
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between" />
         <div className="flex gap-2">
@@ -34,14 +60,18 @@ const Board = () => {
             </button>
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[150px] rounded-xl px-2 ${selectedBoard === '소셜다이닝 후기' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedBoard('소셜다이닝 후기')}>
-              소셜다이닝 후기
+              className={`mr-2 h-[35px] w-[150px] rounded-xl px-2 ${selectedBoard === '소셜 다이닝 후기' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              onClick={() => setSelectedBoard('소셜 다이닝 후기')}>
+              소셜 다이닝 후기
             </button>
           </div>
         </div>
       </div>
-      {filteredBoardList.length === 0 ? (
+      {isLoading ? (
+        <div className="mb-[72px] mt-[100px] flex w-full flex-col items-center justify-evenly bg-[#EEEEEE]">
+          <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">로딩 중...</p>
+        </div>
+      ) : filteredBoardList.length === 0 ? (
         <div className="mb-[72px] mt-[100px] flex w-full flex-col items-center justify-evenly bg-[#EEEEEE]">
           <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">등록된 일정이 없어요</p>
           <img src="/images/CryingEgg.svg" className="inline-block h-[40vh]" alt="Crying Egg" />
@@ -51,19 +81,22 @@ const Board = () => {
           </p>
         </div>
       ) : (
-        <div className="mb-[72px] mt-[100px] flex flex-col items-center overflow-auto">
+        <div className="mt-[100px] flex flex-col items-center overflow-auto">
           {filteredBoardList.map((item) => {
+            if (!item) return null;
+            console.log('Board Item:', item);
             return (
               <BoardCard
-                key={item.id}
-                id={item.id}
-                category={item.category}
+                key={item.uuid}
+                id={item.uuid}
+                category={item.category === 1 ? '맛집 추천' : '소셜 다이닝 후기'}
                 title={item.title}
-                content={item.description}
+                content={item.content}
                 hits={item.hits}
-                image_url={item.image_url} // image_url을 전달
+                review_image_url={item.review_image_url}
                 createdAt={item.created_at}
-                commentLength={item.commentLength} // commentLength를 숫자로 변환하지 않음
+                commentLength={item.comment_count} // commentLength를 숫자로 변환
+                image_url={item.image_url} // image_url 추가
               />
             );
           })}
@@ -71,8 +104,13 @@ const Board = () => {
       )}
       <Link
         to={'/board/boardpost'}
-        className='fixed bottom-[120px] right-[calc(50%-260px)] z-10 h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat xs:bottom-[100px] xs:right-[calc(5%)] xs:h-[53px] xs:w-[53px]'
-      />
+        className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 xs:bottom-[100px] xs:right-[calc(5%)]">
+        <motion.div
+          className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat xs:h-[53px] xs:w-[53px]'
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        />
+      </Link>
     </div>
   );
 };
