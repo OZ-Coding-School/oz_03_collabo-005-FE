@@ -240,7 +240,7 @@ const ThunderPost = () => {
             <button
               type="button"
               onClick={toggleThunderCalendarModal}
-              className="mt-1 block h-[40px] w-[170px] rounded-l-lg border border-gray-300 px-3">
+              className="mt-1 block h-[40px] w-[170px] rounded-l-lg border border-gray-300 px-3 text-[15px]">
               {selectedDate ? selectedDate.toLocaleDateString() : '여기를 눌러 날짜선택'}
             </button>
 
@@ -256,7 +256,7 @@ const ThunderPost = () => {
               <button
                 type="button"
                 onClick={toggleThunderClockModal}
-                className="mt-1 block h-[40px] w-[170px] rounded-r-lg border border-gray-300 px-3">
+                className="mt-1 block h-[40px] w-[170px] rounded-r-lg border border-gray-300 px-3 text-[15px]">
                 {selectedTime ? selectedTime : '여기를 눌러 시간선택'}
               </button>
 
