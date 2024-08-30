@@ -4,7 +4,7 @@ import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
 import RoundedButton from '../../components/thunder/RoundedButton';
 import SelectionItem from '../../components/thunder/SelectionItem';
-import { authInstance } from '../../api/util/instance';
+import { baseInstance } from '../../api/util/instance';
 
 interface Meeting {
   uuid: string;
@@ -51,7 +51,7 @@ const Thunder = () => {
   };
 
   useEffect(() => {
-    authInstance
+    baseInstance
       .get('/api/meetings/')
       .then((res) => {
         setLocationCategories(res.data.location_categories);

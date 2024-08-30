@@ -57,7 +57,7 @@ export function isTokenExpired(token: string): boolean {
 }
 
 // 리프레시로 액세스 다시 받는 함수
-export async function refreshAccessToken(): Promise<string | null> {
+export async function refreshAccessToken(option?: string): Promise<string | null> {
   try {
     const refresh = getCookie('refresh'); // 리프레시 토큰 가져오기
     if (!refresh) {
@@ -76,7 +76,9 @@ export async function refreshAccessToken(): Promise<string | null> {
 
     return newAccess; // 새 액세스 토큰 반환
   } catch (error) {
-    console.error('Failed to refresh access token:', error); // 에러 로그 출력
+    if (!option) {
+      console.error('Failed to refresh access token:', error); // 에러 로그 출력
+    }
     return null; // 실패 시 null 반환
   }
 }

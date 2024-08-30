@@ -17,34 +17,22 @@ const Landing: React.FC = () => {
       try {
         let token = getItem('access');
         if (!token || isTokenExpired(token)) {
-          token = await refreshAccessToken();
+          token = await refreshAccessToken('noErrorCode');
         }
         if (token) {
           setConfirmFlavor(true);
+          const res = await authInstance.get('/api/profile/');
+          setSpicy(res.data.spicy_preference);
         } else {
           setConfirmFlavor(false);
         }
       } catch (error) {
-        console.error('Error checking login status:', error);
+        console.error('Failed to fetch profile or refresh token:', error);
+        setConfirmFlavor(false);
       }
     };
     checkLoginStatus();
   }, []);
-
-  useEffect(() => {
-    if (confirmFlavor) {
-      authInstance
-        .get('/api/profile/')
-        .then((res) => {
-          if (res.data) {
-            setSpicy(res.data.spicy_preference);
-          }
-        })
-        .catch((error) => {
-          console.error('Failed to fetch profile:', error);
-        });
-    }
-  }, [confirmFlavor]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
