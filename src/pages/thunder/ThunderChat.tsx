@@ -103,8 +103,8 @@ const ThunderChat = () => {
         <div className="mb-[28px] mt-[10px] flex flex-col items-center overflow-auto">
           <ThunderCard
             key={meeting.id}
-            id={meeting.id}
-            imageUrl={Array.isArray(meeting.image_url) ? meeting.image_url[0] : meeting.image_url}
+            id={meeting.id.toString()}
+            imageUrl={meeting.image_url}
             description={meeting.description}
             paymentMethod={meeting.payment_method}
             appointmentTime={meeting.appointment_time}

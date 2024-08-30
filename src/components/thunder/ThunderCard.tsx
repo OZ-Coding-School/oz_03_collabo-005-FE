@@ -5,7 +5,7 @@ import { formatAppointmentTime } from '../../utils/formatAppointmentTime';
 
 interface ThunderCardProps {
   id: string;
-  imageUrl?: string;
+  meeting_image_url: string;
   description: string;
   paymentMethod: string;
   appointmentTime: string;
@@ -16,7 +16,7 @@ interface ThunderCardProps {
 
 const ThunderCard: React.FC<ThunderCardProps> = ({
   id,
-  imageUrl,
+  meeting_image_url,
   description,
   paymentMethod,
   appointmentTime,
@@ -29,7 +29,9 @@ const ThunderCard: React.FC<ThunderCardProps> = ({
   const formattedTime = formatAppointmentTime(appointmentTime);
 
   return (
-    <Link to={`/thunder/${id}`} className="flex w-full flex-col">
+    <Link
+      to={`/thunder/${id}`}
+      className="flex w-full flex-col transition-colors duration-200 hover:bg-gray-100 active:bg-gray-200">
       <div className="my-2 flex h-full items-center">
         <div className="flex-shrink-0">
           {!imageLoaded && (
@@ -39,8 +41,11 @@ const ThunderCard: React.FC<ThunderCardProps> = ({
             className={`block h-[140px] w-[140px] rounded-[10px] object-cover xs:h-[120px] xs:w-[120px] ${
               imageLoaded ? 'block' : 'hidden'
             }`}
-            src={imageUrl || defaultImageUrl}
+            src={meeting_image_url || defaultImageUrl}
             alt={title}
+            onError={(e) => {
+              e.currentTarget.src = defaultImageUrl;
+            }}
             onLoad={() => setImageLoaded(true)}
           />
         </div>
@@ -55,7 +60,7 @@ const ThunderCard: React.FC<ThunderCardProps> = ({
           <p className="line-clamp-2 text-[16px] xs:text-[14px]">{description}</p>
         </div>
       </div>
-      <div className="h-[1px] w-full bg-gray-200"></div>
+      <div className="h-[1px] w-full bg-gray-200" />
     </Link>
   );
 };

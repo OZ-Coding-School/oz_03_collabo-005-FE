@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
 import RoundedButton from '../../components/thunder/RoundedButton';
 import SelectionItem from '../../components/thunder/SelectionItem';
-import { baseInstance } from '../../api/util/instance';
+import { authInstance } from '../../api/util/instance';
 
 interface Meeting {
   uuid: string;
-  image_url: string | string[];
+  meeting_image_url: string; // 수정된 부분
   description: string;
   payment_method_name: string;
   meeting_time: string;
@@ -51,7 +52,7 @@ const Thunder = () => {
   };
 
   useEffect(() => {
-    baseInstance
+    authInstance
       .get('/api/meetings/')
       .then((res) => {
         setLocationCategories(res.data.location_categories);
@@ -113,7 +114,7 @@ const Thunder = () => {
               <ThunderCard
                 key={item.uuid}
                 id={item.uuid}
-                imageUrl={Array.isArray(item.image_url) ? item.image_url[0] : item.image_url}
+                meeting_image_url={item.meeting_image_url} // 수정된 부분
                 description={item.description}
                 paymentMethod={item.payment_method_name}
                 appointmentTime={item.meeting_time}
@@ -127,8 +128,13 @@ const Thunder = () => {
       )}
       <Link
         to={'/thunder/thunderpost'}
-        className='fixed bottom-[120px] right-[calc(50%-260px)] z-10 h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat xs:bottom-[100px] xs:right-[5%] xs:h-[53px] xs:w-[53px]'
-      />
+        className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 xs:bottom-[100px] xs:right-[5%]">
+        <motion.div
+          className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat xs:h-[53px] xs:w-[53px]'
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        />
+      </Link>
       <ModalBottom isOpen={isModalOpen} onClose={toggleModal}>
         <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
         <div className="flex flex-col gap-[20px] p-[20px]">

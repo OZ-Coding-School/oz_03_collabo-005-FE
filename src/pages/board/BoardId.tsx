@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ThunderImageModal from '../../components/thunder/ThunderImageModal';
 import ContentLoader from 'react-content-loader';
-import { BoardList } from '../../data/BoardList';
+import { authInstance } from '../../api/util/instance';
 import { format, differenceInMinutes, differenceInHours } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { IoMdMore } from 'react-icons/io';
@@ -11,18 +11,21 @@ import ModalCenter from '../../components/common/ModalCenter';
 import BoardCommentModal from '../../components/board/BoardCommentModal';
 
 interface BoardItem {
-  id: number;
-  category: string;
+  uuid: string;
+  category: number;
   title: string;
-  description: string;
+  content: string;
+  review_image_url: string;
   hits: number;
-  image_url: string[];
+  comment_count: number;
+  likes_count: number;
   created_at: string;
+  nickname: string;
   comments: {
-    id: number;
-    author: string;
-    content: string;
+    nickname: string;
+    profile_image_url: string;
     created_at: string;
+    content: string;
   }[];
 }
 
@@ -33,7 +36,9 @@ const BoardId = () => {
   const [selectedBoardItem, setSelectedBoardItem] = useState<BoardItem | null>(null);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('');
-  const [comments, setComments] = useState<{ text: string; timestamp: Date }[]>([]);
+  const [comments, setComments] = useState<
+    { text: string; timestamp: Date; nickname?: string; profile_image_url?: string }[]
+  >([]);
   const [isBottomModalOpen, setIsBottomModalOpen] = useState(false);
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -42,17 +47,28 @@ const BoardId = () => {
   const [editCommentText, setEditCommentText] = useState<string>('');
 
   useEffect(() => {
-    const boardId = parseInt(window.location.pathname.split('/').pop() || '0', 10);
-    const boardItem = BoardList.find((item) => item.id === boardId);
-    setSelectedBoardItem(boardItem || null);
-    if (boardItem) {
-      setComments(
-        boardItem.comments.map((comment) => ({
-          text: comment.content,
-          timestamp: new Date(comment.created_at),
-        })),
-      );
-    }
+    const fetchBoardItem = async () => {
+      const boardId = window.location.pathname.split('/').pop();
+      try {
+        const response = await authInstance.get(`/api/reviews/detail/${boardId}`);
+        const boardItem = response.data.review;
+        setSelectedBoardItem(boardItem);
+        setComments(
+          boardItem.comments.map(
+            (comment: { content: string; created_at: string; nickname: string; profile_image_url: string }) => ({
+              text: comment.content,
+              timestamp: new Date(comment.created_at),
+              nickname: comment.nickname,
+              profile_image_url: comment.profile_image_url,
+            }),
+          ),
+        );
+      } catch (error) {
+        console.error('게시물 정보를 불러오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    fetchBoardItem();
   }, []);
 
   if (!selectedBoardItem) {
@@ -64,7 +80,7 @@ const BoardId = () => {
   };
 
   const openThunderImageModal = () => {
-    setSelectedImages(selectedBoardItem.image_url);
+    setSelectedImages([selectedBoardItem.review_image_url]);
     setIsThunderImageModalOpen(true);
   };
   const closeThunderImageModal = () => setIsThunderImageModalOpen(false);
@@ -87,10 +103,31 @@ const BoardId = () => {
 
   const formattedCreatedAt = formatCreatedAt(selectedBoardItem.created_at);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim() !== '') {
-      setComments((prevComments) => [...prevComments, { text: message, timestamp: new Date() }]);
-      setMessage('');
+      const newComment = {
+        content: message,
+      };
+
+      try {
+        // 댓글을 작성하기 위해 API 요청을 보냄
+        const response = await authInstance.post(`/api/reviews/detail/${selectedBoardItem.uuid}/comments`, {
+          uuid: selectedBoardItem.uuid,
+          content: newComment.content,
+        });
+        if (response.status === 200) {
+          setComments((prevComments) => [
+            ...prevComments,
+            {
+              text: newComment.content,
+              timestamp: new Date(),
+            },
+          ]);
+          setMessage('');
+        }
+      } catch (error) {
+        console.error('댓글을 작성하는 중 오류가 발생했습니다:', error);
+      }
     }
   };
 
@@ -143,34 +180,39 @@ const BoardId = () => {
     <div className="relative mx-auto max-w-full rounded-lg bg-white p-4">
       <div className="mb-2 flex items-center">
         <div className="mr-2 rounded-lg border-2 border-[#ffe7e2] bg-[#FAF2F0] px-2 py-1 text-gray-800">
-          {selectedBoardItem.category}
+          {selectedBoardItem.category === 1 ? '맛집 추천' : '소셜 다이닝 후기'}
         </div>
       </div>
 
       <div className="mb-4 text-xl font-bold">{selectedBoardItem.title}</div>
 
       <div className="mb-4 flex items-center">
-        <img src="../images/anonymous_avatars.svg" alt="프로필 사진" className="mr-2 h-10 w-10 rounded-full" />
+        <img
+          src={selectedBoardItem.comments[0]?.profile_image_url || '../images/anonymous_avatars.svg'}
+          alt="프로필 사진"
+          className="mr-2 h-10 w-10 rounded-full"
+        />
+
         <div>
           <div className="flex items-center">
-            <div className="text-sm font-medium">{selectedBoardItem.comments[0]?.author}</div>
+            <div className="text-sm font-medium">{selectedBoardItem.nickname}</div>
             <div className="ml-2 text-xs font-medium text-gray-500">{formattedCreatedAt}</div>
           </div>
         </div>
       </div>
 
-      <p className="mb-4 text-[#333333]">{selectedBoardItem.description}</p>
+      <p className="mb-4 text-[#333333]">{selectedBoardItem.content}</p>
 
-      {selectedBoardItem.image_url && !isImageLoaded && (
+      {selectedBoardItem.review_image_url && !isImageLoaded && (
         <ContentLoader height={200} width={300} speed={2} backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
           <rect x="0" y="56" rx="3" ry="3" width="300" height="10" />
           <rect x="0" y="72" rx="3" ry="3" width="200" height="10" />
           <rect x="0" y="88" rx="3" ry="3" width="100" height="10" />
         </ContentLoader>
       )}
-      {selectedBoardItem.image_url && (
+      {selectedBoardItem.review_image_url && (
         <img
-          src={selectedBoardItem.image_url[0]}
+          src={selectedBoardItem.review_image_url}
           alt="게시물 이미지"
           className={`mb-4 mt-8 h-full w-full cursor-pointer rounded-lg object-cover ${isImageLoaded ? 'block' : 'hidden'}`}
           onLoad={() => setIsImageLoaded(true)}
@@ -181,7 +223,7 @@ const BoardId = () => {
 
       <div className="mb-4 mt-20 flex items-center">
         <p className="text-sm text-black">관심</p>
-        <p className="ml-1 text-sm text-black">1</p>
+        <p className="ml-1 text-sm text-black">{selectedBoardItem.likes_count}</p>
         <p className="ml-2 text-sm text-black">조회수</p>
         <p className="ml-1 text-sm text-black">{selectedBoardItem.hits}</p>
       </div>
@@ -208,12 +250,12 @@ const BoardId = () => {
           return (
             <div key={index} className="flex w-full items-center border-b border-gray-300 p-2">
               <img
-                src="/images/anonymous_avatars.svg"
+                src={selectedBoardItem.comments[index]?.profile_image_url || '/images/anonymous_avatars.svg'}
                 alt="프로필 이미지"
                 className="mb-[28px] mr-2 h-8 w-8 rounded-full"
               />
               <div>
-                <div className="font-normal">별이엄마</div>
+                <div className="font-normal">{comment.nickname}</div>
                 <div className="text-sm text-gray-500">{timeDisplay}</div>
                 <div>{comment.text}</div>
               </div>
@@ -232,25 +274,24 @@ const BoardId = () => {
         })}
       </div>
 
-      <div className="fixed bottom-0 z-50 flex w-full max-w-[600px] items-center justify-center bg-white p-4 xs:bottom-0 xs:w-[350px] xs:p-0 xs:pb-5">
+      <div className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-[600px] -translate-x-1/2 items-center justify-center bg-white py-4 pr-4 xs:py-2 xs:pr-0">
         <motion.img
           src={isLiked ? '../images/SocialDiningLikeActive.svg' : '../images/SocialDiningLike.svg'}
           alt="좋아요"
-          className="mr-2 cursor-pointer rounded-lg py-2 text-white"
+          className="h-[40px] w-[40px] cursor-pointer rounded-lg py-2 text-white"
           onClick={toggleLike}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 1 }}
-          style={{ width: '40px', height: '40px' }}
         />
-        <div className="flex flex-1 items-center rounded-md border border-gray-300">
+        <div className="mr-2 flex grow items-center rounded-md border border-gray-300">
           <input
             type="text"
             placeholder="메시지를 입력해주세요"
-            className="flex-1 rounded-l-md px-3 py-2 xs:w-[150px]"
+            className="grow rounded-l-md py-2 pl-2"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <button className="mr-2 p-2" onClick={handleSendMessage}>
+          <button className="p-2" onClick={handleSendMessage}>
             <img src="/images/ThunderChatSend.svg" alt="Send" width={24} height={24} />
           </button>
         </div>
@@ -314,11 +355,7 @@ const BoardId = () => {
         </div>
       </ModalCenter>
 
-      <BoardCommentModal
-        isOpen={isEditModalOpen}
-        onClose={toggleEditModal}
-        title1={'댓글 수정'}
-        title2={''}>
+      <BoardCommentModal isOpen={isEditModalOpen} onClose={toggleEditModal} title1={'댓글 수정'} title2={''}>
         <div className="px-0 py-0">
           <textarea
             className="w-full rounded-md border border-gray-300 p-2"
