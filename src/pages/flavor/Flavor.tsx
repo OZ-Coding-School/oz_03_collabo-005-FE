@@ -17,7 +17,7 @@ const Flavor = () => {
   const checkToken = async () => {
     let token = getItem('access');
     if (!token || isTokenExpired(token)) {
-      token = await refreshAccessToken();
+      token = await refreshAccessToken('noErrorCode');
     }
     if (token) {
       navigate('/flavor/test');
