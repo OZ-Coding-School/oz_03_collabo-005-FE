@@ -10,9 +10,7 @@ import { authInstance } from '../../api/util/instance'; // authInstance 가져�
 
 interface FormData {
   title: string;
-  category: number; // category 속성 수정
   content: string;
-  review_image_url: string;
 }
 
 const BoardPost = () => {
@@ -20,7 +18,7 @@ const BoardPost = () => {
   const navigate = useNavigate(); // useNavigate 훅 사용
 
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false); // 중앙 모달의 열림/닫힘 상태
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null); // 선택된 카테고리 방법을 관리
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // 선택된 카테고리 방법을 관리
   const [selectedImages, setSelectedImages] = useState<File[]>([]); // 선택된 이미지
   const [imagePreviews, setImagePreviews] = useState<string[]>([]); // 이미지 미리보기
   const [isUploading, setIsUploading] = useState(false); // 업로드 상태
@@ -88,6 +86,28 @@ const BoardPost = () => {
     }
   };
 
+  // 이미지 업로드 함수
+  const uploadImages = async (images: File[]): Promise<string[]> => {
+    const uploadedImageUrls: string[] = [];
+    for (const image of images) {
+      const formData = new FormData();
+      formData.append('file', image);
+      try {
+        const response = await authInstance.post('https://api.babpiens.com/api/common/image/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        uploadedImageUrls.push(response.data.url);
+      } catch (error) {
+        console.error('이미지 업로드 중 오류가 발생했습니다:', error);
+        throw error;
+      }
+    }
+    return uploadedImageUrls;
+  };
+
+  //  폼 데이터 제출 시 미입력 필드에 따른 Modal 알림
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     if (selectedCategory === null) {
       setModalMessage({ title1: '카테고리를 선택해주세요', title2: '' });
@@ -106,30 +126,19 @@ const BoardPost = () => {
     }
 
     try {
-      const formData = {
+      const uploadedImageUrls = await uploadImages(selectedImages);
+      const response = await authInstance.post('/api/reviews/detail/create/', {
         title: data.title,
-        category: selectedCategory === 0 ? 1 : 2,
+        category_name: selectedCategory,
         content: data.content,
-        review_image_url: selectedImages.length > 0 ? selectedImages[0] : '',
-      };
-
-      try {
-        const response = await authInstance.post('/api/reviews/detail/create/', formData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        console.log('폼 제출 성공:', response.data);
-        setModalMessage({ title1: '폼 제출에 성공했습니다.', title2: '게시물이 등록되었습니다.' });
-        toggleCenterModal();
-      } catch (error) {
-        console.error('서버 요청 중 오류가 발생했습니다:', error);
-        setModalMessage({ title1: '서버 요청 중 오류가 발생했습니다.', title2: '다시 시도해주세요.' });
-        toggleCenterModal();
-      }
+        input_image: uploadedImageUrls,
+      });
+      console.log('폼 제출 성공:', response.data);
+      setModalMessage({ title1: '폼 제출에 성공했습니다.', title2: '게시물이 등록되었습니다.' });
+      toggleCenterModal();
     } catch (error) {
-      console.error('폼 제출 실패:', error);
-      setModalMessage({ title1: '폼 제출에 실패했습니다.', title2: '다시 시도해주세요.' });
+      console.error('서버 요청 중 오류가 발생했습니다:', error);
+      setModalMessage({ title1: '서버 요청 중 오류가 발생했습니다.', title2: '다시 시도해주세요.' });
       toggleCenterModal();
     }
   };
@@ -142,19 +151,19 @@ const BoardPost = () => {
         <div className="mb-2 flex items-center">
           <button
             type="button"
-            className={`mr-2 h-[35px] rounded-lg px-2 ${selectedCategory === 0 ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+            className={`mr-2 h-[35px] rounded-lg border-2 px-2 transition-transform duration-200 ease-in-out ${selectedCategory === '소셜 다이닝 후기' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
             onClick={() => {
-              setSelectedCategory(0);
-              return 1;
+              setSelectedCategory('소셜 다이닝 후기');
+              return '소셜 다이닝 후기';
             }}>
             소셜 다이닝 후기
           </button>
           <button
             type="button"
-            className={`mr-2 h-[35px] rounded-lg px-2 ${selectedCategory === 1 ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+            className={`mr-2 h-[35px] rounded-lg border-2 px-2 transition-transform duration-200 ease-in-out ${selectedCategory === '맛집 추천' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
             onClick={() => {
-              setSelectedCategory(1);
-              return 2;
+              setSelectedCategory('맛집 추천');
+              return '맛집 추천';
             }}>
             맛집 추천
           </button>
@@ -182,7 +191,9 @@ const BoardPost = () => {
           }}
         />
 
-        <div className="mb-2 mt-5 flex items-center font-semibold">이미지 등록</div>
+        <div className="mb-2 mt-5 flex items-center font-semibold">
+          이미지 등록 - (첫번째 사진이 대표사진이 됩니다.)
+        </div>
         <div className="flex items-center">
           <label htmlFor="file-upload" className="cursor-pointer">
             <motion.div
