@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
 import RoundedButton from '../../components/thunder/RoundedButton';
@@ -130,11 +129,7 @@ const Thunder: React.FC = () => {
       <Link
         to={'/thunder/thunderpost'}
         className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 xs:bottom-[100px] xs:right-[5%]">
-        <motion.div
-          className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat xs:h-[53px] xs:w-[53px]'
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        />
+        <div className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]' />
       </Link>
       <ModalBottom isOpen={isModalOpen} onClose={toggleModal}>
         <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
