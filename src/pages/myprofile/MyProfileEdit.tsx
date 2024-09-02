@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useUserStore } from '../../store/store';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import imageCompression from 'browser-image-compression';
 import Button from '../../components/common/Button';
 import ProfileModal from '../../components/myprofile/ProfileModal';
 import { motion } from 'framer-motion';
+import { baseInstance } from '../../api/util/instance';
 
 type FormData = {
   nickname: string;
@@ -13,7 +13,8 @@ type FormData = {
 };
 
 const MyProfileEdit = () => {
-  const { user } = useUserStore();
+  const location = useLocation();
+  const user = location.state?.user;
   const [profileImg, setProfileImg] = useState(user?.profileImageUrl || '/images/anonymous_avatars.svg');
   const [compressedFile, setCompressedFile] = useState<File | null>(null);
   const [duplicateNickname, setDuplicateNickname] = useState<string>('');
@@ -80,13 +81,27 @@ const MyProfileEdit = () => {
     formData.forEach((value, key) => {
       console.log(key, value);
     });
+    console.log(formData);
     // formData를 서버에 제출할 코드
   };
 
-  const handleNicknameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleNicknameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const nickname = e.target.value;
-    console.log(nickname);
-    setDuplicateNickname('사용할 수 없는 닉네임 입니다.');
+    if (nickname === user?.nickname) {
+      return;
+    }
+    try {
+      const response = await baseInstance.get(`/api/users/checkNickname/?nickname=${nickname}`);
+      if (response.status === 200) {
+        setDuplicateNickname('');
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        setDuplicateNickname('사용할 수 없는 닉네임 입니다.');
+      } else {
+        console.error('닉네임 확인 중 오류가 발생했습니다.', error);
+      }
+    }
   };
 
   return (
@@ -124,7 +139,7 @@ const MyProfileEdit = () => {
         ) : (
           <Link
             to={'/FTI'}
-            className="mt-3 flex h-[62px] w-[33%] items-center justify-center rounded-lg bg-[#F5E3DB] text-[1rem] font-bold xs:h-[42px] xs:w-[40%] xs:text-[13px]">
+            className="mt-3 flex h-[52px] w-[33%] items-center justify-center rounded-lg bg-[#F5E3DB] text-[1rem] font-bold xs:h-[42px] xs:w-[40%] xs:text-[13px]">
             FTI 설정하기
           </Link>
         )}
@@ -154,7 +169,8 @@ const MyProfileEdit = () => {
           type="submit"
           className={`mt-10 h-[56px] font-bold xs:mt-8 xs:h-[45px] ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
           buttonSize="normal"
-          bgColor="filled">
+          bgColor="filled"
+          disabled={duplicateNickname !== '' ? true : false}>
           저장하기
         </Button>
       </div>
