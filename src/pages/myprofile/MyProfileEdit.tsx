@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import imageCompression from 'browser-image-compression';
 import Button from '../../components/common/Button';
 import ProfileModal from '../../components/myprofile/ProfileModal';
 import { motion } from 'framer-motion';
-import { baseInstance } from '../../api/util/instance';
+import { authInstance, baseInstance } from '../../api/util/instance';
+import { getCookie } from '../../utils/cookie';
 
 type FormData = {
   nickname: string;
@@ -17,11 +18,13 @@ const MyProfileEdit = () => {
   const user = location.state?.user;
   const [profileImg, setProfileImg] = useState(user?.profileImageUrl || '/images/anonymous_avatars.svg');
   const [compressedFile, setCompressedFile] = useState<File | null>(null);
+  console.log(compressedFile);
   const [duplicateNickname, setDuplicateNickname] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [originalFileName, setOriginalFileName] = useState<string>('profileImage');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -29,6 +32,12 @@ const MyProfileEdit = () => {
       introduce: user?.introduce || '',
     },
   });
+
+  useEffect(() => {
+    if (!getCookie('refresh')) {
+      navigate('/');
+    }
+  }, []);
 
   const handleInputImageChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -70,34 +79,33 @@ const MyProfileEdit = () => {
     if (duplicateNickname !== '') {
       return;
     }
-    const formData = new FormData();
-    formData.append('nickname', data.nickname);
-    formData.append('introduce', data.introduce);
-    if (compressedFile) {
-      formData.append('profileImage', compressedFile);
-    } else if (user?.profileImageUrl) {
-      formData.append('profileImage', user.profileImageUrl);
-    }
-    formData.forEach((value, key) => {
-      console.log(key, value);
-    });
-    console.log(formData);
-    // formData를 서버에 제출할 코드
+    const payload = {
+      profile: {
+        nickname: data.nickname,
+        profile_image_url:
+          'https://images.unsplash.com/photo-1725203574074-a33eae85ba71?q=80&w=1412&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        introduction: data.introduce,
+      },
+    };
+    console.log(payload);
+    const response = await authInstance.post('/api/profile', payload);
+    console.log(response);
   };
 
   const handleNicknameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const nickname = e.target.value;
     if (nickname === user?.nickname) {
+      setDuplicateNickname('');
       return;
     }
     try {
-      const response = await baseInstance.get(`/api/users/checkNickname/?nickname=${nickname}`);
+      const response = await baseInstance.post(`/api/users/checkNickname/`, { nickname: nickname });
       if (response.status === 200) {
         setDuplicateNickname('');
       }
     } catch (error: any) {
       if (error.response && error.response.status === 400) {
-        setDuplicateNickname('사용할 수 없는 닉네임 입니다.');
+        setDuplicateNickname(error.response.data.error);
       } else {
         console.error('닉네임 확인 중 오류가 발생했습니다.', error);
       }
