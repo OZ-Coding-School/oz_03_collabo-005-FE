@@ -2,12 +2,23 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { authInstance } from '../../api/util/instance'; // authInstance 가져오기
 import BoardCard from '../../components/board/BoardCard'; // BoardCard 컴포넌트 추가
-import { motion } from 'framer-motion'; // framer-motion 적용
 import Loading from '../../components/common/Loading'; // Loading 컴포넌트 추가
 
 const Board = () => {
   const [selectedBoard, setSelectedBoard] = useState<string>('전체'); // 초기값을 '전체'로 설정
-  const [boardList, setBoardList] = useState<any[]>([]); // 게시판 목록 상태 추가
+  const [boardList, setBoardList] = useState<
+    {
+      uuid: string;
+      category_name: string;
+      title: string;
+      content: string;
+      hits: number;
+      review_image_url: string;
+      created_at: string;
+      comment_count: number;
+      image_url: string;
+    }[]
+  >([]); // 게시판 목록 상태 추가
   const [isLoading, setIsLoading] = useState<boolean>(true); // 로딩 상태 추가
 
   useEffect(() => {
@@ -26,19 +37,18 @@ const Board = () => {
     }
   };
 
-  // 카테고리 선택
   const filteredBoardList =
     selectedBoard === '전체'
       ? boardList
       : boardList.filter((item) => {
           if (!item) return false;
-          if (selectedBoard === '맛집 추천') {
-            return item.category === 1; // 맛집 추천
-          } else if (selectedBoard === '소셜 다이닝 후기') {
-            return item.category === 2; // 소셜 다이닝 후기
-          }
-          return false;
+          return item.category_name === selectedBoard;
         });
+
+  // 로딩 상태일 때 Loading 컴포넌트 렌더링
+  if (isLoading) {
+    return <Loading />;
+  }
 
   // 로딩 상태일 때 Loading 컴포넌트 렌더링
   if (isLoading) {
@@ -54,21 +64,21 @@ const Board = () => {
           <div className="mb-2 flex items-center">
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[60px] rounded-2xl px-2 ${selectedBoard === '전체' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[60px] rounded-2xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === '전체' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
               onClick={() => setSelectedBoard('전체')}>
               전체
             </button>
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-xl px-2 ${selectedBoard === '맛집 추천' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[85px] rounded-xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === '맛집 추천' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
               onClick={() => setSelectedBoard('맛집 추천')}>
               맛집 추천
             </button>
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[150px] rounded-xl px-2 ${selectedBoard === '소셜 다이닝 후기' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedBoard('소셜 다이닝 후기')}>
-              소셜 다이닝 후기
+              className={`mr-2 h-[35px] w-[85px] rounded-xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === '모임 후기' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
+              onClick={() => setSelectedBoard('모임 후기')}>
+              모임 후기
             </button>
           </div>
         </div>
@@ -91,7 +101,7 @@ const Board = () => {
               <BoardCard
                 key={item.uuid}
                 id={item.uuid}
-                category={item.category === 1 ? '맛집 추천' : '소셜 다이닝 후기'}
+                category={item.category_name}
                 title={item.title}
                 content={item.content}
                 hits={item.hits}
@@ -106,11 +116,7 @@ const Board = () => {
       <Link
         to={'/board/boardpost'}
         className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 xs:bottom-[100px] xs:right-[calc(5%)]">
-        <motion.div
-          className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat xs:h-[53px] xs:w-[53px]'
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        />
+        <div className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]' />
       </Link>
     </div>
   );
