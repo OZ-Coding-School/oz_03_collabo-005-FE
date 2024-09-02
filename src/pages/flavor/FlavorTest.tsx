@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import ProgressBar from '../../components/flavor/ProgressBar';
 import ModalCenter from '../../components/common/ModalCenter';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authInstance } from '../../api/util/instance';
 import Loading from '../../components/common/Loading';
+import { getCookie } from '../../utils/cookie';
 
 interface Answer {
   id: number;
@@ -32,12 +33,18 @@ const FlavorTest = () => {
   const closeModalCenter = () => setIsModalCenterOpen(false);
   const currentTest = flavorTests[testOrder];
   const widthPercentage = ((testOrder + 1) / flavorTests.length) * 100;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!getCookie('refresh')) {
+      navigate('/');
+    }
+  }, []);
 
   useEffect(() => {
     const fetchFlavorTests = async () => {
       try {
-        const response = await authInstance.get('/api/tasets/questions_list/');
-        console.log(response.data);
+        const response = await authInstance.get('/api/tastes/questions_list/');
         setFlavorTests(response.data);
       } catch (error) {
         console.error('Failed to fetch flavor tests:', error);
@@ -61,10 +68,8 @@ const FlavorTest = () => {
         setSelectedAnswer(null);
         document.getElementById('root')?.scrollTo(0, 0);
       } else {
-        console.log(resultAnswer.current);
         const answer = resultAnswer.current;
-        // api 주소 오타있음. 수정 요청 부탁 드렸음
-        authInstance.post('/api/tasets/taste_result/', answer);
+        authInstance.post('/api/tastes/taste_result/', answer);
         openModalCenter();
       }
     }

@@ -25,29 +25,29 @@ const ThunderCard: React.FC<ThunderCardProps> = ({
   ageGroup,
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const defaultImageUrl = '/images/CuteEgg.svg';
   const formattedTime = formatAppointmentTime(appointmentTime);
+  const handleImageError = () => setImageError(true);
+  const handleImageLoad = () => setImageLoaded(true);
 
   return (
     <Link
       to={`/thunder/${id}`}
-      className="flex w-full flex-col transition-colors duration-200 hover:bg-gray-100 active:bg-gray-200">
+      className="flex w-full flex-col px-2 transition-colors duration-200 hover:bg-gray-100 active:bg-gray-200">
       <div className="my-2 flex h-full items-center">
         <div className="flex-shrink-0">
-          {!imageLoaded && (
-            <div className="block h-[140px] w-[140px] rounded-[10px] bg-gray-300 xs:h-[120px] xs:w-[120px]" />
-          )}
-          <img
-            className={`block h-[140px] w-[140px] rounded-[10px] object-cover xs:h-[120px] xs:w-[120px] ${
-              imageLoaded ? 'block' : 'hidden'
-            }`}
-            src={meeting_image_url || defaultImageUrl}
-            alt={title}
-            onError={(e) => {
-              e.currentTarget.src = defaultImageUrl;
-            }}
-            onLoad={() => setImageLoaded(true)}
-          />
+          <div className="relative h-[140px] w-[140px] overflow-hidden rounded-[10px] xs:h-[120px] xs:w-[120px]">
+            <img
+              className={`block h-full w-full object-cover transition-transform duration-200 ${
+                imageLoaded ? 'block' : 'hidden'
+              } hover:scale-105`}
+              src={imageError ? defaultImageUrl : meeting_image_url}
+              alt={title}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+            />
+          </div>
         </div>
         <div className="ml-4 flex h-full grow flex-col justify-between gap-1">
           <h2 className="line-clamp-2 text-[20px] font-medium xs:text-[16px]">{title}</h2>

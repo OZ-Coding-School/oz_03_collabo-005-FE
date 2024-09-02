@@ -30,6 +30,7 @@ export interface FoodsList {
   rank: number;
   spicy_preference: number;
   spicy_weight: number;
+  food_id: number;
 }
 
 export type FoodsListStore = {

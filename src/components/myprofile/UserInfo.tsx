@@ -1,6 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { User } from '../../types/types';
+
+interface User {
+  fti_type: string | null;
+  introduce: string | null;
+  nickname: string;
+  profile_image_url: string | null;
+  spicy_preference: number | null;
+}
 
 interface UserInfoProps {
   user?: User;
@@ -13,10 +20,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
   return (
     <div className="flex h-[35%] flex-col items-center justify-evenly p-[1rem]">
       <div className="relative flex w-[30%] items-center justify-center pt-[30%] xs:w-[35%] xs:pt-[35%]">
-        <Link to={user ? `/profile/${user.id}` : '#'}>
+        <Link to={user ? `/profile/${user.nickname}` : '#'}>
           <img
             className="absolute inset-0 h-full w-full rounded-full object-cover"
-            src={user?.profileImageUrl || '/images/anonymous_avatars.svg'}
+            src={user?.profile_image_url || '/images/anonymous_avatars.svg'}
             alt="프로필 이미지"
           />
         </Link>
@@ -31,8 +38,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
         <div className="flex h-[8rem] flex-col items-center justify-center">
           <p className="text-[22px] font-bold xs:text-[18px]">{user.nickname}</p>
           {!isProfilePage &&
-            (user.ftiType ? (
-              <p className="text-[16px] text-[#AD5E33] xs:text-[12px]">{user.ftiType}</p>
+            (user.fti_type ? (
+              <p className="text-[16px] text-[#AD5E33] xs:text-[12px]">{user.fti_type}</p>
             ) : (
               <Link to="/FTI" className="text-[16px] text-[#AD5E33] xs:text-[12px]">
                 테스트를 통해 FTI타입을 확인해보세요

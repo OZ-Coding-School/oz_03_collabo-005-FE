@@ -10,7 +10,7 @@ interface FoodSectionProps {
 
 const FoodSection: React.FC<FoodSectionProps> = ({ spicy, setConfirmFlavor }) => {
   return (
-    <div className="relative w-full">
+    <div className="relative h-full w-full">
       <div className="flex items-center gap-5 p-4 pb-0">
         <h2 className="text-[24px] font-bold">오늘 뭐 먹지?</h2>
         <Link to={'/foods'} className="font-medium">

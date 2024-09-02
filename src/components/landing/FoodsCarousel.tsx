@@ -15,7 +15,7 @@ interface FoodsCarouselProps {
 }
 
 const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy, setConfirmFlavor }) => {
-  const [userFoods, setUserFoods] = useState<FoodsList[] | null>(null);
+  const [userFoods, setUserFoods] = useState<FoodsList[]>(FoodsCarouselList);
   const { setFoodsList } = useFoodsListStore();
 
   useEffect(() => {
@@ -54,9 +54,8 @@ const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy, setConfirmFlavor }
           clickable: true,
         }}>
         {listToUse?.map((item) => (
-          <SwiperSlide key={item.food_name} className="flex w-[70%] flex-col items-center justify-center pl-4">
-            {/* 나중에 아래 link의 주소를 food 고유의 id값으로 수정해야함*/}
-            <Link to={`/foods/${item.food_name}`} className="relative w-full">
+          <SwiperSlide key={item.food_name} className="flex h-[70%] w-[70%] flex-col items-center justify-center pl-4">
+            <Link to={`/foods/${item.food_id}`} className="relative w-full">
               <ImageWithPlaceholder src={item.imageUrl || defaultImageUrl} alt={item.food_name} />
             </Link>
             <p className="mt-2 font-medium">{item.food_name}</p>

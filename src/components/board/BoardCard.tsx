@@ -6,12 +6,12 @@ import Badge from '../thunder/Badge';
 import { LuDot } from 'react-icons/lu';
 
 interface BoardCardProps {
-  id: number;
+  id: string;
   category: string;
   title: string;
   content: string;
   hits: number;
-  image_url: string;
+
   createdAt: string;
   commentLength: number;
   review_image_url: string;
@@ -23,7 +23,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
   title,
   content,
   hits,
-  image_url,
+
   createdAt,
   commentLength,
   review_image_url,
@@ -60,7 +60,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
   return (
     <Link
       to={`/board/${id}`}
-      className="flex w-full flex-col transition-colors duration-200 hover:bg-gray-100 active:bg-gray-200">
+      className="flex w-full flex-col px-2 transition-colors duration-200 hover:bg-gray-100 active:bg-gray-200">
       <div className="my-2 flex h-full items-center">
         <div className="flex-shrink-0">
           {!imageLoaded && (
@@ -71,7 +71,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
               className={`block h-full w-full object-cover transition-transform duration-200 ${
                 imageLoaded ? 'block' : 'hidden'
               } hover:scale-105`}
-              src={image_url || review_image_url || defaultImageUrl} // 수정된 부분
+              src={review_image_url || defaultImageUrl} // 수정된 부분
               alt={title}
               onLoad={() => setImageLoaded(true)}
             />

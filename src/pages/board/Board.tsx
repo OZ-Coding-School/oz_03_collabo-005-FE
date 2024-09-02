@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { authInstance } from '../../api/util/instance'; // authInstance 가져오기
 import BoardCard from '../../components/board/BoardCard'; // BoardCard 컴포넌트 추가
 import { motion } from 'framer-motion'; // framer-motion 적용
+import Loading from '../../components/common/Loading'; // Loading 컴포넌트 추가
 
 const Board = () => {
   const [selectedBoard, setSelectedBoard] = useState<string>('전체'); // 초기값을 '전체'로 설정
@@ -39,6 +40,11 @@ const Board = () => {
           return false;
         });
 
+  // 로딩 상태일 때 Loading 컴포넌트 렌더링
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <div className="relative mb-2 h-full w-full max-w-[600px] p-4 pt-0">
       <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
@@ -67,11 +73,7 @@ const Board = () => {
           </div>
         </div>
       </div>
-      {isLoading ? (
-        <div className="mb-[72px] mt-[100px] flex w-full flex-col items-center justify-evenly bg-[#EEEEEE]">
-          <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">로딩 중...</p>
-        </div>
-      ) : filteredBoardList.length === 0 ? (
+      {filteredBoardList.length === 0 ? (
         <div className="mb-[72px] mt-[100px] flex w-full flex-col items-center justify-evenly bg-[#EEEEEE]">
           <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">등록된 일정이 없어요</p>
           <img src="/images/CryingEgg.svg" className="inline-block h-[40vh]" alt="Crying Egg" />
@@ -81,7 +83,7 @@ const Board = () => {
           </p>
         </div>
       ) : (
-        <div className="mt-[100px] flex flex-col items-center overflow-auto">
+        <div className="mt-[107px] flex flex-col items-center overflow-auto">
           {filteredBoardList.map((item) => {
             if (!item) return null;
             console.log('Board Item:', item);
@@ -96,7 +98,6 @@ const Board = () => {
                 review_image_url={item.review_image_url}
                 createdAt={item.created_at}
                 commentLength={item.comment_count} // commentLength를 숫자로 변환
-                image_url={item.image_url} // image_url 추가
               />
             );
           })}
