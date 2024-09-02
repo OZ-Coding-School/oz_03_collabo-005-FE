@@ -35,7 +35,7 @@ jobs:
           AWS_REGION: 'ap-northeast-2'
 
       - name: Invalidate CloudFront
-        uses: chetan/invalidate-cloudfront-action@v1.5.0
+        uses: chetan/invalidate-cloudfront-action@v1.6.0
         with:
           distribution-id: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
           paths: '/*'
