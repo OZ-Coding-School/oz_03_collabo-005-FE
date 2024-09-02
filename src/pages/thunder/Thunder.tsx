@@ -5,11 +5,12 @@ import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
 import RoundedButton from '../../components/thunder/RoundedButton';
 import SelectionItem from '../../components/thunder/SelectionItem';
-import { authInstance } from '../../api/util/instance';
+import { baseInstance } from '../../api/util/instance';
+import Loading from '../../components/common/Loading';
 
 interface Meeting {
   uuid: string;
-  meeting_image_url: string; // 수정된 부분
+  meeting_image_url: string;
   description: string;
   payment_method_name: string;
   meeting_time: string;
@@ -32,34 +33,27 @@ const Thunder = () => {
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<number | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchMeetings = (locationId?: number, timeId?: number) => {
     console.log(locationId, timeId);
-
-    // axios
-    // .get(`http://3.38.180.55/api/meetings/filter/?time_category_id=${1}&location_category_id=${1}}`, {
-    //   headers: {
-    //     Authorization: `Bearer ${accessToken}`,
-    //   },
-    // })
-    //   .then((res) => {
-    //     console.log(res);
-    //     // setMeetings(res.data.meetings);
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error fetching data:', error);
-    //   });
+    // baseInstance.get(`/api/meetings/filter/${Number(locationId)}/${Number(timeId)}`).then((res) => {
+    //   console.log(res);
+    //   setMeetings(res.data);
+    // });
   };
 
   useEffect(() => {
-    authInstance
+    baseInstance
       .get('/api/meetings/')
       .then((res) => {
+        console.log(res.data);
         setLocationCategories(res.data.location_categories);
         setSelectedLocation(res.data.location_categories[0].id);
         setTimeCategories(res.data.time_categories);
         setSelectedTime(res.data.time_categories[0].id);
         setMeetings(res.data.meetings);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -85,11 +79,15 @@ const Thunder = () => {
     document.getElementById('root')?.scrollTo(0, 0);
   }, [selectedLocation, selectedTime]);
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <div className="relative w-full max-w-[600px] p-4 pt-0">
       <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
-        <h1 className="my-[12px] text-2xl font-bold xs:text-xl">음식으로 시작되는 인연</h1>
-        <div className="my-2 flex w-full max-w-[600px] items-center justify-between">
+        <h1 className="my-[12px] min-w-[300px] text-2xl font-bold xs:text-xl">음식으로 시작되는 인연</h1>
+        <div className="my-2 flex w-full min-w-[314px] max-w-[600px] items-center justify-between">
           <RoundedButton onClick={() => handleListSelection(true)}>
             {locationCategories.find((category) => category.id === selectedLocation)?.location_name || '지역 선택'}
           </RoundedButton>
@@ -114,7 +112,7 @@ const Thunder = () => {
               <ThunderCard
                 key={item.uuid}
                 id={item.uuid}
-                meeting_image_url={item.meeting_image_url} // 수정된 부분
+                meeting_image_url={item.meeting_image_url}
                 description={item.description}
                 paymentMethod={item.payment_method_name}
                 appointmentTime={item.meeting_time}
