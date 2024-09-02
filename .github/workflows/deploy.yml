@@ -16,10 +16,10 @@ jobs:
         uses: actions/checkout@v2 # 워크플로우에서 액세스할 수 있도록 저장소를 체크아웃
 
       - name: Install dependencies
-        run: yarn install # 프로젝트의 의존성 설치
+        run: npm install # 프로젝트의 의존성 설치
 
       - name: Build
-        run: yarn build # 프로젝트 빌드
+        run: npm build # 프로젝트 빌드
 
       - name: S3 Deploy
         run: aws s3 sync ./build s3://bobpience-s3-bucket/ --acl bucket-owner-full-control # 현재 빌드된 폴더에 접근 후 S3 버킷에 빌드 파일 업로드
