@@ -3,6 +3,7 @@ import { FoodsList } from '../types/types';
 export const FoodsCarouselList: FoodsList[] = [
   {
     imageUrl: '/images/kimchiSoup.svg',
+    food_id: 1,
     food_name: '침샘을 자극하는 "김치찌개"',
     cost_preference: 0,
     cost_weight: 0,
@@ -20,6 +21,7 @@ export const FoodsCarouselList: FoodsList[] = [
     spicy_weight: 0,
   },
   {
+    food_id: 2,
     imageUrl: '/images/soyBeanPasteSoup.svg',
     food_name: '한국인의 소울푸드 "된장찌개"',
     cost_preference: 0,
