@@ -2,44 +2,34 @@ name: Deploy to S3 and CloudFront
 
 on:
   push:
-    branches:
-      - dev
+    branches: [dev]
+
+env:
+  CI: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
+      - name: Checkout source code
+        uses: actions/checkout@v2 # workflow에서 액세스할 수 있도록 저장소를 체크아웃
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
-      - name: Build project
-        run: npm run build
+      - name: Build
+        run: yarn build
 
-      - name: Deploy to S3
-        uses: aws-actions/s3-sync@v1.0.4
-        with:
-          source-dir: 'build'
-          destination-bucket: ${{ secrets.AWS_S3_BUCKET }}
-          destination-region: 'ap-northeast-2'
-          delete-removed: true
+      - name: S3 Deploy
+        run: aws s3 sync ./build s3://bobpience-s3-bucket/ --acl bucket-owner-full-control # 현재 build된 폴더에 접근 후 s3 버킷에 build 파일 업로드
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Invalidate CloudFront
-        uses: aws-actions/cloudfront-invalidate@v1.0.1
-        with:
-          distribution-id: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
-          paths: '/*'
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+      - name: Invalidate CloudFront Cache # 새로 리소스를 업데이트할 때 기존 캐시 무효화
+        uses: chetan/invalidate-cloudfront-action@master
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DISTRIBUTION: ${{ secrets.AWS_DISTRIBUTION_ID }}
+          PATHS: '/index.html'
+        continue-on-error: true
