@@ -25,17 +25,18 @@ jobs:
         run: npm run build
 
       - name: Deploy to S3
-        uses: jakejarvis/s3-sync-action@v0.5.1
+        uses: aws-actions/s3-sync@v1.0.4
         with:
-          args: --acl public-read --follow-symlinks --delete
+          source-dir: 'build'
+          destination-bucket: ${{ secrets.AWS_S3_BUCKET }}
+          destination-region: 'ap-northeast-2'
+          delete-removed: true
         env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'ap-northeast-2'
 
       - name: Invalidate CloudFront
-        uses: chetan/invalidate-cloudfront-action@v1.6.0
+        uses: aws-actions/cloudfront-invalidate@v1.0.1
         with:
           distribution-id: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
           paths: '/*'
