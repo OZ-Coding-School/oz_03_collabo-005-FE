@@ -8,26 +8,20 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
   onClose,
   onTimeSelect,
 }) => {
-  const [selectedHour, setSelectedHour] = useState(12); // 선택된 시간을 저장하는 상태, 초기값 1시
-  const [selectedMinute, setSelectedMinute] = useState(12); // 선택된 분을 저장 초기값 0분
-  const [period, setPeriod] = useState('오전'); // 오전/오후를 저장 초기값 '오후'
+  const [selectedHour, setSelectedHour] = useState(0); // 선택된 시간을 저장하는 상태, 초기값 0시
+  const [selectedMinute, setSelectedMinute] = useState(0); // 선택된 분을 저장 초기값 0분
   const [isEditingHour, setIsEditingHour] = useState(false); // 시간을 편집 중인지 여부 저장 초기값 false
   const [isEditingMinute, setIsEditingMinute] = useState(false); // 분을 편집 중인지 여부 저장 초기값 false
 
   const handleConfirm = () => {
-    const time = `${period} ${selectedHour}:${selectedMinute < 10 ? `0${selectedMinute}` : selectedMinute}`;
+    const time = `${selectedHour < 10 ? `0${selectedHour}` : selectedHour}:${selectedMinute < 10 ? `0${selectedMinute}` : selectedMinute}`;
     onTimeSelect(time);
     onClose();
   };
 
-  const togglePeriod = (event: React.MouseEvent) => {
-    event.preventDefault();
-    setPeriod((prevPeriod) => (prevPeriod === '오전' ? '오후' : '오전'));
-  };
-
   const handleHourChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value);
-    if (value >= 1 && value <= 12) {
+    if (value >= 0 && value < 24) {
       setSelectedHour(value);
     }
   };
@@ -62,27 +56,6 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex w-full max-w-[600px] flex-col items-center justify-center rounded-t-xl border-2 bg-white p-4 shadow-md">
             <div className="flex items-center text-2xl">
-              <div className="relative mx-2 flex h-32 w-32 flex-col items-center">
-                <div className="flex flex-col">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={togglePeriod}
-                    className={`mt-[20px] h-[40px] w-[100px] rounded-lg text-[20px] ${period === '오전' ? 'bg-slate-500 text-white' : 'bg-gray-200 text-slate-500'}`}>
-                    오전
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={togglePeriod}
-                    className={`mt-[10px] h-[40px] w-[100px] rounded-lg text-[20px] ${period === '오후' ? 'bg-slate-500 text-white' : 'bg-gray-200 text-slate-500'}`}>
-                    오후
-                  </motion.button>
-                </div>
-
-                <div className="flex items-center justify-center" />
-              </div>
               <div className="mx-2 flex h-[150px] w-[50px] flex-col items-center">
                 {isEditingHour ? (
                   <input
@@ -99,13 +72,13 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
                     direction="vertical"
                     slidesPerView={3}
                     centeredSlides={true}
-                    onSlideChange={(swiper) => setSelectedHour(swiper.activeIndex + 1)}
+                    onSlideChange={(swiper) => setSelectedHour(swiper.activeIndex)}
                     onClick={() => setIsEditingHour(true)}>
-                    {[...Array(12)].map((_, i) => (
+                    {[...Array(24)].map((_, i) => (
                       <SwiperSlide key={i}>
                         <span
-                          className={`text-4xl font-bold ${i + 1 === selectedHour ? 'text-orange-500' : 'bg-gradient-to-t from-gray-100 to-gray-500 bg-clip-text text-left text-transparent'}`}>
-                          {i + 1}
+                          className={`text-4xl font-bold ${i === selectedHour ? 'text-orange-500' : 'bg-gradient-to-t from-gray-100 to-gray-500 bg-clip-text text-left text-transparent'}`}>
+                          {i < 10 ? `0${i}` : i}
                         </span>
                       </SwiperSlide>
                     ))}
