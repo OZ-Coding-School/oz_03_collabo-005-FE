@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'; // React 플러그인을 사용하기 
 export default defineConfig({
   plugins: [react()], // React 플러그인을 Vite 설정에 추가
   build: {
+    outDir: 'dist',
     rollupOptions: {
       output: {
         manualChunks: {

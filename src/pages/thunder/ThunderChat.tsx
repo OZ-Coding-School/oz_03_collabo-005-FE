@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { useParams } from 'react-router-dom';
 
 interface Meeting {
-  id: number;
+  id: string;
   user_id: number;
   title: string;
   location_id: string;
@@ -32,7 +32,7 @@ const ThunderChat = () => {
     const meetingId = parseInt(thunderId || '0', 10);
     const fetchedMeeting = meetingList.find((meeting) => meeting.id === meetingId);
     if (fetchedMeeting) {
-      setMeeting(fetchedMeeting as Meeting);
+      setMeeting(fetchedMeeting as unknown as Meeting);
     }
   }, [thunderId]);
 
@@ -103,8 +103,8 @@ const ThunderChat = () => {
         <div className="mb-[28px] mt-[10px] flex flex-col items-center overflow-auto">
           <ThunderCard
             key={meeting.id}
-            id={meeting.id.toString()}
-            imageUrl={meeting.image_url}
+            id={meeting.id}
+            meeting_image_url={Array.isArray(meeting.image_url) ? meeting.image_url[0] : meeting.image_url} // 수정된 부분
             description={meeting.description}
             paymentMethod={meeting.payment_method}
             appointmentTime={meeting.appointment_time}

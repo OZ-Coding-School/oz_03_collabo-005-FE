@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ThunderImageModal from '../../components/thunder/ThunderImageModal';
 import ContentLoader from 'react-content-loader';
@@ -106,20 +107,21 @@ const BoardId = () => {
   const handleSendMessage = async () => {
     if (message.trim() !== '') {
       const newComment = {
-        content: message,
+        comments: message,
+        uuid: selectedBoardItem.uuid,
       };
 
       try {
         // 댓글을 작성하기 위해 API 요청을 보냄
         const response = await authInstance.post(`/api/reviews/detail/${selectedBoardItem.uuid}/comments`, {
-          uuid: selectedBoardItem.uuid,
-          content: newComment.content,
+          uuid: newComment.uuid,
+          comments: newComment.comments,
         });
         if (response.status === 200) {
           setComments((prevComments) => [
             ...prevComments,
             {
-              text: newComment.content,
+              text: newComment.comments,
               timestamp: new Date(),
             },
           ]);
@@ -187,15 +189,20 @@ const BoardId = () => {
       <div className="mb-4 text-xl font-bold">{selectedBoardItem.title}</div>
 
       <div className="mb-4 flex items-center">
-        <img
-          src={selectedBoardItem.comments[0]?.profile_image_url || '../images/anonymous_avatars.svg'}
-          alt="프로필 사진"
-          className="mr-2 h-10 w-10 rounded-full"
-        />
+        <Link to={`/profile/${selectedBoardItem.nickname}`}>
+          <img
+            src={selectedBoardItem.comments[0]?.profile_image_url || '../images/anonymous_avatars.svg'}
+            alt="프로필 사진"
+            className="mr-2 h-10 w-10 rounded-full"
+            onError={(e) => { e.currentTarget.src = '../images/anonymous_avatars.svg'; }}
+          />
+        </Link>
 
         <div>
           <div className="flex items-center">
-            <div className="text-sm font-medium">{selectedBoardItem.nickname}</div>
+            <Link to={`/profile/${selectedBoardItem.nickname}`} className="text-sm font-medium">
+              {selectedBoardItem.nickname}
+            </Link>
             <div className="ml-2 text-xs font-medium text-gray-500">{formattedCreatedAt}</div>
           </div>
         </div>
@@ -250,9 +257,10 @@ const BoardId = () => {
           return (
             <div key={index} className="flex w-full items-center border-b border-gray-300 p-2">
               <img
-                src={selectedBoardItem.comments[index]?.profile_image_url || '/images/anonymous_avatars.svg'}
+                src={comment.profile_image_url}
                 alt="프로필 이미지"
                 className="mb-[28px] mr-2 h-8 w-8 rounded-full"
+                onError={(e) => { e.currentTarget.src = '/images/anonymous_avatars.svg'; }}
               />
               <div>
                 <div className="font-normal">{comment.nickname}</div>

@@ -10,6 +10,7 @@ import 'react-day-picker/dist/style.css';
 import { motion } from 'framer-motion';
 import imageCompression from 'browser-image-compression';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { authInstance } from '../../api/util/instance';
 
 interface FormData {
   title: string;
@@ -17,12 +18,11 @@ interface FormData {
 }
 
 const ThunderPost = () => {
-  const { register, handleSubmit, watch } = useForm<FormData>(); // useForm 훅을 사용하여 폼 데이터
+  const { register, handleSubmit } = useForm<FormData>(); // useForm 훅을 사용하여 폼 데이터
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달의 열림/닫힘 상태
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false); // 중앙 모달의 열림/닫힘 상태
   const [isThunderClockModalOpen, setIsThunderClockModalOpen] = useState(false); // clock modal의 열림/닫힘 상태
   const [isThunderCalendarModalOpen, setIsThunderCalendarModalOpen] = useState(false); // 캘린더 모달의 열림/닫힘 상태
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false); // 폼 모달의 열림/닫힘 상태
   const [selectedLocation, setSelectedLocation] = useState('지역 선택하기'); // 선택된 위치
   const [selectedPayment, setSelectedPayment] = useState(''); // 선택된 결제 방법
   const [selectedAgeGroup, setSelectedAgeGroup] = useState(''); // 선택된 연령대
@@ -52,10 +52,6 @@ const ThunderPost = () => {
 
   const toggleThunderCalendarModal = () => {
     setIsThunderCalendarModalOpen((prev) => !prev);
-  };
-
-  const toggleFormModal = () => {
-    setIsFormModalOpen((prev) => !prev);
   };
 
   const handleLocationSelect = (location: string) => {
@@ -127,7 +123,7 @@ const ThunderPost = () => {
   const locations = ['강동, 하남', '강남, 송파', '강북, 노원', '강서, 양천', '관악, 동작', '광진, 성동'];
 
   const increasePeople = () => {
-    setMaxPeople((prev) => prev + 1);
+    setMaxPeople((prev) => (prev < 100 ? prev + 1 : 100));
   };
 
   const decreasePeople = () => {
@@ -135,7 +131,7 @@ const ThunderPost = () => {
   };
 
   //  폼 데이터 제출 시 미입력 필드에 따른 Modal 알림
-  const onSubmit: SubmitHandler<FormData> = (data) => {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     const missingFieldsList: string[] = [];
     if (!selectedPayment) {
       missingFieldsList.push('지불 방식');
@@ -149,9 +145,6 @@ const ThunderPost = () => {
     if (!data.title) {
       missingFieldsList.push('제목');
     }
-    if (!data.content) {
-      missingFieldsList.push('내용');
-    }
 
     if (missingFieldsList.length > 0) {
       setModalMessage({ title1: '필수항목을 선택해주세요.', title2: missingFieldsList.join(', ') });
@@ -159,8 +152,26 @@ const ThunderPost = () => {
       return;
     }
 
-    console.log(data);
-    toggleFormModal();
+    try {
+      const response = await authInstance.post('/api/meeting/detail/create/', {
+        ...data,
+        title: data.title,
+        description: data.content,
+        location: selectedLocation,
+        payment_method: selectedPayment,
+        age_group: selectedAgeGroup,
+        gender_group: selectedGenderGroup,
+        meeting_time: selectedDate ? `${selectedDate.toISOString().split('T')[0]}T${selectedTime}:00.000Z` : '',
+        maximum: maxPeople,
+        meeting_image_url: selectedImages,
+      });
+      console.log(response.data);
+      toggleModal();
+    } catch (error) {
+      console.error('폼 제출 중 오류가 발생했습니다:', error);
+      setModalMessage({ title1: '폼 제출 중 오류가 발생했습니다.', title2: '다시 시도해주세요.' });
+      toggleCenterModal();
+    }
   };
 
   return (
@@ -172,13 +183,13 @@ const ThunderPost = () => {
           <div className="mb-2 flex items-center">
             <button
               type="button"
-              className={`mr-2 h-[35px] rounded-lg px-2 ${selectedPayment === '제가 쏩니다' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] rounded-lg border-2 px-2 ${selectedPayment === '제가 쏩니다' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedPayment('제가 쏩니다')}>
               제가 쏩니다
             </button>
             <button
               type="button"
-              className={`mr-2 h-[35px] rounded-lg px-2 ${selectedPayment === '더치페이' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] rounded-lg border-2 px-2 ${selectedPayment === '더치페이' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedPayment('더치페이')}>
               더치페이
             </button>
@@ -187,25 +198,25 @@ const ThunderPost = () => {
           <div className="mb-2 flex items-center">
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg px-2 ${selectedAgeGroup === '20대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === '20대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedAgeGroup('20대')}>
               20대
             </button>
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg px-2 ${selectedAgeGroup === '30대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === '30대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedAgeGroup('30대')}>
               30대
             </button>
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg px-2 ${selectedAgeGroup === '40대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === '40대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedAgeGroup('40대')}>
               40대
             </button>
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg px-2 ${selectedAgeGroup === '상관없음' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === '상관없음' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedAgeGroup('상관없음')}>
               상관없음
             </button>
@@ -215,21 +226,21 @@ const ThunderPost = () => {
           <div className="mb-2 flex items-center">
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg px-2 ${selectedGenderGroup === '이성' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedGenderGroup === '이성' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedGenderGroup('이성')}>
               이성
             </button>
 
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg px-2 ${selectedGenderGroup === '동성' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedGenderGroup === '동성' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedGenderGroup('동성')}>
               동성
             </button>
 
             <button
               type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg px-2 ${selectedGenderGroup === '상관없음' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedGenderGroup === '상관없음' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
               onClick={() => setSelectedGenderGroup('상관없음')}>
               상관없음
             </button>
@@ -374,7 +385,7 @@ const ThunderPost = () => {
 
           <div className="mb-2 mt-10 flex items-center font-semibold">최대 인원을 선택해주세요</div>
           <div className="mb-2 flex items-center">
-            <span className="mr-2 flex h-[40px] w-[200px] items-center justify-center rounded-lg bg-[#F2F2F2] text-center text-xl">
+            <span className="mr-2 flex h-[40px] w-[200px] items-center justify-center rounded-lg border-2 bg-[#F2F2F2] text-center text-xl">
               {maxPeople}
             </span>
             <motion.button
@@ -382,7 +393,7 @@ const ThunderPost = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 1 }}
               onClick={decreasePeople}
-              className="mr-2 flex h-[35px] w-[35px] items-center justify-center rounded-lg bg-[#F2F2F2] text-2xl">
+              className="mr-2 flex h-[40px] w-[35px] items-center justify-center rounded-lg border-2 bg-[#F2F2F2] text-2xl">
               -
             </motion.button>
             <motion.button
@@ -390,7 +401,7 @@ const ThunderPost = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 1 }}
               onClick={increasePeople}
-              className="flex h-[35px] w-[35px] items-center justify-center rounded-lg bg-[#F2F2F2] text-2xl">
+              className="flex h-[40px] w-[35px] items-center justify-center rounded-lg border-2 bg-[#F2F2F2] text-2xl">
               +
             </motion.button>
           </div>
@@ -456,7 +467,7 @@ const ThunderPost = () => {
         </motion.button>
       </ModalCenter>
 
-      <ModalCenter isOpen={isFormModalOpen} onClose={toggleFormModal} title1="폼 제출 테스트" title2="">
+      {/* <ModalCenter isOpen={isFormModalOpen} onClose={toggleFormModal} title1="폼 제출 테스트" title2="">
         <>
           <p className="text-center">지불 방식: {selectedPayment}</p>
           <p className="text-center">연령대: {selectedAgeGroup}</p>
@@ -466,7 +477,7 @@ const ThunderPost = () => {
           </p>
           <p className="text-center">지역: {selectedLocation}</p>
           <p className="text-center">제목: {watch('title')}</p>
-          <p className="text-center">내용: {watch('content')}</p>
+          <p className="text-center">내용: {watch('description')}</p>
           <p className="text-center">이미지 등록-첫번째 사진이 대표사진이 됩니다.</p>
           <div className="flex flex-wrap justify-center">
             {imagePreviews.map((preview, index) => (
@@ -487,7 +498,7 @@ const ThunderPost = () => {
           className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
           확인
         </motion.button>
-      </ModalCenter>
+      </ModalCenter> */}
     </>
   );
 };

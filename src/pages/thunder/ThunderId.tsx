@@ -26,6 +26,7 @@ interface MeetingMember {
   id: number;
   profile_image_url: string;
   introduction: string;
+  nickname: string;
 }
 
 const ThunderId = () => {
@@ -139,10 +140,14 @@ const ThunderId = () => {
       </div>
       {/* 작성자 정보 */}
       <div className="mb-4 flex items-center">
-        <img src="../images/anonymous_avatars.svg" alt="프로필 사진" className="mr-2 h-10 w-10 rounded-full" />
+        <Link to={`/profile/${selectedMeeting.nickname}`}>
+          <img src="../images/anonymous_avatars.svg" alt="프로필 사진" className="mr-2 h-10 w-10 rounded-full" />
+        </Link>
         <div>
           <div className="flex items-center">
-            <div className="text-sm font-medium">{selectedMeeting.nickname}</div>
+            <Link to={`/profile/${selectedMeeting.nickname}`} className="text-sm font-medium">
+              {selectedMeeting.nickname}
+            </Link>
             <div className="ml-2 text-xs font-medium text-gray-500">{formatCreatedAt(selectedMeeting.created_at)}</div>
           </div>
         </div>
@@ -184,13 +189,21 @@ const ThunderId = () => {
       {/* 같이 드실 멤버 프로필 */}
       {meetingMembers.map((member) => (
         <div key={member.id} className="mb-4 flex items-center">
-          <img
-            src={member.profile_image_url}
-            alt="같이 드실 멤버 프로필 사진"
-            className="mr-2 h-10 w-10 rounded-full"
-          />
+          <Link to={`/profile/${member.nickname}`}>
+            <img
+              src={member.profile_image_url}
+              alt="같이 드실 멤버 프로필 사진"
+              className="mr-2 h-10 w-10 rounded-full"
+              onError={(e) => {
+                (e.target as HTMLImageElement).onerror = null;
+                (e.target as HTMLImageElement).src = '../images/anonymous_avatars.svg';
+              }}
+            />
+          </Link>
           <div>
-            <p className="text-sm">족발 러버</p>
+            <Link to={`/profile/${member.nickname}`} className="text-sm font-medium">
+              {member.nickname}
+            </Link>
             <p className="text-xs text-gray-500">{member.introduction}</p>
           </div>
         </div>
