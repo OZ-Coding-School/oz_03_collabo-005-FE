@@ -18,7 +18,7 @@ const ImageWithPlaceholder: React.FC<ImageWithPlaceholderProps> = ({ src, alt })
       <img
         src={src}
         alt={alt}
-        className="absolute left-0 top-0 h-full w-full rounded-lg object-cover"
+        className={`absolute left-0 top-0 h-full w-full rounded-lg object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
       />
     </div>
