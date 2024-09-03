@@ -28,7 +28,7 @@ const UserLink: React.FC<UserLinkProps> = ({ text, src, isUserLoggedIn }) => {
         <Link
           to={isUserLoggedIn ? src : '#'}
           onClick={handleNavigate}
-          className="flex w-full cursor-pointer items-center justify-between p-[1rem] text-[20px] hover:rounded-lg hover:font-bold hover:text-primary xs:py-[0.7rem] xs:text-[14px]">
+          className="flex w-full cursor-pointer items-center justify-between p-[12px] text-[20px] hover:rounded-lg hover:font-bold hover:text-primary xs:py-[0.7rem] xs:text-[14px]">
           {text}
           <IoIosArrowForward className="text-[20px] xs:text-[16px]" />
         </Link>

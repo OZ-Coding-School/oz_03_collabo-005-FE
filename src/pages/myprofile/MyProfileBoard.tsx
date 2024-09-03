@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import PostNav from '../../components/myprofile/PostNav';
 import BoardCard from '../../components/board/BoardCard.tsx';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authInstance } from '../../api/util/instance.ts';
 import Loading from '../../components/common/Loading.tsx';
+import { getCookie } from '../../utils/cookie.ts';
 
 interface BoardItem {
   uuid: string;
@@ -20,6 +21,13 @@ const MyProfileBoard = () => {
   const [selectedItem, setSelectedItem] = useState<string>('작성한 글');
   const [boardList, setBoardList] = useState<BoardItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!getCookie('refresh')) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     setIsLoading(true);

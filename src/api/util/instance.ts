@@ -84,8 +84,10 @@ export async function refreshAccessToken(option?: string): Promise<string | null
 }
 
 // 로그아웃 함수
-function logout(): void {
+export function logout(option?: string): void {
   removeItem('access'); // 로컬 스토리지에서 액세스 토큰 삭제
   deleteCookie('refresh'); // 쿠키에서 리프레시 토큰 삭제
-  window.location.href = '/home'; // 홈 페이지로 리디렉션
+  if (!option) {
+    window.location.href = '/'; // 홈 페이지로 리디렉션
+  }
 }
