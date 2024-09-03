@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Image from '../../components/common/Image';
 import { baseInstance } from '../../api/util/instance';
 import { useParams } from 'react-router-dom';
+import Loading from '../../components/common/Loading';
 
 interface User {
   profile_image_url?: string;
@@ -12,13 +13,24 @@ interface User {
 
 const ProfileId = () => {
   const param = useParams();
-  const [user, setUser] = useState<User | undefined>(undefined);
+  const [user, setUser] = useState<User>();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    baseInstance.get(`/api/profile/${param.Id}/`).then((res) => {
-      setUser(res.data);
-    });
+    baseInstance
+      .get(`/api/profile/${param.Id}/`)
+      .then((res) => {
+        setUser(res.data);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
+      });
   }, [param.Id]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="mt-4 p-4">
