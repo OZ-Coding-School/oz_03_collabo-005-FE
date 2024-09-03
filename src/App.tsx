@@ -9,7 +9,6 @@ import { MyProfile, MyProfileBoard, MyProfileEdit, MyProfileThunder } from './pa
 import { Thunder, ThunderChat, ThunderId, ThunderPost } from './pages/thunder';
 import Landing from './pages/Home/Landing.tsx';
 import ProfileId from './pages/profile/ProfileId.tsx';
-import Terms from './pages/terms/Terms.tsx';
 import ImageOverview from './pages/Image/ImageOverview.tsx';
 
 function App() {
@@ -61,8 +60,6 @@ function App() {
           <Route path=":thunderId" element={<ThunderId />} />
           <Route path="thunderpost" element={<ThunderPost />} />
         </Route>
-
-        <Route path="terms" element={<Terms />} />
 
         <Route path="profile/:Id" element={<ProfileId />} />
 
