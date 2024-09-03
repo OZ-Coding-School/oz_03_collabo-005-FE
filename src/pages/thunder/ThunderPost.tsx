@@ -1,7 +1,7 @@
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { IoMdCheckmark } from 'react-icons/io';
 import { IoCloseOutline } from 'react-icons/io5';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ModalBottom from '../../components/common/ModalBottom';
 import ModalCenter from '../../components/common/ModalCenter';
 import ThunderClockModal from '../../components/thunder/ThunderClockModal';
@@ -11,6 +11,8 @@ import { motion } from 'framer-motion';
 import imageCompression from 'browser-image-compression';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { authInstance } from '../../api/util/instance';
+import { getCookie } from '../../utils/cookie';
+import { useNavigate } from 'react-router-dom';
 
 interface FormData {
   title: string;
@@ -37,6 +39,13 @@ const ThunderPost = () => {
   const [maxPeople, setMaxPeople] = useState(1); // 최대 인원
   const [representativeImage, setRepresentativeImage] = useState<number | null>(null); // 대표 이미지
   const [modalMessage, setModalMessage] = useState({ title1: '', title2: '' }); // 모달 메시지
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!getCookie('refresh')) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const toggleModal = () => {
     setIsModalOpen((prev) => !prev);
