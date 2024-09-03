@@ -1,8 +1,10 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // useNavigate 추가
 import { useState, useEffect } from 'react';
-import { authInstance } from '../../api/util/instance'; // authInstance 가져오기
+import { baseInstance } from '../../api/util/instance'; // authInstance 가져오기
+import { getCookie } from '../../utils/cookie'; // getCookie 가져오기
 import BoardCard from '../../components/board/BoardCard'; // BoardCard 컴포넌트 추가
 import Loading from '../../components/common/Loading'; // Loading 컴포넌트 추가
+import ModalBottom from '../../components/common/ModalBottom';
 
 const Board = () => {
   const [selectedBoard, setSelectedBoard] = useState<string>('전체'); // 초기값을 '전체'로 설정
@@ -20,6 +22,8 @@ const Board = () => {
     }[]
   >([]); // 게시판 목록 상태 추가
   const [isLoading, setIsLoading] = useState<boolean>(true); // 로딩 상태 추가
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false); // 로그인 모달 상태 추가
+  const navigate = useNavigate(); // useNavigate 훅 사용
 
   useEffect(() => {
     setSelectedBoard('전체'); // 컴포넌트가 처음 렌더링될 때 '전체'로 설정
@@ -28,12 +32,21 @@ const Board = () => {
 
   const fetchBoardList = async () => {
     try {
-      const response = await authInstance.get('/api/reviews/');
+      const response = await baseInstance.get('/api/reviews/');
       setBoardList(response.data.reviews);
       setIsLoading(false);
     } catch (error) {
       console.error('게시판 목록을 가져오는 중 오류가 발생했습니다:', error);
       setIsLoading(false);
+    }
+  };
+
+  const checkLogin = () => {
+    const token = getCookie('refresh');
+    if (!token) {
+      setIsLoginModalOpen(true); // 로그인 모달 열기
+    } else {
+      navigate('/board/boardpost'); // 로그인 되어 있으면 게시물 작성 페이지로 이동
     }
   };
 
@@ -44,11 +57,6 @@ const Board = () => {
           if (!item) return false;
           return item.category_name === selectedBoard;
         });
-
-  // 로딩 상태일 때 Loading 컴포넌트 렌더링
-  if (isLoading) {
-    return <Loading />;
-  }
 
   // 로딩 상태일 때 Loading 컴포넌트 렌더링
   if (isLoading) {
@@ -113,11 +121,26 @@ const Board = () => {
           })}
         </div>
       )}
-      <Link
-        to={'/board/boardpost'}
-        className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 xs:bottom-[100px] xs:right-[calc(5%)]">
+      <div
+        onClick={checkLogin} // 링크 대신 onClick으로 로그인 체크
+        className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 cursor-pointer xs:bottom-[100px] xs:right-[calc(5%)]">
         <div className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]' />
-      </Link>
+      </div>
+      {/* 로그인 모달 추가 */}
+      <ModalBottom isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}>
+        <div className="p-4 text-center">
+          <p className="text-lg font-semibold">로그인이 필요한 서비스 입니다.</p>
+          <p className="mt-2 text-sm text-gray-600">게시글을 만들려면 먼저 로그인해주세요.</p>
+          <button
+            className="mt-4 w-full rounded-lg bg-primary px-10 py-2 font-bold text-white"
+            onClick={() => {
+              setIsLoginModalOpen(false);
+              navigate('/signIn');
+            }}>
+            로그인하기
+          </button>
+        </div>
+      </ModalBottom>
     </div>
   );
 };

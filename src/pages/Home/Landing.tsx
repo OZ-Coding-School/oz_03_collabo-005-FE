@@ -9,8 +9,7 @@ import { getItem } from '../../utils/storage';
 const Landing: React.FC = () => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
-  const [confirmFlavor, setConfirmFlavor] = useState<boolean>(false);
-  const [spicy, setSpicy] = useState<number | null>(null);
+  const [spicy, setSpicy] = useState<number | undefined | null>(undefined);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -20,15 +19,11 @@ const Landing: React.FC = () => {
           token = await refreshAccessToken('noErrorCode');
         }
         if (token) {
-          setConfirmFlavor(true);
           const res = await authInstance.get('/api/profile/');
           setSpicy(res.data.spicy_preference);
-        } else {
-          setConfirmFlavor(false);
         }
       } catch (error) {
         console.error('Failed to fetch profile or refresh token:', error);
-        setConfirmFlavor(false);
       }
     };
     checkLoginStatus();
@@ -44,7 +39,7 @@ const Landing: React.FC = () => {
   return (
     <div className="mx-auto mb-[75px] flex max-w-full flex-col items-center xs:mb-[65px]">
       <FirstSection isVisible={isVisible} setIsImageLoaded={setIsImageLoaded} spicy={spicy} />
-      {confirmFlavor && <FoodSection spicy={spicy} setConfirmFlavor={setConfirmFlavor} />}
+      {spicy !== undefined && <FoodSection spicy={spicy} />}
       <Section
         title="FTI 검사"
         subtitle={

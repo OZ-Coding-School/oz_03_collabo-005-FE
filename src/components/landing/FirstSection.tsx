@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 interface FirstSectionProps {
   isVisible: boolean;
   setIsImageLoaded: (loaded: boolean) => void;
-  spicy: number | null;
+  spicy: number | null | undefined;
 }
 
 const FirstSection: React.FC<FirstSectionProps> = ({ isVisible, setIsImageLoaded, spicy }) => (
