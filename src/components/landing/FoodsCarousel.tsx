@@ -2,7 +2,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import ImageWithPlaceholder from './ImageWithPlaceHolder';
 import { Link } from 'react-router-dom';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FoodsCarouselList } from '../../data/FoodsCarouselList';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { FoodsList } from '../../types/types';
@@ -11,10 +11,9 @@ import { authInstance } from '../../api/util/instance';
 
 interface FoodsCarouselProps {
   spicy: number | null;
-  setConfirmFlavor: Dispatch<SetStateAction<boolean>>;
 }
 
-const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy, setConfirmFlavor }) => {
+const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy }) => {
   const [userFoods, setUserFoods] = useState<FoodsList[]>(FoodsCarouselList);
   const { setFoodsList } = useFoodsListStore();
 
@@ -38,7 +37,6 @@ const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy, setConfirmFlavor }
         })
         .catch((err) => {
           console.error('Error fetching foods:', err);
-          setConfirmFlavor(false);
         });
     }
   }, [spicy]);

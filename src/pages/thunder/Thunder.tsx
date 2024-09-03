@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ModalBottom from '../../components/common/ModalBottom';
 import ThunderCard from '../../components/thunder/ThunderCard';
@@ -6,6 +5,8 @@ import RoundedButton from '../../components/thunder/RoundedButton';
 import SelectionItem from '../../components/thunder/SelectionItem';
 import { baseInstance } from '../../api/util/instance';
 import Loading from '../../components/common/Loading';
+import { getCookie } from '../../utils/cookie';
+import { useNavigate } from 'react-router-dom';
 
 interface Meeting {
   uuid: string;
@@ -33,6 +34,8 @@ const Thunder: React.FC = () => {
   const [selectedTime, setSelectedTime] = useState<string | undefined>();
   const [meetings, setMeetings] = useState<Meeting[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.getElementById('root')?.scrollTo(0, 0);
@@ -82,6 +85,15 @@ const Thunder: React.FC = () => {
     setIsSelectedList(isAll);
   };
 
+  const checkLogin = () => {
+    const token = getCookie('refresh');
+    if (!token) {
+      setIsLoginModalOpen(true);
+    } else {
+      navigate('/thunder/thunderpost');
+    }
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -126,11 +138,11 @@ const Thunder: React.FC = () => {
           ))}
         </div>
       )}
-      <Link
-        to={'/thunder/thunderpost'}
-        className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 xs:bottom-[100px] xs:right-[5%]">
+      <div
+        onClick={checkLogin}
+        className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 cursor-pointer xs:bottom-[100px] xs:right-[5%]">
         <div className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]' />
-      </Link>
+      </div>
       <ModalBottom isOpen={isModalOpen} onClose={toggleModal}>
         <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
         <div className="flex flex-col gap-[20px] p-[20px]">
@@ -149,6 +161,20 @@ const Thunder: React.FC = () => {
               }}
             />
           ))}
+        </div>
+      </ModalBottom>
+      <ModalBottom isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}>
+        <div className="p-4 text-center">
+          <p className="text-lg font-semibold">로그인이 필요한 서비스 입니다.</p>
+          <p className="mt-2 text-sm text-gray-600">일정을 만들려면 먼저 로그인해주세요.</p>
+          <button
+            className="mt-4 w-full rounded-lg bg-primary px-10 py-2 font-bold text-white"
+            onClick={() => {
+              setIsLoginModalOpen(false);
+              navigate('/signIn');
+            }}>
+            로그인하기
+          </button>
         </div>
       </ModalBottom>
     </div>

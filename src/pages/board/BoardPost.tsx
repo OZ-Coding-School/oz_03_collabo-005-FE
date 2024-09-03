@@ -1,5 +1,5 @@
 import { IoCloseOutline } from 'react-icons/io5';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ModalCenter from '../../components/common/ModalCenter';
 import 'react-day-picker/dist/style.css';
 import { motion } from 'framer-motion';
@@ -7,6 +7,7 @@ import imageCompression from 'browser-image-compression';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom'; // useNavigate import 추가
 import { authInstance } from '../../api/util/instance'; // authInstance 가져오기
+import { getCookie } from '../../utils/cookie';
 
 interface FormData {
   title: string;
@@ -26,6 +27,12 @@ const BoardPost = () => {
   const [currentUploadingIndex, setCurrentUploadingIndex] = useState(0); // 현재 업로드 중인 이미지 인덱스
   const [representativeImage, setRepresentativeImage] = useState<number | null>(null); // 대표 이미지
   const [modalMessage, setModalMessage] = useState({ title1: '', title2: '' }); // 모달 메시지
+
+  useEffect(() => {
+    if (!getCookie('refresh')) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   // 중앙 모달의 열림/닫힘 상태 modal
   const toggleCenterModal = () => {

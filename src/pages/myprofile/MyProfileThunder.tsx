@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import PostNav from '../../components/myprofile/PostNav';
 import ThunderCard from '../../components/thunder/ThunderCard';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authInstance } from '../../api/util/instance';
 import Loading from '../../components/common/Loading';
+import { getCookie } from '../../utils/cookie';
 
 interface ThunderItem {
   uuid: string;
@@ -21,6 +22,13 @@ const MyProfileThunder = () => {
   const [selectedItem, setSelectedItem] = useState<string>('작성한 글');
   const [userSocialList, setSocialList] = useState<ThunderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!getCookie('refresh')) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     setIsLoading(true);
