@@ -13,6 +13,7 @@ const Nav = () => {
   const isBoardPostPath = location.pathname.startsWith('/board/'); // 소셜 다이닝
 
   const isFoodsPage = location.pathname.startsWith('/foods');
+  const isFTIPage = location.pathname.startsWith('/fti');
 
   const isMyProfilePath = location.pathname === '/myprofile'; // 프로필
   const isMyProfileEditPath = location.pathname === '/myprofile/myprofileedit'; // 프로필
@@ -42,7 +43,8 @@ const Nav = () => {
     isImgPath ||
     isFlavorTestPage ||
     isFoodsPage ||
-    isIntroductionPath
+    isIntroductionPath ||
+    isFTIPage
   ) {
     return null;
   }

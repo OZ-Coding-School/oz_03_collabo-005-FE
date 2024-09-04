@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { useFoodStore } from '../../store/foodStore/foodStore';
-import { SearchResult } from '../../store/foodStore/foodStore';
+import { useFoodStore } from '../../store/foodStore';
+import { SearchResult } from '../../store/foodStore';
 
 declare global {
   interface Window {
@@ -30,7 +30,7 @@ function Map({ className }: KakaoMapProps) {
   const clickedMarkerImage = new kakao.maps.MarkerImage('/images/marker.svg', new kakao.maps.Size(40, 45));
 
   // 스토어에서 가져오기
-  const { foodName, setSearchResults, selectedRestaurant, setSelectedRestaurant } = useFoodStore();
+  const { foodName, setSearchResults, selectedRestaurant, setSelectedRestaurant, setIsLoading } = useFoodStore();
 
   // 지도 생성
   const initMap = () => {
@@ -38,7 +38,7 @@ function Map({ className }: KakaoMapProps) {
     const container = document.getElementById('map');
     const options = {
       center: new kakao.maps.LatLng(`${currentPosition.lat - 0.003}`, currentPosition.lng),
-      level: 4,
+      level: 5,
     };
     const newMap = new kakao.maps.Map(container as HTMLElement, options);
     setMap(newMap);
@@ -106,7 +106,7 @@ function Map({ className }: KakaoMapProps) {
           setCurrentPosition(newPosition);
 
           if (map) {
-            map.setCenter(new kakao.maps.LatLng(newPosition.lat - 0.003, newPosition.lng));
+            map.setCenter(new kakao.maps.LatLng(newPosition.lat, newPosition.lng));
             searchPlaces(); // 새 위치에서 다시 검색
           }
         },
@@ -124,6 +124,7 @@ function Map({ className }: KakaoMapProps) {
     if (!map || !currentPosition || !foodName) return;
 
     removeAllMarkers();
+    setIsLoading(true); // 검색 시작 시 로딩 상태를 true로 설정
 
     const places = new kakao.maps.services.Places();
 
@@ -152,11 +153,12 @@ function Map({ className }: KakaoMapProps) {
         console.log('No results found or error occurred. Status:', status);
         setSearchResults([]);
       }
+      setIsLoading(false);
     };
 
     places.keywordSearch(foodName, callback, {
       location: new kakao.maps.LatLng(currentPosition.lat, currentPosition.lng),
-      radius: 1000,
+      radius: 2000,
       sort: kakao.maps.services.SortBy.DISTANCE,
       size: 15,
     });

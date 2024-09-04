@@ -1,28 +1,60 @@
 import { useState, useEffect } from 'react';
 import Tag from '../../components/common/Tag';
 import FoodCard from '../../components/foods/FoodCard';
-import FOOD_DATA from '../../DUMMY_DATA/FOOD_DATA.json';
+import { useFoodStore } from '../../store/foodStore';
+import { FoodsList } from '../../types/types';
+import { getItem } from '../../utils/storage';
+import { postAllFoods } from '../../api/apis/foods';
 
-const filter: string[] = ['기본', '점심', '저녁', '야식', '데이트', '스트레스🔥', '다이어트'];
+const filter: string[] = ['기본', '점심', '저녁', '간식', '데이트', '회식', '다이어트'];
 
 const Foods = () => {
   const [selectedTag, setSelectedTag] = useState<string>('기본');
-  const [filteredFoods, setFilteredFoods] = useState(FOOD_DATA);
+  const [filteredFoods, setFilteredFoods] = useState<FoodsList[]>([]);
+  const { foodsList, setFoodsList } = useFoodStore();
 
   const handleTagClick = (tag: string) => {
     setSelectedTag(tag);
   };
 
-  const filterFoods = (tag: string) => {
+  const mapTags = (food: FoodsList): string[] => {
+    const tags: string[] = [];
+    if (food.is_lunch) tags.push('점심');
+    if (food.is_dinner) tags.push('저녁');
+    if (food.is_snack) tags.push('간식');
+    if (food.is_date) tags.push('데이트');
+    if (food.is_party) tags.push('회식');
+    if (food.is_diet) tags.push('다이어트');
+    return tags;
+  };
+
+  const filterFoods = (tag: string): FoodsList[] => {
     if (tag === '기본') {
-      return FOOD_DATA;
+      return foodsList;
     }
-    return FOOD_DATA.filter((food) => food.tag.includes(tag));
+    return foodsList.filter((food) => mapTags(food).includes(tag));
+  };
+
+  const getAllFoods = async () => {
+    const response = await postAllFoods();
+    console.log('All foods fetched:', response.data);
   };
 
   useEffect(() => {
+    const recommendedFoods = getItem('foodsList-storage');
+    if (recommendedFoods) {
+      const parsedFoods = JSON.parse(recommendedFoods).state.foodsList;
+      setFoodsList(parsedFoods);
+    }
+  }, [setFoodsList]);
+
+  useEffect(() => {
     setFilteredFoods(filterFoods(selectedTag));
-  }, [selectedTag]);
+  }, [selectedTag, foodsList]);
+
+  useEffect(() => {
+    getAllFoods();
+  }, []);
 
   return (
     <div>
@@ -42,9 +74,16 @@ const Foods = () => {
         ))}
       </div>
       <div className="flex flex-col gap-[20px] px-[16px] py-[12px]">
-        {filteredFoods.map((item) => (
-          <FoodCard key={item.id} id={item.id} info={item.info} name={item.name} tag={item.tag} img={item.img} />
-        ))}
+        {Array.isArray(filteredFoods) &&
+          filteredFoods.map((item) => (
+            <FoodCard
+              key={item.food_id}
+              id={item.food_id}
+              name={item.food_name}
+              tag={mapTags(item)}
+              img={item.image_url || ''}
+            />
+          ))}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { FoodsList } from '../types/types';
 
 export interface SearchResult {
   id: string;
@@ -18,6 +19,10 @@ interface FoodStore {
   setSearchResults: (results: SearchResult[]) => void;
   selectedRestaurant: string;
   setSelectedRestaurant: (restaurant: string) => void;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
+  foodsList: FoodsList[];
+  setFoodsList: (foods: FoodsList[]) => void;
 }
 
 export const useFoodStore = create<FoodStore>((set) => ({
@@ -27,4 +32,8 @@ export const useFoodStore = create<FoodStore>((set) => ({
   setSearchResults: (results) => set({ searchResults: results }),
   selectedRestaurant: '',
   setSelectedRestaurant: (restaurant) => set({ selectedRestaurant: restaurant }),
+  isLoading: false,
+  setIsLoading: (loading) => set({ isLoading: loading }),
+  foodsList: [],
+  setFoodsList: (foods) => set({ foodsList: foods }),
 }));

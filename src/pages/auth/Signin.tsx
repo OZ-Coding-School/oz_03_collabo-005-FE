@@ -1,8 +1,10 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { signinAPI } from '../../api/apis/auth';
+import { getCookie } from '../../utils/cookie';
 
 interface InputProps {
   email: string;
@@ -14,24 +16,37 @@ const Signin = () => {
     register,
     handleSubmit,
     formState: { isSubmitting, errors },
-  } = useForm<InputProps>();
+  } = useForm<InputProps>({
+    mode: 'onChange',
+  });
 
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<InputProps> = async (data) => {
     try {
       await signinAPI(data.email, data.password);
-      // 로그인 성공 시 처리 (예: 메인 페이지로 이동)
       navigate('/');
       console.log('Signin successful');
     } catch (error) {
-      // 로그인 실패 시 처리 (예: 에러 메시지 표시)
+      if (error.response && error.response.status === 400) {
+        setErrorMessage('이메일 또는 비밀번호가 잘못되었습니다.');
+      } else {
+        setErrorMessage('로그인 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      }
       console.error('Signin failed', error);
     }
   };
 
+  useEffect(() => {
+    const refreshToken = getCookie('refresh');
+    if (refreshToken) {
+      navigate('/'); // 리프레시 토큰이 있으면 메인 페이지로 리다이렉트
+    }
+  }, [navigate]);
+
   return (
-    <div className="px-[16px] pt-[12px]">
+    <div className="relative px-[16px] pt-[12px]">
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Input
           title="이메일"
@@ -59,11 +74,13 @@ const Signin = () => {
             required: '비밀번호를 입력하세요.',
             minLength: {
               value: 6,
-              message: '비밀번호는 6글자 이상',
+              message: '비밀번호는 6글자 이상이어야 합니다.',
             },
           })}
           error={errors.password}
         />
+
+        {errorMessage && <p className="relative bottom-[10px] text-[14px] text-red">{errorMessage}</p>}
 
         <Button
           buttonSize="normal"

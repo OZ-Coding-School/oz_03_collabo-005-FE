@@ -1,0 +1,152 @@
+[
+  {
+    "number": "1",
+    "answerA": "또 이거야? 새로운 맛의 세계로 떠납니다",
+    "result": "I"
+  },
+  {
+    "number": "1",
+    "answerB": "그래도 먹방 고! 맛있으면 0칼로리",
+    "result": "C"
+  },
+  {
+    "number": "2",
+    "answerA": "혼밥이 10배 꿀맛! 나만의 식사 시간 최고",
+    "result": "A"
+  },
+  {
+    "number": "2",
+    "answerB": "같밥이 10배 재미져! 수다와 함께하는 밥심 충전",
+    "result": "T"
+  },
+  {
+    "number": "3",
+    "answerA": "FBI급 검색 실력 발휘! 리뷰 30개는 기본",
+    "result": "D"
+  },
+  {
+    "number": "3",
+    "answerB": "검색은 귀차니즘... 발길 닿는 대로 고고",
+    "result": "N"
+  },
+  {
+    "number": "4",
+    "answerA": "믿고 먹는 단골집 '평소처럼 주세요~'",
+    "result": "C"
+  },
+  {
+    "number": "4",
+    "answerB": "새로운 맛집 탐험! '오늘의 메뉴는 뭘까요?'",
+    "result": "I"
+  },
+  {
+    "number": "5",
+    "answerA": "조용조용 ASMR 먹방의 성지",
+    "result": "A"
+  },
+  {
+    "number": "5",
+    "answerB": "시끌벅적 핫플 감성 뿜뿜",
+    "result": "T"
+  },
+  {
+    "number": "6",
+    "answerA": "별점, 리뷰 수, 사진까지 꼼꼼히 체크! 빅데이터 분석 중",
+    "result": "D"
+  },
+  {
+    "number": "6",
+    "answerB": "가장 가까운 곳으로 설정... 걸어갈 수 있어야 해요",
+    "result": "N"
+  },
+  {
+    "number": "7",
+    "answerA": "직원님과 아이컨택! 공손하게 주문이요",
+    "result": "T"
+  },
+  {
+    "number": "7",
+    "answerB": "부담스러워.. 키오스크 터치 OK",
+    "result": "A"
+  },
+  {
+    "number": "8",
+    "answerA": "호기심 폭발! 꼭 가봐야 해 ",
+    "result": "I"
+  },
+  {
+    "number": "8",
+    "answerB": "익숙한 맛이 최고야, 모험은 NO",
+    "result": "C"
+  },
+  {
+    "number": "9",
+    "answerA": "솔깃! 저장하고 찾아가야지",
+    "result": "D"
+  },
+  {
+    "number": "9",
+    "answerB": "눈으로만 먹을래요, 현실은 다를 거야",
+    "result": "N"
+  },
+  {
+    "number": "10",
+    "answerA": "인스타 감성 뿜뿜, 사진 잘 찍는 베프",
+    "result": "T"
+  },
+  {
+    "number": "10",
+    "answerB": "맛 평가 전문가, 혀가 예민한 츤데레",
+    "result": "A"
+  },
+  {
+    "number": "11",
+    "answerA": "저장하고 도장 깨기! 하나씩 정복한다",
+    "result": "I"
+  },
+  {
+    "number": "11",
+    "answerB": "그냥 스크롤... 괜찮아 보이면 가겠지",
+    "result": "C"
+  },
+  {
+    "number": "12",
+    "answerA": "'배민' 없인 못 살아! 편리함이 최고",
+    "result": "N"
+  },
+  {
+    "number": "12",
+    "answerB": "직접 가서 먹어야 제맛! 현장감 최고",
+    "result": "D"
+  },
+  {
+    "number": "13",
+    "answerA": "자유롭고 편해서 좋아! 셀프 데이트 중",
+    "result": "A"
+  },
+  {
+    "number": "13",
+    "answerB": "조금 쓸쓸... 누구 없나요?",
+    "result": "T"
+  },
+  {
+    "number": "14",
+    "answerA": "맛있다면 지구 반대편도 OK! 맛의 여행자",
+    "result": "D"
+  },
+  {
+    "number": "14",
+    "answerB": "20분 이상 걸리면 패스~ 근처가 최고",
+    "result": "N"
+  },
+  {
+    "number": "15",
+    "answerA": "기다릴 수 있어요! 긴 줄 = 맛집 인증",
+    "result": "I"
+  },
+  {
+    "number": "15",
+    "answerB": "헉, 다음에 올게요... 시간이 곧 금이에요",
+    "result": "C"
+  }
+]
