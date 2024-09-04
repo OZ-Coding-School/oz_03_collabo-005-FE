@@ -7,6 +7,8 @@ import ContentLoader from 'react-content-loader';
 import { format, differenceInMinutes, differenceInHours } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { authInstance } from '../../api/util/instance';
+import { NotFound } from '../notfound';
+import Loading from '../../components/common/Loading';
 
 // ThunderId - 소셜다이닝 글 목록 조회
 interface Meeting {
@@ -39,6 +41,7 @@ const ThunderId = () => {
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null); // 선택된 모임 정보를 관리
   const [selectedImages, setSelectedImages] = useState<string[]>([]); // 선택된 이미지 URL들을 관리
   const [meetingMembers, setMeetingMembers] = useState<MeetingMember[]>([]); // 모임 멤버 정보를 관리
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -49,16 +52,22 @@ const ThunderId = () => {
         console.log('Meeting members:', response.data.meeting_member);
         setSelectedMeeting(response.data.meeting);
         setMeetingMembers(response.data.meeting_member);
+        setIsLoading(false);
       } catch (error) {
         console.error('모임 정보를 불러오는 중 오류가 발생했습니다:', error);
+        setIsLoading(false);
       }
     };
 
     fetchMeeting();
   }, []);
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   if (!selectedMeeting) {
-    return <div>모임 정보를 불러올 수 없습니다.</div>;
+    return <NotFound />;
   }
 
   // 참여 하기 modal
