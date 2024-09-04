@@ -21,6 +21,26 @@ const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, 
     setTotalPages(images.length);
   }, [images]);
 
+  useEffect(() => {
+    // 키보드 이벤트 핸들러 함수 정의
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Esc 키를 누르면 모달 닫기
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   return ReactDOM.createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -39,11 +59,11 @@ const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, 
             transition={{ duration: 0.1 }}>
             {/* modal 닫기 버튼 */}
             <motion.button
-              className="absolute right-2 z-50 text-white hover:text-orange-500 xs:top-0"
+              className="absolute bottom-[500px] right-0 top-0 z-50 text-white hover:text-orange-500 xs:top-0"
               onClick={onClose}
               whileTap={{ scale: 0.9 }}
               transition={{ duration: 0.2 }}>
-              <IoClose size={28} />
+              <IoClose size={32} />
             </motion.button>
 
             <Swiper
