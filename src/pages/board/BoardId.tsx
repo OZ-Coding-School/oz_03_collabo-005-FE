@@ -10,6 +10,8 @@ import { IoMdMore } from 'react-icons/io';
 import ModalBottom from '../../components/common/ModalBottom';
 import ModalCenter from '../../components/common/ModalCenter';
 import BoardCommentModal from '../../components/board/BoardCommentModal';
+import { NotFound } from '../notfound';
+import Loading from '../../components/common/Loading';
 
 interface BoardItem {
   uuid: string;
@@ -46,6 +48,7 @@ const BoardId = () => {
   const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
   const [commentToEdit, setCommentToEdit] = useState<number | null>(null);
   const [editCommentText, setEditCommentText] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchBoardItem = async () => {
@@ -64,16 +67,22 @@ const BoardId = () => {
             }),
           ),
         );
+        setIsLoading(false);
       } catch (error) {
         console.error('게시물 정보를 불러오는 중 오류가 발생했습니다:', error);
+        setIsLoading(false);
       }
     };
 
     fetchBoardItem();
   }, []);
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   if (!selectedBoardItem) {
-    return <div>게시물 정보를 불러올 수 없습니다.</div>;
+    return <NotFound />;
   }
 
   const toggleLike = () => {
@@ -194,7 +203,9 @@ const BoardId = () => {
             src={selectedBoardItem.comments[0]?.profile_image_url || '../images/anonymous_avatars.svg'}
             alt="프로필 사진"
             className="mr-2 h-10 w-10 rounded-full"
-            onError={(e) => { e.currentTarget.src = '../images/anonymous_avatars.svg'; }}
+            onError={(e) => {
+              e.currentTarget.src = '../images/anonymous_avatars.svg';
+            }}
           />
         </Link>
 
@@ -260,7 +271,9 @@ const BoardId = () => {
                 src={comment.profile_image_url}
                 alt="프로필 이미지"
                 className="mb-[28px] mr-2 h-8 w-8 rounded-full"
-                onError={(e) => { e.currentTarget.src = '/images/anonymous_avatars.svg'; }}
+                onError={(e) => {
+                  e.currentTarget.src = '/images/anonymous_avatars.svg';
+                }}
               />
               <div>
                 <div className="font-normal">{comment.nickname}</div>

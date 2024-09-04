@@ -63,7 +63,7 @@ const Header = () => {
 
     if (isImgPath) return '이미지 상세보기';
 
-    if (isIntroductionPath) return '밥피엔스란';
+    if (isIntroductionPath) return '밥피엔스란?';
   };
 
   if (isLandingPage) {
