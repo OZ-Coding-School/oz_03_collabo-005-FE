@@ -32,6 +32,7 @@ const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy }) => {
           recommends_cnt: 5,
         })
         .then((res) => {
+          console.log('Foods fetched:', res.data.recommendations);
           setUserFoods(res.data.recommendations);
           setFoodsList(res.data.recommendations);
         })
@@ -53,7 +54,7 @@ const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy }) => {
         }}>
         {listToUse?.map((item) => (
           <SwiperSlide key={item.food_name} className="flex h-[70%] w-[70%] flex-col items-center justify-center pl-4">
-            <Link to={`/foods/${item.food_id}`} className="relative w-full">
+            <Link to={`/foods/${item.food_id}`} state={{ name: item.food_name }} className="relative w-full">
               <ImageWithPlaceholder src={`/${item.image_url}` || defaultImageUrl} alt={item.food_name} />
             </Link>
             <p className="mt-2 font-medium">{item.food_name}</p>
