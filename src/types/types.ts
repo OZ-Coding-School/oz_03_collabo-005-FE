@@ -14,7 +14,7 @@ export interface UserStore {
 }
 
 export interface FoodsList {
-  imageUrl: string | null;
+  image_url: string | null;
   food_name: string;
   cost_preference: number;
   cost_weight: number;

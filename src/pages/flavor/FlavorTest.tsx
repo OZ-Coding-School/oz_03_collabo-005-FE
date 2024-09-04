@@ -82,11 +82,11 @@ const FlavorTest = () => {
   return (
     <>
       <ProgressBar widthPercentage={widthPercentage} />
-      <div className="mt-10 flex flex-col items-center justify-center">
+      <div className="mt-5 flex flex-col items-center justify-center">
         <p className="mx-4 text-center text-[24px] font-bold xs:text-[20px]">{currentTest.question.taste_question}</p>
         <img
-          src={currentTest.question.taste_question_image}
-          className="h-[285px] w-[285px] xs:h-[250px] xs:w-[250px]"
+          src={`/${currentTest.question.taste_question_image}`}
+          className="my-10 h-[285px] w-[285px] xs:h-[250px] xs:w-[250px]"
           alt="Question Image"
         />
         {currentTest.answers.map((item) => (
@@ -110,7 +110,7 @@ const FlavorTest = () => {
           다음
         </button>
       </div>
-      <p className="my-10 w-full text-center text-[#999999]">{`${testOrder + 1}/${flavorTests.length}`}</p>
+      {/* <p className="my-10 w-full text-center text-[#999999]">{`${testOrder + 1}/${flavorTests.length}`}</p> */}
       <ModalCenter
         isOpen={isModalCenterOpen}
         onClose={closeModalCenter}
