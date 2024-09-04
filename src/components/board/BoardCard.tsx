@@ -11,7 +11,6 @@ interface BoardCardProps {
   title: string;
   content: string;
   hits: number;
-
   createdAt: string;
   commentLength: number;
   review_image_url: string;
@@ -23,7 +22,6 @@ const BoardCard: React.FC<BoardCardProps> = ({
   title,
   content,
   hits,
-
   createdAt,
   commentLength,
   review_image_url,
@@ -63,9 +61,6 @@ const BoardCard: React.FC<BoardCardProps> = ({
       className="flex w-full flex-col px-2 transition-colors duration-200 hover:bg-gray-100 active:bg-gray-200">
       <div className="my-2 flex h-full items-center">
         <div className="flex-shrink-0">
-          {!imageLoaded && (
-            <div className="block h-[140px] w-[140px] rounded-[10px] bg-gray-300 xs:h-[120px] xs:w-[120px]" />
-          )}
           <div className="relative h-[140px] w-[140px] overflow-hidden rounded-[10px] xs:h-[120px] xs:w-[120px]">
             <img
               className={`block h-full w-full object-cover transition-transform duration-200 ${
