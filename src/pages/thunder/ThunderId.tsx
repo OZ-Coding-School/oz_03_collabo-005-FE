@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ModalCenter from '../../components/common/ModalCenter';
 import ThunderImageModal from '../../components/thunder/ThunderImageModal';
 import ContentLoader from 'react-content-loader';
 import { format, differenceInMinutes, differenceInHours } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { authInstance } from '../../api/util/instance';
 import { NotFound } from '../notfound';
 import Loading from '../../components/common/Loading';
+import { authInstance, baseInstance } from '../../api/util/instance';
 
 // ThunderId - 소셜다이닝 글 목록 조회
 interface Meeting {
@@ -32,6 +32,8 @@ interface MeetingMember {
 }
 
 const ThunderId = () => {
+  const param = useParams();
+  console.log(param);
   const [isModalCenterOpen, setIsModalCenterOpen] = useState(false); // ModalCenter의 Open/Close 상태를 관리
   const [isThunderImageModalOpen, setIsThunderImageModalOpen] = useState(false); // ImageModal Open/Close 상태 관리
   const [isLiked, setIsLiked] = useState(false); // 좋아요 상태를 관리하는 상태
@@ -42,12 +44,13 @@ const ThunderId = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]); // 선택된 이미지 URL들을 관리
   const [meetingMembers, setMeetingMembers] = useState<MeetingMember[]>([]); // 모임 멤버 정보를 관리
   const [isLoading, setIsLoading] = useState(true);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null); // 작성자 프로필 이미지 URL을 관리
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
         const meetingId = window.location.pathname.split('/').pop();
-        const response = await authInstance.get(`/api/meetings/${meetingId}`);
+        const response = await baseInstance.get(`/api/meetings/${meetingId}`);
         console.log('Meeting data:', response.data.meeting);
         console.log('Meeting members:', response.data.meeting_member);
         setSelectedMeeting(response.data.meeting);
@@ -61,6 +64,14 @@ const ThunderId = () => {
 
     fetchMeeting();
   }, []);
+
+  useEffect(() => {
+    if (selectedMeeting) {
+      baseInstance.get(`/api/profile/${selectedMeeting.nickname}/`).then((res) => {
+        setProfileImageUrl(res.data.profile_image_url);
+      });
+    }
+  }, [selectedMeeting]);
 
   if (isLoading) {
     return <Loading />;
@@ -83,6 +94,7 @@ const ThunderId = () => {
     try {
       const meetingId = window.location.pathname.split('/').pop();
       await authInstance.post(`/api/meetings/${meetingId}/join`, { is_host: false });
+      await authInstance.post('/api/meetings/member/', { meeting_uuid: selectedMeeting.uuid });
       setIsParticipating(true);
       closeModalCenter();
     } catch (error) {
@@ -150,7 +162,15 @@ const ThunderId = () => {
       {/* 작성자 정보 */}
       <div className="mb-4 flex items-center">
         <Link to={`/profile/${selectedMeeting.nickname}`}>
-          <img src="../images/anonymous_avatars.svg" alt="프로필 사진" className="mr-2 h-10 w-10 rounded-full" />
+          <img
+            src={profileImageUrl || selectedMeeting.meeting_image_url || '../images/anonymous_avatars.svg'}
+            alt="프로필 사진"
+            className="mr-2 h-10 w-10 rounded-full"
+            onError={(e) => {
+              (e.target as HTMLImageElement).onerror = null;
+              (e.target as HTMLImageElement).src = '../images/anonymous_avatars.svg';
+            }}
+          />
         </Link>
         <div>
           <div className="flex items-center">

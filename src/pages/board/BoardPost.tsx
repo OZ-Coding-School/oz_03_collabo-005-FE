@@ -12,6 +12,13 @@ import { getCookie } from '../../utils/cookie';
 interface FormData {
   title: string;
   content: string;
+  category_name: string;
+  review_image_url: string;
+}
+
+interface Category {
+  id: number;
+  category: string;
 }
 
 const BoardPost = () => {
@@ -20,18 +27,30 @@ const BoardPost = () => {
 
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false); // 중앙 모달의 열림/닫힘 상태
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // 선택된 카테고리 방법을 관리
-  const [selectedImages, setSelectedImages] = useState<File[]>([]); // 선택된 이미지
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]); // 이미지 미리보기
+  const [selectedImage, setSelectedImage] = useState<File | null>(null); // 선택된 이미지
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // 이미지 미리보기
   const [isUploading, setIsUploading] = useState(false); // 업로드 상태
   const [uploadProgress, setUploadProgress] = useState(0); // 업로드 진행률
   const [currentUploadingIndex, setCurrentUploadingIndex] = useState(0); // 현재 업로드 중인 이미지 인덱스
-  const [representativeImage, setRepresentativeImage] = useState<number | null>(null); // 대표 이미지
+  // const [representativeImage, setRepresentativeImage] = useState<number | null>(null); // 대표 이미지
   const [modalMessage, setModalMessage] = useState({ title1: '', title2: '' }); // 모달 메시지
+  const [categories, setCategories] = useState<Category[]>([]); // 카테고리 목록
 
   useEffect(() => {
     if (!getCookie('refresh')) {
       navigate('/');
     }
+
+    const fetchCategories = async () => {
+      try {
+        const response = await authInstance.get('/api/categories/reviewfilter/');
+        setCategories(response.data);
+      } catch (error) {
+        console.error('카테고리를 가져오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    fetchCategories();
   }, [navigate]);
 
   // 중앙 모달의 열림/닫힘 상태 modal
@@ -40,34 +59,23 @@ const BoardPost = () => {
   };
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const files = Array.from(event.target.files);
-      if (selectedImages.length + files.length > 10) {
-        setModalMessage({ title1: '이미지는 최대 10장까지', title2: '등록할 수 있습니다.' });
-        toggleCenterModal();
-        return;
-      }
-
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
       setIsUploading(true);
       setUploadProgress(0);
       setCurrentUploadingIndex(0);
 
-      const compressedFiles = await Promise.all(
-        files.map(async (file, index) => {
-          setCurrentUploadingIndex(index + 1);
-          console.log(`현재 ${index + 1}번째의 이미지를 처리하고 있습니다. (총 ${files.length}개 중)`);
-          const compressedFile = await compressImageToWebp(file);
-          setUploadProgress(((index + 1) / files.length) * 100);
-          return compressedFile;
-        }),
-      );
-
-      setSelectedImages((prevImages) => [...prevImages, ...compressedFiles]);
-
-      const newPreviews = compressedFiles.map((file) => URL.createObjectURL(file));
-      setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
-      setIsUploading(false);
-      console.log('이미지 업로드가 완료되었습니다.');
+      try {
+        const compressedFile = await compressImageToWebp(file);
+        setSelectedImage(compressedFile);
+        const preview = URL.createObjectURL(compressedFile);
+        setImagePreview(preview);
+        setIsUploading(false);
+        console.log('이미지 업로드가 완료되었습니다.');
+      } catch (error) {
+        console.error('이미지 업로드 중 오류가 발생했습니다:', error);
+        setIsUploading(false);
+      }
     }
   };
 
@@ -84,34 +92,10 @@ const BoardPost = () => {
     }
   };
 
-  const handleImageRemove = (index: number, event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleImageRemove = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
-    setImagePreviews((prevPreviews) => prevPreviews.filter((_, i) => i !== index));
-    if (representativeImage === index) {
-      setRepresentativeImage(null);
-    }
-  };
-
-  // 이미지 업로드 함수
-  const uploadImages = async (images: File[]): Promise<string[]> => {
-    const uploadedImageUrls: string[] = [];
-    for (const image of images) {
-      const formData = new FormData();
-      formData.append('file', image);
-      try {
-        const response = await authInstance.post('https://api.babpiens.com/api/common/image/', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        uploadedImageUrls.push(response.data.url);
-      } catch (error) {
-        console.error('이미지 업로드 중 오류가 발생했습니다:', error);
-        throw error;
-      }
-    }
-    return uploadedImageUrls;
+    setSelectedImage(null);
+    setImagePreview(null);
   };
 
   //  폼 데이터 제출 시 미입력 필드에 따른 Modal 알림
@@ -133,47 +117,84 @@ const BoardPost = () => {
     }
 
     try {
-      const uploadedImageUrls = await uploadImages(selectedImages);
+      let reviewImageUrl = '';
+      if (selectedImage) {
+        // 선택된 이미지를 새로운 파일로 생성
+        const newFile = new File([selectedImage], selectedImage.name);
+        const formData = new FormData();
+        // 폼 데이터에 input_source - s3 에 저정될 폴더이름과 images 파일이 들어갈 공간 추가
+        formData.append('input_source', 'board');
+        formData.append('images', newFile);
+
+        // 이미지 업로드 API 호출
+        const response = await authInstance.post('/api/common/image/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        // 업로드된 이미지 URL 저장
+        reviewImageUrl = response.data.images_urls[0];
+      }
+
+      // 리뷰 생성 API 호출
       const response = await authInstance.post('/api/reviews/detail/create/', {
-        title: data.title,
-        category_name: selectedCategory,
-        content: data.content,
-        input_image: uploadedImageUrls,
+        title: data.title, // 제목
+        category_name: selectedCategory, // 카테고리 이름
+        content: data.content, // 내용
+        review_image_url: reviewImageUrl, // 리뷰 이미지 URL
       });
-      console.log('폼 제출 성공:', response.data);
-      setModalMessage({ title1: '폼 제출에 성공했습니다.', title2: '게시물이 등록되었습니다.' });
+
+      console.log(response.data);
+      setModalMessage({ title1: '맛있는 발견 글 쓰기가 완료되었습니다.', title2: '' });
+      const reviewUuid = response.data.review_uuid;
       toggleCenterModal();
+      navigate(`/board/${reviewUuid}`);
     } catch (error) {
-      console.error('서버 요청 중 오류가 발생했습니다:', error);
-      setModalMessage({ title1: '서버 요청 중 오류가 발생했습니다.', title2: '다시 시도해주세요.' });
+      console.error('글 쓰기 중 오류가 발생했습니다:', error);
+      setModalMessage({ title1: '글 쓰기 중 오류가 발생했습니다.', title2: '다시 시도해주세요.' });
       toggleCenterModal();
     }
   };
+
+  {
+    /* 폼 제출에 문제 알림 modal */
+  }
+  <ModalCenter
+    isOpen={isCenterModalOpen}
+    onClose={toggleCenterModal}
+    title1={modalMessage.title1}
+    title2={modalMessage.title2}>
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 1 }}
+      onClick={async () => {
+        if (modalMessage.title1 === '맛있는 발견 글 쓰기가 완료되었습니다.') {
+          navigate('/board');
+        } else {
+          toggleCenterModal();
+        }
+      }}
+      className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
+      확인
+    </motion.button>
+  </ModalCenter>;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="relative mx-auto max-w-full rounded-lg bg-white p-4">
         <div className="mb-2 flex items-center font-semibold">카테고리를 선택해주세요.</div>
-
         <div className="mb-2 flex items-center">
-          <button
-            type="button"
-            className={`mr-2 h-[35px] rounded-lg border-2 px-2 transition-transform duration-200 ease-in-out ${selectedCategory === '소셜 다이닝 후기' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
-            onClick={() => {
-              setSelectedCategory('소셜 다이닝 후기');
-              return '소셜 다이닝 후기';
-            }}>
-            소셜 다이닝 후기
-          </button>
-          <button
-            type="button"
-            className={`mr-2 h-[35px] rounded-lg border-2 px-2 transition-transform duration-200 ease-in-out ${selectedCategory === '맛집 추천' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
-            onClick={() => {
-              setSelectedCategory('맛집 추천');
-              return '맛집 추천';
-            }}>
-            맛집 추천
-          </button>
+          {categories.map((category: Category) => (
+            <button
+              key={category.id}
+              type="button"
+              className={`mr-2 h-[35px] rounded-lg border-2 px-2 transition-transform duration-200 ease-in-out ${selectedCategory === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
+              onClick={() => {
+                setSelectedCategory(category.category);
+                return category.category;
+              }}>
+              {category.category}
+            </button>
+          ))}
         </div>
 
         <div className="mb-2 mt-5 flex items-center font-semibold">제목</div>
@@ -198,9 +219,7 @@ const BoardPost = () => {
           }}
         />
 
-        <div className="mb-2 mt-5 flex items-center font-semibold">
-          이미지 등록 - (첫번째 사진이 대표사진이 됩니다.)
-        </div>
+        <div className="mb-2 mt-5 flex items-center font-semibold">이미지 등록</div>
         <div className="flex items-center">
           <label htmlFor="file-upload" className="cursor-pointer">
             <motion.div
@@ -208,46 +227,31 @@ const BoardPost = () => {
               whileTap={{ scale: 0.95 }}
               className="flex flex-col items-center justify-center rounded-lg border border-gray-300 px-4 py-2">
               <img src="../images/ThunderImageUpdate.svg" alt="이미지 등록" className="h-[20px] text-gray-500" />
-              <span className="text-gray-500">{`${selectedImages.length}/10`}</span>
+              <span className="text-gray-500">{selectedImage ? '1/1' : '0/1'}</span>
             </motion.div>
           </label>
-          <input
-            id="file-upload"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageChange}
-            className="hidden"
-          />
-          {imagePreviews.length > 0 && (
+          <input id="file-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+          {imagePreview && (
             <div className="relative ml-2 mt-2 flex flex-wrap items-center">
-              {imagePreviews.map((preview, index) => (
-                <motion.div
-                  key={index}
-                  className="relative mb-2 mr-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}>
-                  <motion.img
-                    src={preview}
-                    alt={`미리보기 ${index + 1}`}
-                    className="h-16 w-16 cursor-pointer rounded-xl border-2 border-[#ECECEC]"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  />
-                  <button
-                    onClick={(event) => handleImageRemove(index, event)}
-                    className="absolute -top-1 left-[55px] right-0"
-                    title="이미지 삭제">
-                    <IoCloseOutline className="text-md rounded-xl bg-black text-white" />
-                  </button>
-                  {index === 0 && (
-                    <div className="absolute -bottom-0 left-1/2 flex h-[20px] w-[61px] -translate-x-1/2 transform items-center justify-center rounded-b-lg bg-black text-center">
-                      <span className="items-center justify-center text-[10px] text-white">대표사진</span>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+              <motion.div
+                className="relative mb-2 mr-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}>
+                <motion.img
+                  src={imagePreview}
+                  alt="미리보기"
+                  className="h-16 w-16 cursor-pointer rounded-xl border-2 border-[#ECECEC]"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                />
+                <button onClick={handleImageRemove} className="absolute -top-1 left-[55px] right-0" title="이미지 삭제">
+                  <IoCloseOutline className="text-md rounded-xl bg-black text-white" />
+                </button>
+                <div className="absolute -bottom-0 left-1/2 flex h-[20px] w-[61px] -translate-x-1/2 transform items-center justify-center rounded-b-lg bg-black text-center">
+                  <span className="items-center justify-center text-[10px] text-white">대표사진</span>
+                </div>
+              </motion.div>
             </div>
           )}
         </div>
@@ -285,26 +289,6 @@ const BoardPost = () => {
           disabled={isUploading}>
           {isUploading ? '현재 이미지 처리중입니다' : '등록하기'}
         </motion.button>
-        {/* 이미지가 최대 10장이상을 넘어 업로드될 경우에 나오는 modal */}
-        <ModalCenter
-          isOpen={isCenterModalOpen}
-          onClose={toggleCenterModal}
-          title1={modalMessage.title1}
-          title2={modalMessage.title2}>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 1 }}
-            onClick={() => {
-              if (modalMessage.title1 === '폼 제출에 성공했습니다.') {
-                navigate('/board');
-              } else {
-                toggleCenterModal();
-              }
-            }}
-            className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
-            확인
-          </motion.button>
-        </ModalCenter>
       </div>
     </form>
   );
