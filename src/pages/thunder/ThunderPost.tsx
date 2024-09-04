@@ -25,20 +25,65 @@ const ThunderPost = () => {
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false); // 중앙 모달의 열림/닫힘 상태
   const [isThunderClockModalOpen, setIsThunderClockModalOpen] = useState(false); // clock modal의 열림/닫힘 상태
   const [isThunderCalendarModalOpen, setIsThunderCalendarModalOpen] = useState(false); // 캘린더 모달의 열림/닫힘 상태
-  const [selectedLocation, setSelectedLocation] = useState('지역 선택하기'); // 선택된 위치
+  const [selectedLocation, setSelectedLocation] = useState('여기를 눌러 지역 선택하기'); // 선택된 위치
   const [selectedPayment, setSelectedPayment] = useState(''); // 선택된 결제 방법
   const [selectedAgeGroup, setSelectedAgeGroup] = useState(''); // 선택된 연령대
   const [selectedGenderGroup, setSelectedGenderGroup] = useState(''); // 선택된 성별 그룹
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // 선택된 날짜
   const [selectedTime, setSelectedTime] = useState<string | null>(null); // 선택된 시간
-  const [selectedImages, setSelectedImages] = useState<File[]>([]); // 선택된 이미지
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]); // 이미지 미리보기
+  const [selectedImage, setSelectedImage] = useState<File | null>(null); // 선택된 이미지
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // 이미지 미리보기
   const [isUploading, setIsUploading] = useState(false); // 업로드 상태
   const [uploadProgress, setUploadProgress] = useState(0); // 업로드 진행률
-  const [currentUploadingIndex, setCurrentUploadingIndex] = useState(0); // 현재 업로드 중인 이미지 인덱스
   const [maxPeople, setMaxPeople] = useState(1); // 최대 인원
-  const [representativeImage, setRepresentativeImage] = useState<number | null>(null); // 대표 이미지
   const [modalMessage, setModalMessage] = useState({ title1: '', title2: '' }); // 모달 메시지
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]); // 결제 방법 목록
+  const [ageGroups, setAgeGroups] = useState<string[]>([]); // 연령대 목록
+  const [genderGroups, setGenderGroups] = useState<string[]>([]); // 성별 그룹 목록
+  const [locations, setLocations] = useState<string[]>([]); // 지역 목록
+
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      try {
+        const response = await authInstance.get('/api/categories/meetingpaymentfilter/');
+        setPaymentMethods(response.data);
+      } catch (error) {
+        console.error('결제 방법을 가져오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    const fetchAgeGroups = async () => {
+      try {
+        const response = await authInstance.get('/api/categories/meetingagefilter/');
+        setAgeGroups(response.data);
+      } catch (error) {
+        console.error('연령대를 가져오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    const fetchGenderGroups = async () => {
+      try {
+        const response = await authInstance.get('/api/categories/meetinggenderfilter/');
+        setGenderGroups(response.data);
+      } catch (error) {
+        console.error('성별 그룹을 가져오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    const fetchLocations = async () => {
+      try {
+        const response = await authInstance.get('/api/categories/locationfilter/');
+        setLocations(response.data);
+      } catch (error) {
+        console.error('지역 목록을 가져오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    fetchPaymentMethods();
+    fetchAgeGroups();
+    fetchGenderGroups();
+    fetchLocations();
+  }, []);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -79,29 +124,16 @@ const ThunderPost = () => {
   };
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const files = Array.from(event.target.files);
-      if (selectedImages.length + files.length > 10) {
-        toggleCenterModal();
-        return;
-      }
-
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
       setIsUploading(true);
       setUploadProgress(0);
 
-      const compressedFiles = await Promise.all(
-        files.map(async (file, index) => {
-          setCurrentUploadingIndex(index + 1);
-          const compressedFile = await compressImageToWebp(file);
-          setUploadProgress(((index + 1) / files.length) * 100);
-          return compressedFile;
-        }),
-      );
+      const compressedFile = await compressImageToWebp(file);
+      setSelectedImage(compressedFile);
 
-      setSelectedImages((prevImages) => [...prevImages, ...compressedFiles]);
-
-      const newPreviews = compressedFiles.map((file) => URL.createObjectURL(file));
-      setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
+      const newPreview = URL.createObjectURL(compressedFile);
+      setImagePreview(newPreview);
       setIsUploading(false);
     }
   };
@@ -119,17 +151,11 @@ const ThunderPost = () => {
     }
   };
 
-  const handleImageRemove = (index: number, event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleImageRemove = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
-    setImagePreviews((prevPreviews) => prevPreviews.filter((_, i) => i !== index));
-    if (representativeImage === index) {
-      setRepresentativeImage(null);
-    }
+    setSelectedImage(null);
+    setImagePreview(null);
   };
-
-  // 모임 장소 목록 정의
-  const locations = ['강동, 하남', '강남, 송파', '강북, 노원', '강서, 양천', '관악, 동작', '광진, 성동'];
 
   const increasePeople = () => {
     setMaxPeople((prev) => (prev < 100 ? prev + 1 : 100));
@@ -145,14 +171,26 @@ const ThunderPost = () => {
     if (!selectedPayment) {
       missingFieldsList.push('지불 방식');
     }
+    if (!selectedAgeGroup) {
+      missingFieldsList.push('연령대');
+    }
+    if (!selectedGenderGroup) {
+      missingFieldsList.push('성별');
+    }
     if (!selectedDate) {
       missingFieldsList.push('날짜');
     }
     if (!selectedTime) {
       missingFieldsList.push('시간');
     }
+    if (!selectedLocation) {
+      missingFieldsList.push('지역');
+    }
     if (!data.title) {
       missingFieldsList.push('제목');
+    }
+    if (!data.content) {
+      missingFieldsList.push('내용');
     }
 
     if (missingFieldsList.length > 0) {
@@ -162,20 +200,42 @@ const ThunderPost = () => {
     }
 
     try {
-      const response = await authInstance.post('/api/meeting/detail/create/', {
-        ...data,
+      let meetingImageUrl = '';
+      // 선택된 이미지를 새로운 파일로 생성
+      if (selectedImage) {
+        const newFile = new File([selectedImage], selectedImage.name);
+        const formData = new FormData();
+        // 폼 데이터에 input_source - s3 에 저정될 폴더이름과 images 파일이 들어갈 공간 추가
+        formData.append('input_source', 'meeting');
+        formData.append('images', newFile);
+
+        // 이미지 업로드 API 호출
+        const response = await authInstance.post('/api/common/image/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        // 업로드된 이미지 URL 저장
+        meetingImageUrl = response.data.images_urls[0];
+      }
+
+      // 리뷰 생성 API 호출
+      const response = await authInstance.post('/api/meetings/create/', {
         title: data.title,
         description: data.content,
-        location: selectedLocation,
-        payment_method: selectedPayment,
-        age_group: selectedAgeGroup,
-        gender_group: selectedGenderGroup,
+        location_name: selectedLocation,
+        payment_method_name: selectedPayment,
+        age_group_name: selectedAgeGroup,
+        gender_group_name: selectedGenderGroup,
         meeting_time: selectedDate ? `${selectedDate.toISOString().split('T')[0]}T${selectedTime}:00.000Z` : '',
         maximum: maxPeople,
-        meeting_image_url: selectedImages,
+        meeting_image_url: meetingImageUrl || null,
       });
+
       console.log(response.data);
-      toggleModal();
+      setModalMessage({ title1: '소셜 다이닝 글 쓰기 작성이 완료되었습니다.', title2: '' });
+      const meetingUuid = response.data.meeting_uuid;
+      toggleCenterModal();
+      navigate(`/thunder/${meetingUuid}`);
     } catch (error) {
       console.error('폼 제출 중 오류가 발생했습니다:', error);
       setModalMessage({ title1: '폼 제출 중 오류가 발생했습니다.', title2: '다시 시도해주세요.' });
@@ -183,76 +243,69 @@ const ThunderPost = () => {
     }
   };
 
+  <ModalCenter
+    isOpen={isCenterModalOpen}
+    onClose={toggleCenterModal}
+    title1={modalMessage.title1}
+    title2={modalMessage.title2}>
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 1 }}
+      onClick={() => {
+        toggleCenterModal();
+        if (modalMessage.title1 === '소셜 다이닝 글 쓰기 작성이 완료되었습니다.') {
+          navigate('/thunder');
+        }
+      }}
+      className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
+      확인
+    </motion.button>
+  </ModalCenter>;
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="relative mx-auto max-w-full rounded-lg bg-white p-4">
           <div className="mb-2 flex items-center font-semibold">지불 방식을 선택해주세요.</div>
 
+          {/* backend -  /api/categories/meetingpaymentfilter/ 에서 API - GET*/}
           <div className="mb-2 flex items-center">
-            <button
-              type="button"
-              className={`mr-2 h-[35px] rounded-lg border-2 px-2 ${selectedPayment === '제가 쏩니다' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedPayment('제가 쏩니다')}>
-              제가 쏩니다
-            </button>
-            <button
-              type="button"
-              className={`mr-2 h-[35px] rounded-lg border-2 px-2 ${selectedPayment === '더치페이' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedPayment('더치페이')}>
-              더치페이
-            </button>
+            {paymentMethods.map((method, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`mr-2 h-[35px] rounded-lg border-2 px-2 ${selectedPayment === method ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+                onClick={() => setSelectedPayment(method)}>
+                {method}
+              </button>
+            ))}
           </div>
+
+          {/* backend -  /api/categories/meetingagefilter/ 에서 API - GET*/}
           <div className="mb-2 mt-5 flex items-center font-semibold">연령대를 선택해주세요</div>
           <div className="mb-2 flex items-center">
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === '20대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedAgeGroup('20대')}>
-              20대
-            </button>
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === '30대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedAgeGroup('30대')}>
-              30대
-            </button>
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === '40대' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedAgeGroup('40대')}>
-              40대
-            </button>
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === '상관없음' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedAgeGroup('상관없음')}>
-              상관없음
-            </button>
+            {ageGroups.map((ageGroup, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedAgeGroup === ageGroup ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+                onClick={() => setSelectedAgeGroup(ageGroup)}>
+                {ageGroup}
+              </button>
+            ))}
           </div>
 
+          {/* backend - /api/categories/meetinggenderfilter/ 에서 API - GET */}
           <div className="mb-2 mt-5 flex items-center font-semibold">성별을 선택해주세요</div>
           <div className="mb-2 flex items-center">
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedGenderGroup === '이성' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedGenderGroup('이성')}>
-              이성
-            </button>
-
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedGenderGroup === '동성' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedGenderGroup('동성')}>
-              동성
-            </button>
-
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedGenderGroup === '상관없음' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
-              onClick={() => setSelectedGenderGroup('상관없음')}>
-              상관없음
-            </button>
+            {genderGroups.map((genderGroup, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`mr-2 h-[35px] w-[80px] rounded-lg border-2 px-2 ${selectedGenderGroup === genderGroup ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'}`}
+                onClick={() => setSelectedGenderGroup(genderGroup)}>
+                {genderGroup}
+              </button>
+            ))}
           </div>
 
           <div className="mb-2 mt-5 flex items-center font-semibold">약속시간을 설정해주세요</div>
@@ -332,46 +385,31 @@ const ThunderPost = () => {
                 whileTap={{ scale: 0.95 }}
                 className="flex flex-col items-center justify-center rounded-lg border border-gray-300 px-4 py-2">
                 <img src="../images/ThunderImageUpdate.svg" alt="이미지 등록" className="h-[20px] text-gray-500" />
-                <span className="text-gray-500">{`${selectedImages.length}/10`}</span>
+                <span className="text-gray-500">{selectedImage ? '1/1' : '0/1'}</span>
               </motion.div>
             </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="hidden"
-            />
-            {imagePreviews.length > 0 && (
+            <input id="file-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            {imagePreview && (
               <div className="relative ml-2 mt-2 flex flex-wrap items-center">
-                {imagePreviews.map((preview, index) => (
-                  <div className="relative mb-2 mr-2" key={index}>
-                    <img
-                      src={preview}
-                      alt={`미리보기 ${index + 1}`}
-                      className="h-16 w-16 rounded-xl border-2 border-[#ECECEC]"
-                    />
-                    <button
-                      onClick={(event) => handleImageRemove(index, event)}
-                      className="absolute -top-1 left-[55px] right-0"
-                      title="이미지 삭제">
-                      <IoCloseOutline className="text-md rounded-xl bg-black text-white" />
-                    </button>
-                    {index === 0 && (
-                      <div className="absolute -bottom-0 left-1/2 flex h-[20px] w-[61px] -translate-x-1/2 transform items-center justify-center rounded-b-lg bg-black text-center">
-                        <span className="items-center justify-center text-[10px] text-white">대표사진</span>
-                      </div>
-                    )}
+                <div className="relative mb-2 mr-2">
+                  <img src={imagePreview} alt="미리보기" className="h-16 w-16 rounded-xl border-2 border-[#ECECEC]" />
+                  <button
+                    onClick={handleImageRemove}
+                    className="absolute -top-1 left-[55px] right-0"
+                    title="이미지 삭제">
+                    <IoCloseOutline className="text-md rounded-xl bg-black text-white" />
+                  </button>
+                  <div className="absolute -bottom-0 left-1/2 flex h-[20px] w-[61px] -translate-x-1/2 transform items-center justify-center rounded-b-lg bg-black text-center">
+                    <span className="items-center justify-center text-[10px] text-white">대표사진</span>
                   </div>
-                ))}
+                </div>
               </div>
             )}
           </div>
           {isUploading && (
             <div className="mb-2 mt-2 text-center font-semibold">
               사진 업로드 하는 중입니다. <br />
-              현재 {currentUploadingIndex}장의 사진이 업로드 중입니다.
+              현재 {1}장의 사진이 업로드 중입니다.
               <div className="relative pt-1">
                 <div className="flex h-4 overflow-hidden rounded bg-gray-200 text-xs">
                   <motion.div
@@ -426,13 +464,14 @@ const ThunderPost = () => {
           </motion.button>
 
           {/* 지역을 선택해주세요 modal open */}
+          {/* backend - api/categories/locationfilter/ 에서 API - GET */}
           <ModalBottom isOpen={isModalOpen} onClose={toggleModal}>
             <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
             <div className="p-4 text-left font-bold">지역</div>
             <div className="flex flex-col justify-start text-left">
-              {locations.map((location) => (
+              {locations.map((location, index) => (
                 <button
-                  key={location}
+                  key={`${index}`}
                   className={`ml-4 mt-4 flex items-center justify-between text-left ${selectedLocation === location ? 'text-orange-500' : 'text-gray-800'}`}
                   onClick={() => {
                     handleLocationSelect(location);
@@ -446,7 +485,7 @@ const ThunderPost = () => {
           </ModalBottom>
 
           {/* 이미지가 최대 10장이상을 넘어 업로드될 경우에 나오는 modal */}
-          <ModalCenter
+          {/* <ModalCenter
             isOpen={isCenterModalOpen}
             onClose={toggleCenterModal}
             title1="이미지는 최대 10장까지"
@@ -458,56 +497,10 @@ const ThunderPost = () => {
               className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
               확인
             </motion.button>
-          </ModalCenter>
+          </ModalCenter> */}
         </div>
       </form>
-      {/* 폼 제출 테스트에 따른 modal open*/}
-      <ModalCenter
-        isOpen={isCenterModalOpen}
-        onClose={toggleCenterModal}
-        title1={modalMessage.title1}
-        title2={modalMessage.title2}>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 1 }}
-          onClick={toggleCenterModal}
-          className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
-          확인
-        </motion.button>
-      </ModalCenter>
-
-      {/* <ModalCenter isOpen={isFormModalOpen} onClose={toggleFormModal} title1="폼 제출 테스트" title2="">
-        <>
-          <p className="text-center">지불 방식: {selectedPayment}</p>
-          <p className="text-center">연령대: {selectedAgeGroup}</p>
-          <p className="text-center">성별: {selectedGenderGroup}</p>
-          <p className="text-center">
-            약속시간: {selectedDate ? selectedDate.toLocaleDateString() : ''} {selectedTime}
-          </p>
-          <p className="text-center">지역: {selectedLocation}</p>
-          <p className="text-center">제목: {watch('title')}</p>
-          <p className="text-center">내용: {watch('description')}</p>
-          <p className="text-center">이미지 등록-첫번째 사진이 대표사진이 됩니다.</p>
-          <div className="flex flex-wrap justify-center">
-            {imagePreviews.map((preview, index) => (
-              <img
-                key={index}
-                src={preview}
-                alt={`preview-${index}`}
-                className="m-1 h-20 w-20 rounded-xl object-cover"
-              />
-            ))}
-          </div>
-          <p className="text-center">최대인원: {maxPeople}</p>
-        </>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 1 }}
-          onClick={toggleFormModal}
-          className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
-          확인
-        </motion.button>
-      </ModalCenter> */}
+      {/* 폼 제출에 문제 알림 modal open*/}
     </>
   );
 };
