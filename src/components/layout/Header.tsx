@@ -1,12 +1,13 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { RxArrowLeft } from 'react-icons/rx';
 import HeaderLanding from './HeaderLanding';
-import { useFoodStore } from '../../store/foodStore/foodStore';
+import { useFoodStore } from '../../store/foodStore';
 
 const Header = () => {
   const foodName = useFoodStore((state) => state.foodName);
   const location = useLocation();
   const navigate = useNavigate();
+  const { resultId } = useParams<{ resultId: string }>();
 
   const isLandingPage = location.pathname === '/';
 
@@ -14,7 +15,9 @@ const Header = () => {
   const isFlavorTestPage = location.pathname === '/flavor/test';
   const isFoodsPage = location.pathname === '/foods';
   const isFoodsPageId = location.pathname.startsWith('/foods/');
-  const isFtiPage = location.pathname === '/FTI';
+  const isFtiPage = location.pathname === '/fti';
+  const isFtiTestPage = location.pathname === '/fti/test';
+  const isFtiResultPage = Boolean(resultId);
 
   const isThunderPage = location.pathname === '/thunder';
   const isThunderDetailPage = location.pathname.includes('/thunder');
@@ -47,7 +50,9 @@ const Header = () => {
     if (isThunderDetailPage) return '소셜 다이닝';
     if (isThunderPostPage) return '소셜 다이닝';
     if (isThunderChatPage) return '소통방';
-    if (isFtiPage) return 'FTI 검사';
+    if (isFtiPage) return '음식탐색 FTI 검사';
+    if (isFtiTestPage) return '음식탐색 FTI 검사';
+    if (isFtiResultPage) return '밥피엔스';
     if (isBoardPage) return '맛있는 발견';
     if (isBoardDetailPage) return '맛있는 발견';
 
@@ -80,6 +85,8 @@ const Header = () => {
           isFoodsPageId ||
           isFlavorPage ||
           isFtiPage ||
+          isFtiTestPage ||
+          isFtiResultPage ||
           isThunderPage ||
           isThunderDetailPage ||
           isThunderPostPage ||
@@ -100,7 +107,8 @@ const Header = () => {
           </button>
         )}
 
-        <div className={`flex-1 ${isLandingPage ? 'text-right' : 'ml-[20px]'} xs:ml-[10px] xs:text-[16px]`}>
+        <div
+          className={`flex-1 ${isLandingPage ? 'text-right' : 'ml-[20px]'} xs:ml-[10px] xs:text-[16px] ${isFtiResultPage ? 'text-center' : ''}`}>
           {changeTitle()}
         </div>
       </div>
