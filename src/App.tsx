@@ -11,6 +11,7 @@ import Landing from './pages/Home/Landing.tsx';
 import ProfileId from './pages/profile/ProfileId.tsx';
 import ImageOverview from './pages/Image/ImageOverview.tsx';
 import Introduction from './pages/introduction/Introduction.tsx';
+import NotFound from './pages/notfound/NotFound.tsx';
 
 function App() {
   return (
@@ -67,6 +68,8 @@ function App() {
         <Route path="image" element={<ImageOverview />} />
 
         <Route path="introduction" element={<Introduction />} />
+
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );
