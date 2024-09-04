@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { NotionRenderer } from 'react-notion';
 
-export default function ReactNotion() {
+const Introduction = () => {
   const [response, setResponse] = useState({});
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function ReactNotion() {
     document.head.appendChild(style);
   }, []);
 
-  return (
-    <div className="p-4">{Object.keys(response).length && <NotionRenderer blockMap={response} fullPage={true} />}</div>
-  );
-}
+  return <div className="p-4">{<NotionRenderer blockMap={response} fullPage={true} />}</div>;
+};
+
+export default Introduction;
