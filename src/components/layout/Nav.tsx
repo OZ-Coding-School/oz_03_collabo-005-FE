@@ -26,6 +26,8 @@ const Nav = () => {
 
   const isImgPath = location.pathname === '/image'; // 이미지 상세보기
 
+  const isIntroductionPath = location.pathname === '/introduction';
+
   // Signin, Signup, Flavor, ThunderPost, MyProfile 페이지에서는 Navbar가 보이지 않게 설정.
   if (
     isSigninPath ||
@@ -39,7 +41,8 @@ const Nav = () => {
     isProfilePath ||
     isImgPath ||
     isFlavorTestPage ||
-    isFoodsPage
+    isFoodsPage ||
+    isIntroductionPath
   ) {
     return null;
   }

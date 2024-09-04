@@ -28,6 +28,7 @@
     "react-hook-form": "^7.52.2",
     "react-icons": "^5.2.1",
     "react-image-crop": "^11.0.6",
+    "react-notion": "^0.10.0",
     "react-router-dom": "^6.26.0",
     "swiper": "^11.1.10",
     "tailwind-merge": "^2.5.1",

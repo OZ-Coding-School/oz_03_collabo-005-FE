@@ -107,7 +107,7 @@ const MyProfile = () => {
           의견 보내기
         </button>
         <Link
-          to={'/'}
+          to={'/introduction'}
           className="ml-2 flex h-[6vh] w-[43%] items-center justify-center text-[18px] font-bold xs:text-[14px]">
           <button>밥피엔스란?</button>
         </Link>
