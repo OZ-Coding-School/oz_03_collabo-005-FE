@@ -42,7 +42,7 @@ const ThunderCard: React.FC<ThunderCardProps> = ({
               className={`block h-full w-full object-cover transition-transform duration-200 ${
                 imageLoaded ? 'block' : 'hidden'
               } hover:scale-105`}
-              src={imageError ? defaultImageUrl : meeting_image_url}
+              src={imageError || !meeting_image_url ? defaultImageUrl : meeting_image_url}
               alt={title}
               onLoad={handleImageLoad}
               onError={handleImageError}
