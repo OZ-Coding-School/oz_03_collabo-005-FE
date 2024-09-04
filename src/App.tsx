@@ -3,7 +3,7 @@ import Layout from './components/layout/Layout.tsx';
 import { Signin, Signup, ResetPassword } from './pages/auth';
 import { Board, BoardId, BoardPost, BoardCommentEdit } from './pages/board';
 import { Flavor, FlavorTest } from './pages/flavor';
-import { Foods, FoodsId, FoodsMap } from './pages/foods';
+import { Foods, FoodsId } from './pages/foods';
 import { Fti, FtiResultId, FtiTest } from './pages/fti';
 import { MyProfile, MyProfileBoard, MyProfileEdit, MyProfileThunder } from './pages/myprofile';
 import { Thunder, ThunderChat, ThunderId, ThunderPost } from './pages/thunder';
@@ -40,10 +40,9 @@ function App() {
         <Route path="foods">
           <Route index element={<Foods />} />
           <Route path=":foodsId" element={<FoodsId />} />
-          <Route path="map" element={<FoodsMap />} />
         </Route>
 
-        <Route path="FTI">
+        <Route path="fti">
           <Route index element={<Fti />} />
           <Route path="test" element={<FtiTest />} />
           <Route path=":resultId" element={<FtiResultId />} />
