@@ -11,6 +11,7 @@ interface FoodCardProps extends PropsWithChildren {
 }
 
 const FoodCard = ({ id, info, name, tag, img, ...props }: FoodCardProps) => {
+  console.log(id, info, name, tag, img, props);
   return (
     <Link to={`/foods/${id}`} className="flex aspect-square w-full flex-col">
       <img src="/images/kimchi.png" alt="" className="grow rounded-[8px]" />
