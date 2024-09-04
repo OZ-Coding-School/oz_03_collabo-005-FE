@@ -35,6 +35,8 @@ const Header = () => {
 
   const isImgPath = location.pathname === '/image';
 
+  const isIntroductionPath = location.pathname === '/introduction';
+
   // 페이지에 따른 타이틀 변경.
   const changeTitle = () => {
     if (isFlavorPage) return '미각 DNA 검사';
@@ -60,6 +62,8 @@ const Header = () => {
     if (isProfilePath) return '프로필 ';
 
     if (isImgPath) return '이미지 상세보기';
+
+    if (isIntroductionPath) return '밥피엔스란';
   };
 
   if (isLandingPage) {
@@ -89,7 +93,8 @@ const Header = () => {
           isMyProfileBoardPage ||
           isProfilePath ||
           isImgPath ||
-          isFlavorTestPage) && (
+          isFlavorTestPage ||
+          isIntroductionPath) && (
           <button onClick={() => navigate(-1)} className="flex items-center">
             <RxArrowLeft size={25} className="xs:w-[20px]" />
           </button>

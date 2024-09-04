@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface User {
-  fti_type: string | null;
+  fti_type_name: string | null;
   introduce: string | null;
   nickname: string;
   profile_image_url: string | null;
@@ -17,6 +17,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
   const location = useLocation();
   const isProfilePage = location.pathname.includes('/profile/');
 
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    event.currentTarget.src = '/images/anonymous_avatars.svg';
+  };
+
   return (
     <div className="flex h-[35%] flex-col items-center justify-evenly p-[1rem]">
       <div className="relative flex w-[30%] items-center justify-center pt-[30%] xs:w-[35%] xs:pt-[35%]">
@@ -25,6 +29,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
             className="absolute inset-0 h-full w-full rounded-full object-cover"
             src={user?.profile_image_url || '/images/anonymous_avatars.svg'}
             alt="프로필 이미지"
+            onError={handleImageError}
           />
         </Link>
       </div>
@@ -38,8 +43,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
         <div className="flex h-[8rem] flex-col items-center justify-center">
           <p className="text-[22px] font-bold xs:text-[18px]">{user.nickname}</p>
           {!isProfilePage &&
-            (user.fti_type ? (
-              <p className="text-[16px] text-[#AD5E33] xs:text-[12px]">{user.fti_type}</p>
+            (user.fti_type_name ? (
+              <p className="text-[16px] text-[#AD5E33] xs:text-[12px]">{user.fti_type_name}</p>
             ) : (
               <Link to="/FTI" className="text-[16px] text-[#AD5E33] xs:text-[12px]">
                 테스트를 통해 FTI타입을 확인해보세요

@@ -27,7 +27,7 @@ const MyProfileEdit = () => {
   const [originalFileName, setOriginalFileName] = useState<string>('profileImage');
   const [isLoading, setIsLoading] = useState(false);
   const [modalSuccess, setModalSuccess] = useState<boolean | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null); // 이미지 파일을 저장하는 state
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { register, handleSubmit, setValue } = useForm({
     defaultValues: {
@@ -61,7 +61,7 @@ const MyProfileEdit = () => {
     setIsLoading(true);
     try {
       const compressedFile = await compressImage(croppedFile);
-      setImageFile(compressedFile); // 압축된 이미지를 state에 저장
+      setImageFile(compressedFile);
       const compressedImageUrl = URL.createObjectURL(compressedFile);
       setProfileImg(compressedImageUrl);
     } catch (error) {
@@ -113,18 +113,14 @@ const MyProfileEdit = () => {
 
     try {
       let profileImageUrl = profileImg;
-
       if (imageFile) {
-        // 이미지 파일이 있을 경우에만 업로드
         profileImageUrl = await uploadImage(imageFile);
       }
-
       const response = await authInstance.post('/api/profile/update/', {
         nickname: data.nickname,
         profile_image_url: profileImageUrl,
         introduction: data.introduce,
       });
-
       setValue('nickname', response.data.nickname);
       setProfileImg(response.data.profile_image_url);
       setValue('introduce', response.data.introduction);
@@ -135,7 +131,10 @@ const MyProfileEdit = () => {
     }
   };
 
-  const closeModal = () => setModalSuccess(null);
+  const closeModal = () => {
+    setModalSuccess(null);
+    navigate(-1);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

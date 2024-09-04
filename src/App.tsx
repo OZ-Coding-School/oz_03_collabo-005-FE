@@ -10,6 +10,7 @@ import { Thunder, ThunderChat, ThunderId, ThunderPost } from './pages/thunder';
 import Landing from './pages/Home/Landing.tsx';
 import ProfileId from './pages/profile/ProfileId.tsx';
 import ImageOverview from './pages/Image/ImageOverview.tsx';
+import Introduction from './pages/introduction/Introduction.tsx';
 
 function App() {
   return (
@@ -64,6 +65,8 @@ function App() {
         <Route path="profile/:Id" element={<ProfileId />} />
 
         <Route path="image" element={<ImageOverview />} />
+
+        <Route path="introduction" element={<Introduction />} />
       </Route>
     </Routes>
   );
