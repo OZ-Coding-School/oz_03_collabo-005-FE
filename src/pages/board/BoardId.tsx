@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ThunderImageModal from '../../components/thunder/ThunderImageModal';
 import ContentLoader from 'react-content-loader';
+import { baseInstance } from '../../api/util/instance'; // authInstance 가져오기
 import { authInstance } from '../../api/util/instance';
 import { format, differenceInMinutes, differenceInHours } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -48,13 +49,14 @@ const BoardId = () => {
   const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
   const [commentToEdit, setCommentToEdit] = useState<number | null>(null);
   const [editCommentText, setEditCommentText] = useState<string>('');
+  const [profileImageUrl, setProfileImageUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchBoardItem = async () => {
       const boardId = window.location.pathname.split('/').pop();
       try {
-        const response = await authInstance.get(`/api/reviews/detail/${boardId}`);
+        const response = await baseInstance.get(`/api/reviews/detail/${boardId}`);
         const boardItem = response.data.review;
         setSelectedBoardItem(boardItem);
         setComments(
@@ -67,8 +69,14 @@ const BoardId = () => {
             }),
           ),
         );
+
+        // 게시물 작성자의 프로필 이미지를 가져오기 위해 API 요청을 보냄
+        const profileResponse = await baseInstance.get(`/api/profile/${boardItem.nickname}`);
+        // 프로필 이미지 URL을 상태로 설정
+        setProfileImageUrl(profileResponse.data.profile_image_url);
         setIsLoading(false);
       } catch (error) {
+        // 게시물 정보를 불러오는 중 오류가 발생했을 때 콘솔에 오류 메시지를 출력
         console.error('게시물 정보를 불러오는 중 오류가 발생했습니다:', error);
         setIsLoading(false);
       }
@@ -189,18 +197,22 @@ const BoardId = () => {
 
   return (
     <div className="relative mx-auto max-w-full rounded-lg bg-white p-4">
+      {/* 카테고리 표시 섹션 */}
       <div className="mb-2 flex items-center">
         <div className="mr-2 rounded-lg border-2 border-[#ffe7e2] bg-[#FAF2F0] px-2 py-1 text-gray-800">
+          {/* 카테고리에 따라 다른 텍스트 표시 */}
           {selectedBoardItem.category === 1 ? '맛집 추천' : '소셜 다이닝 후기'}
         </div>
       </div>
 
+      {/* 게시물 제목 */}
       <div className="mb-4 text-xl font-bold">{selectedBoardItem.title}</div>
 
+      {/* 작성자 정보 */}
       <div className="mb-4 flex items-center">
         <Link to={`/profile/${selectedBoardItem.nickname}`}>
           <img
-            src={selectedBoardItem.comments[0]?.profile_image_url || '../images/anonymous_avatars.svg'}
+            src={profileImageUrl || '../images/anonymous_avatars.svg'}
             alt="프로필 사진"
             className="mr-2 h-10 w-10 rounded-full"
             onError={(e) => {
@@ -211,9 +223,11 @@ const BoardId = () => {
 
         <div>
           <div className="flex items-center">
+            {/* 작성자 닉네임 */}
             <Link to={`/profile/${selectedBoardItem.nickname}`} className="text-sm font-medium">
               {selectedBoardItem.nickname}
             </Link>
+            {/* 작성 시간 */}
             <div className="ml-2 text-xs font-medium text-gray-500">{formattedCreatedAt}</div>
           </div>
         </div>
@@ -221,6 +235,7 @@ const BoardId = () => {
 
       <p className="mb-4 text-[#333333]">{selectedBoardItem.content}</p>
 
+      {/* 이미지 로딩 중일 때 ContentLoader 표시 */}
       {selectedBoardItem.review_image_url && !isImageLoaded && (
         <ContentLoader height={200} width={300} speed={2} backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
           <rect x="0" y="56" rx="3" ry="3" width="300" height="10" />
@@ -228,6 +243,7 @@ const BoardId = () => {
           <rect x="0" y="88" rx="3" ry="3" width="100" height="10" />
         </ContentLoader>
       )}
+      {/* 이미지 로딩 완료 후 이미지 표시 */}
       {selectedBoardItem.review_image_url && (
         <img
           src={selectedBoardItem.review_image_url}
@@ -264,7 +280,6 @@ const BoardId = () => {
           } else {
             timeDisplay = commentTime.toLocaleDateString();
           }
-
           return (
             <div key={index} className="flex w-full items-center border-b border-gray-300 p-2">
               <img
