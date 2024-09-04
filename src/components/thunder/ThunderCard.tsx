@@ -5,7 +5,7 @@ import { formatAppointmentTime } from '../../utils/formatAppointmentTime';
 
 interface ThunderCardProps {
   id: string;
-  meeting_image_url: string;
+  meeting_image_url: string | null;
   description: string;
   paymentMethod: string;
   appointmentTime: string;
