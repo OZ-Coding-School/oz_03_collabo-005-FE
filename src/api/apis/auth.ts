@@ -36,3 +36,30 @@ export const signinAPI = async (email: string, password: string) => {
     throw error; // 에러를 throw
   }
 };
+
+export const checkEmailAPI = async (email: string) => {
+  try {
+    const response = await baseInstance.post('/api/users/checkEmail/', { email: email });
+    return response.status === 200; // 중복이 아니면 true 반환
+  } catch (error) {
+    if (error.response && error.response.status === 400) {
+      return false; // 중복이면 false 반환
+    }
+    console.error('Failed to check email:', error); // 다른 에러 로그 출력
+    throw error; // 다른 에러를 throw
+  }
+};
+
+export const checkNicknameAPI = async (nickname: string) => {
+  try {
+    const response = await baseInstance.post('/api/users/checkNickname/', { nickname: nickname });
+    console.log(response);
+    return response.status === 200; // 성공 시 boolean 반환
+  } catch (error) {
+    if (error.response && error.response.status === 400) {
+      return false; // 중복이면 false 반환
+    }
+    console.error('Failed to check nickname:', error); // 다른 에러 로그 출력
+    throw error; // 다른 에러를 throw
+  }
+};
