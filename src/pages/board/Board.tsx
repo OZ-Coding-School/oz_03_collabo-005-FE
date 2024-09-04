@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'; // useNavigate 추가
 import { useState, useEffect } from 'react';
-import { baseInstance } from '../../api/util/instance'; // authInstance 가져오기
+import { baseInstance } from '../../api/util/instance'; // baseInstance 가져오기
 import { getCookie } from '../../utils/cookie'; // getCookie 가져오기
 import BoardCard from '../../components/board/BoardCard'; // BoardCard 컴포넌트 추가
 import Loading from '../../components/common/Loading'; // Loading 컴포넌트 추가
@@ -23,11 +23,13 @@ const Board = () => {
   >([]); // 게시판 목록 상태 추가
   const [isLoading, setIsLoading] = useState<boolean>(true); // 로딩 상태 추가
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false); // 로그인 모달 상태 추가
+  const [categories, setCategories] = useState<{ category: string }[]>([]); // 카테고리 목록 상태 추가
   const navigate = useNavigate(); // useNavigate 훅 사용
 
   useEffect(() => {
     setSelectedBoard('전체'); // 컴포넌트가 처음 렌더링될 때 '전체'로 설정
     fetchBoardList(); // 게시판 목록 가져오기
+    fetchCategories(); // 카테고리 목록 가져오기
   }, []);
 
   const fetchBoardList = async () => {
@@ -38,6 +40,16 @@ const Board = () => {
     } catch (error) {
       console.error('게시판 목록을 가져오는 중 오류가 발생했습니다:', error);
       setIsLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await baseInstance.get('/api/categories/reviewfilter/');
+      setCategories(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error('카테고리 목록을 가져오는 중 오류가 발생했습니다:', error);
     }
   };
 
@@ -67,27 +79,19 @@ const Board = () => {
     <div className="relative mb-2 h-full w-full max-w-[600px] p-4 pt-0">
       <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
         <h1 className="my-[12px] text-2xl font-bold xs:text-xl">맛있는 이야기의 시작</h1>
+
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between" />
         <div className="flex gap-2">
           <div className="mb-2 flex items-center">
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[60px] rounded-2xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === '전체' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
-              onClick={() => setSelectedBoard('전체')}>
-              전체
-            </button>
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[85px] rounded-xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === '맛집 추천' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
-              onClick={() => setSelectedBoard('맛집 추천')}>
-              맛집 추천
-            </button>
-            <button
-              type="button"
-              className={`mr-2 h-[35px] w-[85px] rounded-xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === '모임 후기' ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
-              onClick={() => setSelectedBoard('모임 후기')}>
-              모임 후기
-            </button>
+            {categories.map((category, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`mr-2 h-[35px] w-[85px] rounded-xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
+                onClick={() => setSelectedBoard(category.category)}>
+                {category.category}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -104,7 +108,7 @@ const Board = () => {
         <div className="mt-[107px] flex flex-col items-center overflow-auto">
           {filteredBoardList.map((item) => {
             if (!item) return null;
-            console.log('Board Item:', item);
+            // console.log('Board Item:', item);
             return (
               <BoardCard
                 key={item.uuid}
