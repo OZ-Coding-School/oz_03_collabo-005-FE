@@ -22,7 +22,7 @@ jobs:
         run: yarn build # 프로젝트 빌드
 
       - name: S3 Deploy
-        run: aws s3 sync ./build s3://bobpience-s3-bucket/ --acl bucket-owner-full-control # 현재 빌드된 폴더에 접근 후 S3 버킷에 빌드 파일 업로드
+        run: aws s3 sync ./dist s3://bobpience-s3-bucket/ --acl bucket-owner-full-control # 현재 빌드된 폴더에 접근 후 S3 버킷에 빌드 파일 업로드
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # AWS 액세스 키 ID
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS 시크릿 액세스 키
