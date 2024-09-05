@@ -167,7 +167,7 @@ const MyProfileEdit = () => {
           <Button
             buttonSize="normal"
             bgColor="filled"
-            className="mt-5 h-[46px] w-[112px] font-bold"
+            className="mt-5 w-full px-2 py-3 font-bold transition-colors duration-200 ease-in-out hover:bg-orange-600"
             onClick={closeModal}>
             닫기
           </Button>

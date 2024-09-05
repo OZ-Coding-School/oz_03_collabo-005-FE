@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,6 +11,18 @@ interface ModalBottomProps {
 }
 
 const ModalBottom: React.FC<ModalBottomProps> = ({ isOpen, onClose, title1, title2, children }) => {
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [onClose]);
+
   const handleBackgroundClick = (e: React.MouseEvent) => {
     e.preventDefault();
     onClose();
@@ -30,9 +42,10 @@ const ModalBottom: React.FC<ModalBottomProps> = ({ isOpen, onClose, title1, titl
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
-            <div className="text-center text-2xl font-semibold">{title1}</div>
-            <div className="text-center text-2xl font-semibold">{title2}</div>
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            onClick={(e) => e.stopPropagation()}>
+            <div className="text-center text-2xl font-semibold xs:text-xl">{title1}</div>
+            <div className="text-center text-2xl font-semibold xs:text-xl">{title2}</div>
             <div className="max-h-[360px] overflow-y-auto">{children}</div>
           </motion.div>
         </motion.div>

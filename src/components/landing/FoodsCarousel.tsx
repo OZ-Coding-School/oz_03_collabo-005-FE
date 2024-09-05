@@ -44,6 +44,7 @@ const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy }) => {
 
   const listToUse = spicy ? userFoods : FoodsCarouselList;
   const defaultImageUrl = '/images/CuteEgg.svg';
+  const isSingleItem = listToUse.length === 1;
 
   return (
     <div className="h-full w-full py-4">
@@ -51,9 +52,12 @@ const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy }) => {
         slidesPerView={'auto'}
         pagination={{
           clickable: true,
-        }}>
+        }}
+        className={isSingleItem ? 'flex-start flex justify-center' : ''}>
         {listToUse?.map((item) => (
-          <SwiperSlide key={item.food_name} className="flex h-[70%] w-[70%] flex-col items-center justify-center pl-4">
+          <SwiperSlide
+            key={item.food_name}
+            className={`flex h-[70%] w-[70%] flex-col items-center justify-center pl-4 ${isSingleItem ? 'mx-auto' : ''}`}>
             <Link to={`/foods/${item.food_id}`} state={{ name: item.food_name }} className="relative w-full">
               <ImageWithPlaceholder src={`/${item.image_url}` || defaultImageUrl} alt={item.food_name} />
             </Link>

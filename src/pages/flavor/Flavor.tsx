@@ -66,19 +66,19 @@ const Flavor = () => {
           입맛 정보를 저장하고 <br />
           맞춤형 추천을 받으실 수 있습니다
         </p>
-        <div className="mt-8 flex w-full space-x-4">
+        <div className="mt-8 flex w-full gap-4">
           <motion.button
             onClick={closeModalCenter}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 1 }}
-            className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
+            className="w-full rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
             취소
           </motion.button>
-          <Link to="/signin" className="flex-1">
+          <Link to="/signin" className="w-full">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 1 }}
-              className="w-full rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
+              className="w-full rounded-xl border-2 border-orange-500 bg-orange-500 px-1 py-2 font-semibold text-white hover:border-orange-600 hover:bg-orange-600">
               로그인
             </motion.button>
           </Link>

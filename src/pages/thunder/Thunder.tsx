@@ -10,13 +10,13 @@ import { useNavigate } from 'react-router-dom';
 
 interface Meeting {
   uuid: string;
-  meeting_image_url: string;
-  description: string;
-  payment_method_name: string;
-  meeting_time: string;
   title: string;
-  gender_group_name: string;
+  description: string;
+  meeting_time: string;
   age_group_name: string;
+  payment_method_name: string;
+  gender_group_name: string;
+  meeting_image_url: string;
 }
 
 interface Category {
@@ -26,20 +26,20 @@ interface Category {
 }
 
 const Thunder: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isSelectedList, setIsSelectedList] = useState<boolean>(true);
+  const [filter, setFilter] = useState<{ location?: string; time?: string }>({
+    location: undefined,
+    time: undefined,
+  });
   const [locationCategories, setLocationCategories] = useState<Category[]>([]);
   const [timeCategories, setTimeCategories] = useState<Category[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<string | undefined>();
-  const [selectedTime, setSelectedTime] = useState<string | undefined>();
   const [meetings, setMeetings] = useState<Meeting[] | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+  const [modalState, setModalState] = useState<'none' | 'filter' | 'login'>('none');
+  const [isSelectedList, setIsSelectedList] = useState<boolean>(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     document.getElementById('root')?.scrollTo(0, 0);
-  }, [selectedLocation, selectedTime]);
+  }, [filter]);
 
   const fetchMeetings = (locationName: string | undefined, timeName: string | undefined) => {
     baseInstance
@@ -60,10 +60,8 @@ const Thunder: React.FC = () => {
         setTimeCategories(res.data.time_categories);
         const initialLocation = res.data.location_categories[0]?.location_name;
         const initialTime = res.data.time_categories[0]?.sort_name;
-        setSelectedLocation(initialLocation);
-        setSelectedTime(initialTime);
+        setFilter({ location: initialLocation, time: initialTime });
         fetchMeetings(initialLocation, initialTime);
-        setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -71,30 +69,30 @@ const Thunder: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedLocation && selectedTime) {
-      fetchMeetings(selectedLocation, selectedTime);
+    if (filter.location && filter.time) {
+      fetchMeetings(filter.location, filter.time);
     }
-  }, [selectedLocation, selectedTime]);
+  }, [filter]);
 
   const toggleModal = () => {
-    setIsModalOpen((prev) => !prev);
+    setModalState(modalState === 'filter' ? 'none' : 'filter');
   };
 
   const handleListSelection = (isAll: boolean) => {
-    setIsModalOpen((prev) => !prev);
+    setModalState(modalState === 'filter' ? 'none' : 'filter');
     setIsSelectedList(isAll);
   };
 
   const checkLogin = () => {
     const token = getCookie('refresh');
     if (!token) {
-      setIsLoginModalOpen(true);
+      setModalState('login');
     } else {
       navigate('/thunder/thunderpost');
     }
   };
 
-  if (isLoading) {
+  if (meetings === null) {
     return <Loading />;
   }
 
@@ -104,15 +102,15 @@ const Thunder: React.FC = () => {
         <h1 className="my-[12px] min-w-[300px] text-2xl font-bold xs:text-xl">음식으로 시작되는 인연</h1>
         <div className="my-2 flex w-full min-w-[314px] max-w-[600px] items-center justify-between">
           <RoundedButton onClick={() => handleListSelection(true)}>
-            {locationCategories.find((category) => category.location_name === selectedLocation)?.location_name ||
+            {locationCategories.find((category) => category.location_name === filter.location)?.location_name ||
               '지역 선택'}
           </RoundedButton>
           <RoundedButton onClick={() => handleListSelection(false)}>
-            {timeCategories.find((category) => category.sort_name === selectedTime)?.sort_name || '시간 선택'}
+            {timeCategories.find((category) => category.sort_name === filter.time)?.sort_name || '시간 선택'}
           </RoundedButton>
         </div>
       </div>
-      {!isLoading && meetings?.length === 0 ? (
+      {meetings.length === 0 ? (
         <div className="mb-[72px] mt-[100px] flex w-full flex-col items-center justify-evenly bg-[#EEEEEE]">
           <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">등록된 일정이 없어요</p>
           <img src="/images/CryingEgg.svg" className="inline-block h-[40vh]" />
@@ -123,7 +121,7 @@ const Thunder: React.FC = () => {
         </div>
       ) : (
         <div className="mb-[72px] mt-[100px] flex flex-col items-center overflow-auto">
-          {meetings?.map((item) => (
+          {meetings.map((item) => (
             <ThunderCard
               key={item.uuid}
               id={item.uuid}
@@ -143,7 +141,7 @@ const Thunder: React.FC = () => {
         className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 cursor-pointer xs:bottom-[100px] xs:right-[5%]">
         <div className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]' />
       </div>
-      <ModalBottom isOpen={isModalOpen} onClose={toggleModal}>
+      <ModalBottom isOpen={modalState === 'filter'} onClose={toggleModal}>
         <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
         <div className="flex flex-col gap-[20px] p-[20px]">
           <div className="text-[18px] font-bold">{isSelectedList ? '지역 선택' : '정렬 선택'}</div>
@@ -151,26 +149,26 @@ const Thunder: React.FC = () => {
             <SelectionItem
               key={item.id}
               item={isSelectedList ? item.location_name : item.sort_name}
-              isSelected={isSelectedList ? selectedLocation === item.location_name : selectedTime === item.sort_name}
+              isSelected={isSelectedList ? filter.location === item.location_name : filter.time === item.sort_name}
               onClick={() => {
                 if (isSelectedList) {
-                  setSelectedLocation(item.location_name);
+                  setFilter((prev) => ({ ...prev, location: item.location_name }));
                 } else {
-                  setSelectedTime(item.sort_name);
+                  setFilter((prev) => ({ ...prev, time: item.sort_name }));
                 }
               }}
             />
           ))}
         </div>
       </ModalBottom>
-      <ModalBottom isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}>
+      <ModalBottom isOpen={modalState === 'login'} onClose={() => setModalState('none')}>
         <div className="p-4 text-center">
-          <p className="text-lg font-semibold">로그인이 필요한 서비스 입니다.</p>
-          <p className="mt-2 text-sm text-gray-600">일정을 만들려면 먼저 로그인해주세요.</p>
+          <p className="my-4 text-2xl font-semibold xs:text-xl">로그인이 필요한 서비스 입니다.</p>
+          <p className="my-2 text-gray-600 xs:text-[14px]">일정을 만들려면 먼저 로그인해주세요.</p>
           <button
-            className="mt-4 w-full rounded-lg bg-primary px-10 py-2 font-bold text-white"
+            className="mt-4 w-full rounded-lg bg-primary px-10 py-3 font-bold text-white"
             onClick={() => {
-              setIsLoginModalOpen(false);
+              setModalState('none');
               navigate('/signIn');
             }}>
             로그인하기
