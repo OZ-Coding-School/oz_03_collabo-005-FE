@@ -1,18 +1,3 @@
-// 임시 user
-export interface User {
-  id: number;
-  nickname: string;
-  profileImageUrl: string | undefined;
-  ftiType?: string | undefined;
-  introduce?: string | undefined;
-  spicy_preference?: number | null;
-}
-
-export interface UserStore {
-  user: User | undefined;
-  setUser: (newUser: User | undefined) => void;
-}
-
 export interface FoodsList {
   image_url: string | null;
   food_name: string;
