@@ -54,6 +54,7 @@ const Landing: React.FC = () => {
         buttonText="더보기"
         isImageLoaded={isImageLoaded}
         setIsImageLoaded={setIsImageLoaded}
+        imgUrl="/images/fti.svg"
       />
       <Section
         title="개인별 음식추천"
@@ -69,6 +70,7 @@ const Landing: React.FC = () => {
         buttonText="더보기"
         isImageLoaded={isImageLoaded}
         setIsImageLoaded={setIsImageLoaded}
+        imgUrl="/images/flavor.svg"
       />
       <Section
         title="소셜다이닝"
@@ -84,6 +86,7 @@ const Landing: React.FC = () => {
         buttonText="더보기"
         isImageLoaded={isImageLoaded}
         setIsImageLoaded={setIsImageLoaded}
+        imgUrl="/images/social.svg"
       />
       <Section
         title="맛있는 발견"
@@ -99,6 +102,7 @@ const Landing: React.FC = () => {
         buttonText="더보기"
         isImageLoaded={isImageLoaded}
         setIsImageLoaded={setIsImageLoaded}
+        imgUrl="/images/board.svg"
       />
       <Footer />
     </div>
