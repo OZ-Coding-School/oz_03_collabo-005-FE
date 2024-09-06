@@ -11,6 +11,21 @@ module.exports = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        slideInLeft: {
+          '0%': { opacity: '0', transform: 'translateX(-30%)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        slideInRight: {
+          '0%': { opacity: '0', transform: 'translateX(30%)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
+      animation: {
+        slideInLeft: 'slideInLeft 0.7s ease-in-out',
+        slideInRight: 'slideInRight 0.7s ease-in-out',
+      },
+
       screens: {
         xs: { max: '600px' },
         xxs: { max: '375px' },
