@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import PostNav from '../../components/myprofile/PostNav';
-import ThunderCard from '../../components/thunder/ThunderCard';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { useNavigate } from 'react-router-dom';
 import { authInstance } from '../../api/util/instance';
 import Loading from '../../components/common/Loading';
 import { getCookie } from '../../utils/cookie';
+import PostNav from '../../components/myprofile/PostNav';
+import ThunderList from '../../components/myprofile/ThunderList';
 
 interface ThunderItem {
   uuid: string;
@@ -18,11 +19,15 @@ interface ThunderItem {
 }
 
 const MyProfileThunder = () => {
-  // 유저 확인해서 로그인 안되어있으면 redirect
-  const [selectedItem, setSelectedItem] = useState<string>('작성한 글');
-  const [userSocialList, setSocialList] = useState<ThunderItem[]>([]);
+  const [swiperIndex, setSwiperIndex] = useState<number>(0);
+  const [userData, setUserData] = useState<{ hosted: ThunderItem[]; joined: ThunderItem[]; liked: ThunderItem[] }>({
+    hosted: [],
+    joined: [],
+    liked: [],
+  });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const swiperRef = useRef<any>(null);
 
   useEffect(() => {
     if (!getCookie('refresh')) {
@@ -32,65 +37,57 @@ const MyProfileThunder = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    if (selectedItem === '작성한 글') {
-      authInstance.get('/api/profile/hosted/meetings/').then((res) => {
-        setSocialList(res.data);
-        setIsLoading(false);
+    Promise.all([
+      authInstance.get('/api/profile/hosted/meetings/'),
+      authInstance.get('/api/profile/joined/meetings/'),
+      authInstance.get('/api/profile/liked/meeting/'),
+    ]).then(([hostedRes, joinedRes, likedRes]) => {
+      setUserData({
+        hosted: hostedRes.data,
+        joined: joinedRes.data,
+        liked: likedRes.data,
       });
-    } else if (selectedItem === '참여 내역') {
-      authInstance.get('/api/profile/joined/meetings/').then((res) => {
-        setSocialList(res.data);
-        setIsLoading(false);
-      });
-    } else {
-      authInstance.get('/api/profile/liked/meeting/').then((res) => {
-        setSocialList(res.data);
-        setIsLoading(false);
-      });
+      setIsLoading(false);
+    });
+  }, []);
+
+  const handleSlideChange = (swiper: any) => {
+    setSwiperIndex(swiper.activeIndex);
+  };
+
+  const handleNavClick = (index: number) => {
+    if (swiperRef.current && swiperRef.current.swiper) {
+      swiperRef.current.swiper.slideTo(index);
     }
-  }, [selectedItem]);
+    setSwiperIndex(index);
+  };
 
   return (
     <>
-      <PostNav list={['작성한 글', '참여 내역', '좋아요']} setSelectedItem={setSelectedItem} />
+      <PostNav
+        list={['작성한 글', '참여 내역', '좋아요']}
+        setSelectedItem={handleNavClick}
+        selectedIndex={swiperIndex}
+      />
       {isLoading ? (
         <Loading />
       ) : (
-        <div className="p-4 pt-0">
-          {userSocialList && userSocialList.length === 0 ? (
-            <div className="flex w-full flex-col items-center justify-evenly bg-[#EEEEEE] py-8">
-              <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">
-                {`선택된 글 목록(${selectedItem})이 없어요`}
-              </p>
-              <img src="/images/CryingEgg.svg" className="inline-block h-[40vh]" />
-              {selectedItem === '작성한 글' ? (
-                <Link
-                  to={'/thunder/thunderpost'}
-                  className="flex h-[42px] w-[90%] items-center justify-center rounded-[8px] bg-primary font-bold text-white">
-                  게시글 만들기
-                </Link>
-              ) : (
-                <></>
-              )}
-            </div>
-          ) : (
-            userSocialList?.map((item) => {
-              return (
-                <ThunderCard
-                  key={item.uuid}
-                  id={item.uuid}
-                  meeting_image_url={item.meeting_image_url}
-                  description={item.description}
-                  paymentMethod={item.payment_method_name}
-                  appointmentTime={item.meeting_time}
-                  title={item.title}
-                  genderGroup={item.gender_group_name}
-                  ageGroup={item.age_group_name}
-                />
-              );
-            })
-          )}
-        </div>
+        <Swiper
+          className="h-[calc(100vh-136px)] xs:h-[calc(100vh-106px)]"
+          onSlideChange={handleSlideChange}
+          slidesPerView={1}
+          spaceBetween={50}
+          ref={swiperRef}>
+          <SwiperSlide>
+            <ThunderList thunderItems={userData.hosted} type="작성한 글" />
+          </SwiperSlide>
+          <SwiperSlide>
+            <ThunderList thunderItems={userData.joined} type="참여 내역" />
+          </SwiperSlide>
+          <SwiperSlide>
+            <ThunderList thunderItems={userData.liked} type="좋아요" />
+          </SwiperSlide>
+        </Swiper>
       )}
     </>
   );
