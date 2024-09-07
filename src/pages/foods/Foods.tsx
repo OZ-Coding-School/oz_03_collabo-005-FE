@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Tag from '../../components/common/Tag';
 import FoodCard from '../../components/foods/FoodCard';
-import { useFoodStore } from '../../store/foodStore';
 import { FoodsList } from '../../types/types';
 import { getItem } from '../../utils/storage';
 import { postAllFoods } from '../../api/apis/foods';
@@ -11,7 +10,8 @@ const filter: string[] = ['기본', '점심', '저녁', '간식', '데이트', '
 const Foods = () => {
   const [selectedTag, setSelectedTag] = useState<string>('기본');
   const [filteredFoods, setFilteredFoods] = useState<FoodsList[]>([]);
-  const { foodsList, setFoodsList } = useFoodStore();
+  const [sessionFoods, setSessionFoods] = useState<FoodsList[]>([]);
+  const [apiFoods, setApiFoods] = useState<FoodsList[]>([]);
 
   const handleTagClick = (tag: string) => {
     setSelectedTag(tag);
@@ -28,33 +28,35 @@ const Foods = () => {
     return tags;
   };
 
-  const filterFoods = (tag: string): FoodsList[] => {
-    if (tag === '기본') {
-      return foodsList;
-    }
-    return foodsList.filter((food) => mapTags(food).includes(tag));
-  };
+  const filterFoods = useCallback(
+    (tag: string): FoodsList[] => {
+      const combinedFoods = [...sessionFoods, ...apiFoods];
+      if (tag === '기본') {
+        return combinedFoods;
+      }
+      return combinedFoods.filter((food) => mapTags(food).includes(tag));
+    },
+    [sessionFoods, apiFoods],
+  );
 
   const getAllFoods = async () => {
     const response = await postAllFoods();
-    console.log('All foods fetched:', response.data);
+    console.log('All foods fetched:', response.recommendations);
+    setApiFoods(response.recommendations);
   };
 
   useEffect(() => {
     const recommendedFoods = getItem('foodsList-storage');
     if (recommendedFoods) {
       const parsedFoods = JSON.parse(recommendedFoods).state.foodsList;
-      setFoodsList(parsedFoods);
+      setSessionFoods(parsedFoods);
     }
-  }, [setFoodsList]);
+    getAllFoods(); // API 호출
+  }, []);
 
   useEffect(() => {
     setFilteredFoods(filterFoods(selectedTag));
-  }, [selectedTag, foodsList]);
-
-  useEffect(() => {
-    getAllFoods();
-  }, []);
+  }, [selectedTag, sessionFoods, apiFoods, filterFoods]);
 
   return (
     <div>
@@ -75,9 +77,9 @@ const Foods = () => {
       </div>
       <div className="flex flex-col gap-[20px] px-[16px] py-[12px]">
         {Array.isArray(filteredFoods) &&
-          filteredFoods.map((item) => (
+          filteredFoods.map((item, index) => (
             <FoodCard
-              key={item.food_id}
+              key={`${item.food_id}-${index}`}
               id={item.food_id}
               name={item.food_name}
               tag={mapTags(item)}
