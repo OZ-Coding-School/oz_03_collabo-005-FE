@@ -6,6 +6,7 @@ import Button from '../../components/common/Button';
 import ProgressBar from '../../components/flavor/ProgressBar';
 import { useNavigate } from 'react-router-dom';
 import { sendFtiResult } from '../../api/apis/fti';
+import { localsetItem } from '../../utils/storage';
 
 const FtiTest = () => {
   const [questions, setQuestions] = useState<string[]>([]);
@@ -32,7 +33,6 @@ const FtiTest = () => {
   }, []);
 
   const handleAnswer = (result: string) => {
-    console.log('Selected result:', result); // 각 답변의 result 출력
     setResults((prevResults) => {
       const newResults = [...prevResults, result];
       if (number < questions.length - 1) {
@@ -44,14 +44,38 @@ const FtiTest = () => {
     });
   };
 
+  const parseDescription = (desc: string) => {
+    const sections = desc.split(/\n\n/);
+    const result: { [key: string]: string }[] = [];
+
+    sections.forEach((section) => {
+      const match = section.match(/^\(([^)]+)\)\n([\s\S]*)$/);
+      if (match) {
+        const key = match[1].trim();
+        const value = match[2].trim();
+        result.push({ [key]: value });
+      }
+    });
+
+    return result;
+  };
+
   const calculateResult = async (finalResults: string[]) => {
-    console.log('All results:', finalResults);
-    setIsSubmitting(true); // 제출 시작
+    setIsSubmitting(true);
     try {
       const ftiResult = await sendFtiResult(finalResults);
-      console.log('Result ID:', ftiResult); // resultId.uuid로 FTI 결과 ID 출력
-      console.log(ftiResult.description);
-      navigate(`/fti/${ftiResult.uuid}`, { state: { ftiType: ftiResult.fti_type, uuid: ftiResult.uuid } }); // ftiType과 uuid를 state로 전달
+      localsetItem('FtiResults', ftiResult.fti_type);
+      const description = parseDescription(ftiResult.description);
+      console.log('FTI result:', ftiResult.description);
+      console.log('FTI description:', description);
+      navigate(`/fti/${ftiResult.uuid}`, {
+        state: {
+          ftiType: ftiResult.fti_type,
+          uuid: ftiResult.uuid,
+          ftiImage: ftiResult.fti_image,
+          description: description,
+        },
+      }); // ftiType과 uuid를 state로 전달
     } catch (error) {
       console.error('Failed to send FTI result:', error);
       setIsSubmitting(true); // 제출 실패 시 다시 활성화
@@ -61,7 +85,9 @@ const FtiTest = () => {
     <div className="flex flex-col items-center">
       <ProgressBar widthPercentage={widthPercentage} />
 
-      {questions.length > 0 && <div className="mb-[12px] mt-[60px] text-[24px]">{questions[number]}</div>}
+      {questions.length > 0 && (
+        <div className="mb-[12px] mt-[60px] text-[24px] xs:text-[20px]">{questions[number]}</div>
+      )}
 
       <img src="/images/ftiStart.png" alt="" />
       <div className="mt-[36px] w-full px-[16px]">
@@ -73,7 +99,7 @@ const FtiTest = () => {
                 <Button
                   buttonSize="normal"
                   bgColor="black"
-                  className="h-[48px]"
+                  className="h-[48px] xs:text-[14px]"
                   onClick={() => handleAnswer(answer.result)}
                   disabled={isSubmitting} // 제출 중일 때 버튼 비활성화
                 >
@@ -84,7 +110,7 @@ const FtiTest = () => {
                 <Button
                   buttonSize="normal"
                   bgColor="black"
-                  className="mt-[12px] h-[48px]"
+                  className="mt-[12px] h-[48px] xs:text-[14px]"
                   onClick={() => handleAnswer(answer.result)}
                   disabled={isSubmitting} // 제출 중일 때 버튼 비활성화
                 >
