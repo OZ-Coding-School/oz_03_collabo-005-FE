@@ -5,11 +5,16 @@ import Button from '../../components/common/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { signinAPI } from '../../api/apis/auth';
 import { getCookie } from '../../utils/cookie';
+import { AxiosError } from 'axios';
 
 interface InputProps {
   email: string;
   password: string;
 }
+
+const isAxiosError = (error: unknown): error is AxiosError => {
+  return (error as AxiosError).isAxiosError !== undefined;
+};
 
 const Signin = () => {
   const {
@@ -29,7 +34,7 @@ const Signin = () => {
       navigate('/');
       console.log('Signin successful');
     } catch (error) {
-      if (error.response && error.response.status === 400) {
+      if (isAxiosError(error) && error.response && error.response.status === 400) {
         setErrorMessage('이메일 또는 비밀번호가 잘못되었습니다.');
       } else {
         setErrorMessage('로그인 중 오류가 발생했습니다. 다시 시도해 주세요.');
