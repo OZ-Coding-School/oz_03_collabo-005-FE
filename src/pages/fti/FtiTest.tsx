@@ -29,6 +29,7 @@ const FtiTest = () => {
   };
 
   useEffect(() => {
+    console.log(results);
     getQuestion();
   }, []);
 

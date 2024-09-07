@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { baseInstance } from '../util/instance';
 import { setCookie } from '../../utils/cookie';
 import { setItem } from '../../utils/storage';
@@ -7,6 +8,11 @@ interface SignupData {
   password: string;
   nickname: string;
 }
+
+// AxiosError인지 확인하는 타입 가드 함수
+const isAxiosError = (error: unknown): error is AxiosError => {
+  return (error as AxiosError).isAxiosError !== undefined;
+};
 
 export const signupAPI = async (data: SignupData) => {
   try {
@@ -42,7 +48,7 @@ export const checkEmailAPI = async (email: string) => {
     const response = await baseInstance.post('/api/users/checkEmail/', { email: email });
     return response.status === 200; // 중복이 아니면 true 반환
   } catch (error) {
-    if (error.response && error.response.status === 400) {
+    if (isAxiosError(error) && error.response && error.response.status === 400) {
       return false; // 중복이면 false 반환
     }
     console.error('Failed to check email:', error); // 다른 에러 로그 출력
@@ -56,7 +62,7 @@ export const checkNicknameAPI = async (nickname: string) => {
     console.log(response);
     return response.status === 200; // 성공 시 boolean 반환
   } catch (error) {
-    if (error.response && error.response.status === 400) {
+    if (isAxiosError(error) && error.response && error.response.status === 400) {
       return false; // 중복이면 false 반환
     }
     console.error('Failed to check nickname:', error); // 다른 에러 로그 출력
