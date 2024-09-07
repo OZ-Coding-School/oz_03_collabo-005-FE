@@ -11,7 +11,7 @@ export const postAllFoods = async () => {
         is_party: false,
         is_diet: false,
       },
-      recommends_cnt: 5,
+      recommends_cnt: 100,
     });
     return response.data;
   } catch (error) {
