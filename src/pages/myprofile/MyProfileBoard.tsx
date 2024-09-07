@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import PostNav from '../../components/myprofile/PostNav';
-import BoardCard from '../../components/board/BoardCard.tsx';
-import { Link, useNavigate } from 'react-router-dom';
 import { authInstance } from '../../api/util/instance.ts';
 import Loading from '../../components/common/Loading.tsx';
 import { getCookie } from '../../utils/cookie.ts';
+import { useNavigate } from 'react-router-dom';
+import BoardList from '../../components/myprofile/BoardList.tsx';
 
 interface BoardItem {
   uuid: string;
@@ -18,10 +19,15 @@ interface BoardItem {
 }
 
 const MyProfileBoard = () => {
-  const [selectedItem, setSelectedItem] = useState<string>('작성한 글');
-  const [boardList, setBoardList] = useState<BoardItem[]>([]);
+  const [swiperIndex, setSwiperIndex] = useState<number>(0);
+  const [boardData, setBoardData] = useState<{ hosted: BoardItem[]; commented: BoardItem[]; liked: BoardItem[] }>({
+    hosted: [],
+    commented: [],
+    liked: [],
+  });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const swiperRef = useRef<any>(null);
 
   useEffect(() => {
     if (!getCookie('refresh')) {
@@ -31,61 +37,53 @@ const MyProfileBoard = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    if (selectedItem === '작성한 글') {
-      authInstance.get('/api/profile/hosted/reviews').then((res) => {
-        setBoardList(res.data);
-        setIsLoading(false);
+    Promise.all([
+      authInstance.get('/api/profile/hosted/reviews'),
+      authInstance.get('/api/profile/commented/reviews'),
+      authInstance.get('/api/profile/liked/reviews'),
+    ]).then(([hostedRes, commentedRes, likedRes]) => {
+      setBoardData({
+        hosted: hostedRes.data,
+        commented: commentedRes.data,
+        liked: likedRes.data,
       });
-    } else if (selectedItem === '댓글') {
-      authInstance.get('/api/profile/commented/reviews').then((res) => {
-        setBoardList(res.data);
-        setIsLoading(false);
-      });
-    } else {
-      authInstance.get('/api/profile/liked/reviews').then((res) => {
-        setBoardList(res.data);
-        setIsLoading(false);
-      });
+      setIsLoading(false);
+    });
+  }, []);
+
+  const handleSlideChange = (swiper: any) => {
+    setSwiperIndex(swiper.activeIndex);
+  };
+
+  const handleNavClick = (index: number) => {
+    if (swiperRef.current && swiperRef.current.swiper) {
+      swiperRef.current.swiper.slideTo(index);
     }
-  }, [selectedItem]);
+    setSwiperIndex(index);
+  };
 
   return (
     <>
-      <PostNav list={['작성한 글', '댓글', '좋아요']} setSelectedItem={setSelectedItem} />
+      <PostNav list={['작성한 글', '댓글', '좋아요']} setSelectedItem={handleNavClick} selectedIndex={swiperIndex} />
       {isLoading ? (
         <Loading />
       ) : (
-        <div className="p-4 pt-0">
-          {boardList.length === 0 ? (
-            <div className="flex w-full flex-col items-center justify-evenly bg-[#EEEEEE] py-8">
-              <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">
-                {`선택된 글 목록(${selectedItem})이 없어요`}
-              </p>
-              <img src="/images/CryingEgg.svg" className="inline-block h-[40vh]" alt="Crying Egg" />
-              {selectedItem === '작성한 글' ? (
-                <Link
-                  to={'/board/boardpost'}
-                  className="flex h-[42px] w-[90%] items-center justify-center rounded-[8px] bg-primary font-bold text-white">
-                  게시글 만들기
-                </Link>
-              ) : null}
-            </div>
-          ) : (
-            boardList?.map((item) => (
-              <BoardCard
-                key={item.uuid}
-                id={item.uuid}
-                category={item.category_name}
-                title={item.title}
-                content={item.content}
-                hits={item.hits}
-                review_image_url={item.review_image_url}
-                createdAt={item.created_at}
-                commentLength={item.comment_count}
-              />
-            ))
-          )}
-        </div>
+        <Swiper
+          className="h-[calc(100vh-136px)] xs:h-[calc(100vh-106px)]"
+          onSlideChange={handleSlideChange}
+          slidesPerView={1}
+          spaceBetween={50}
+          ref={swiperRef}>
+          <SwiperSlide>
+            <BoardList boardItems={boardData.hosted} type="작성한 글" />
+          </SwiperSlide>
+          <SwiperSlide>
+            <BoardList boardItems={boardData.commented} type="댓글" />
+          </SwiperSlide>
+          <SwiperSlide>
+            <BoardList boardItems={boardData.liked} type="좋아요" />
+          </SwiperSlide>
+        </Swiper>
       )}
     </>
   );

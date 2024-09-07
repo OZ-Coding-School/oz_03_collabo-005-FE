@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
 interface List {
   list: string[];
-  setSelectedItem: (value: string) => void;
+  setSelectedItem: (index: number) => void;
+  selectedIndex: number; // Add this prop
 }
 
-const PostNav: React.FC<List> = ({ list, setSelectedItem }) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+const PostNav: React.FC<List> = ({ list, setSelectedItem, selectedIndex }) => {
   const indicatorRef = useRef<HTMLSpanElement | null>(null);
   const buttonRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
@@ -21,13 +21,12 @@ const PostNav: React.FC<List> = ({ list, setSelectedItem }) => {
     }
   }, [selectedIndex]);
 
-  const handleClick = (item: string, index: number) => {
-    setSelectedIndex(index);
-    setSelectedItem(item);
+  const handleClick = (index: number) => {
+    setSelectedItem(index);
   };
 
   return (
-    <div className="sticky top-[72px] z-10 mx-[16px] flex justify-evenly border-b-[1px] border-solid border-[#DBDBDB] bg-white xs:top-[52px]">
+    <div className="sticky top-[72px] z-10 flex justify-evenly border-b-[1px] border-solid border-[#DBDBDB] bg-white xs:top-[52px]">
       {list.map((item, index) => (
         <span
           key={item}
@@ -35,11 +34,11 @@ const PostNav: React.FC<List> = ({ list, setSelectedItem }) => {
           className={`relative flex h-[63px] w-[130px] grow cursor-pointer items-center justify-center text-[18px] duration-300 xs:h-[53px] xs:w-[120px] xs:text-[16px] ${
             selectedIndex === index ? 'font-bold text-black' : 'text-gray-600'
           } `}
-          onClick={() => handleClick(item, index)}>
+          onClick={() => handleClick(index)}>
           {item}
         </span>
       ))}
-      <span ref={indicatorRef} className="absolute bottom-0 h-[3px] duration-300" />
+      <span ref={indicatorRef} className="absolute bottom-0 h-[3px] transition-all duration-500 ease-in-out" />
     </div>
   );
 };
