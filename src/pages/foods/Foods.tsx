@@ -30,7 +30,10 @@ const Foods = () => {
 
   const filterFoods = useCallback(
     (tag: string): FoodsList[] => {
-      const combinedFoods = [...sessionFoods, ...apiFoods];
+      const sessionFoodIds = new Set(sessionFoods.map((food) => food.food_id));
+      const uniqueApiFoods = apiFoods.filter((food) => !sessionFoodIds.has(food.food_id));
+      const combinedFoods = [...sessionFoods, ...uniqueApiFoods];
+
       if (tag === '기본') {
         return combinedFoods;
       }
