@@ -29,7 +29,7 @@ const BoardCommentModal: React.FC<BoardCommentModalProps> = ({ isOpen, title1, t
             exit={{ y: '100vh' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
             <div className="flex items-center">
-              <button onClick={onClose} className="flex items-center hover:text-gray-700" title="Close">
+              <button onClick={() => onClose()} className="flex items-center hover:text-gray-700" title="Close">
                 <RxArrowLeft size={25} />
               </button>
               <div className="ml-4 text-xl font-semibold">{title1}</div>
