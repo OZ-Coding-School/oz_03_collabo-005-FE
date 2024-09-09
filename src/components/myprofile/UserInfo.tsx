@@ -39,13 +39,21 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, refetchUserProfile }) => {
   };
 
   const handleSaveResults = () => {
-    const FtiResults = { fti_style: [localStorage.getItem('FtiResults')] };
-    if (FtiResults) {
-      authInstance.post('/api/ftitests/result/', FtiResults).then(() => {
+    const resultString = localStorage.getItem('FtiResults');
+    if (!resultString) {
+      return;
+    }
+    const parsedResults = JSON.parse(resultString);
+    const FtiResults = { fti_style: parsedResults };
+    authInstance
+      .post('/api/ftitests/result/', FtiResults)
+      .then(() => {
         refetchUserProfile();
         closeModalCenter();
+      })
+      .catch((error) => {
+        console.error('Error saving results:', error);
       });
-    }
   };
 
   return (
@@ -82,7 +90,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, refetchUserProfile }) => {
         <p className="text-[#666666] xs:text-[14px]">이전 테스트 결과를 프로필에 저장하시겠어요?</p>
         <div className="mt-8 flex w-full gap-3">
           <button
-            onClick={closeModalCenter}
+            onClick={() => navigate('/FTI')}
             className="w-full rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
             FTI 테스트로 이동
           </button>

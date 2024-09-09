@@ -50,7 +50,7 @@ const Landing: React.FC = () => {
           </span>
         }
         description="밥피엔스의 FTI 검사로 나의 성향을 발견하세요. MBTI보다 재밌는 나만의 미식 탐험!"
-        linkTo="/FTI"
+        linkTo="/fti"
         buttonText="더보기"
         isImageLoaded={isImageLoaded}
         setIsImageLoaded={setIsImageLoaded}

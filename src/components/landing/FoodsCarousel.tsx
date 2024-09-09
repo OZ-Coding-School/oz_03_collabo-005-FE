@@ -32,7 +32,6 @@ const FoodsCarousel: React.FC<FoodsCarouselProps> = ({ spicy }) => {
           recommends_cnt: 5,
         })
         .then((res) => {
-          console.log('Foods fetched:', res.data.recommendations);
           setUserFoods(res.data.recommendations);
           setFoodsList(res.data.recommendations);
         })
