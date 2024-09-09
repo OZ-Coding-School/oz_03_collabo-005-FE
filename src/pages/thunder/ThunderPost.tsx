@@ -68,7 +68,7 @@ const ThunderPost = () => {
         const response = await authInstance.get('/api/categories/meetingpaymentfilter/');
         setPaymentMethods(response.data.map((item: { payment_method: string }) => item.payment_method)); // 수정된 부분
       } catch (error) {
-        console.error('결제 방법을 가져오는 중 오류가 발생했습니다:', error);
+        // console.error('결제 방법을 가져오는 중 오류가 발생했습니다:', error);
       }
     };
 
@@ -77,7 +77,7 @@ const ThunderPost = () => {
         const response = await authInstance.get('/api/categories/meetingagefilter/');
         setAgeGroups(response.data.map((item: { age_group: string }) => item.age_group)); // 수정된 부분
       } catch (error) {
-        console.error('연령대를 가져오는 중 오류가 발생했습니다:', error);
+        // console.error('연령대를 가져오는 중 오류가 발생했습니다:', error);
       }
     };
 
@@ -86,7 +86,7 @@ const ThunderPost = () => {
         const response = await authInstance.get('/api/categories/meetinggenderfilter/');
         setGenderGroups(response.data.map((item: { gender_group: string }) => item.gender_group)); // 수정된 부분
       } catch (error) {
-        console.error('성별 그룹을 가져오는 중 오류가 발생했습니다:', error);
+        // console.error('성별 그룹을 가져오는 중 오류가 발생했습니다:', error);
       }
     };
 
@@ -270,7 +270,7 @@ const ThunderPost = () => {
         payment_method_name: selectedPayment,
         age_group_name: selectedAgeGroup,
         gender_group_name: selectedGenderGroup,
-        meeting_time: selectedDate ? `${selectedDate.toISOString().split('T')[0]}T${selectedTime}:00.000Z` : '',
+        meeting_time: selectedDate ? `${selectedDate.toISOString().split('T')[0]}T${selectedTime}:00+09:00` : '',
         maximum: maxPeople,
         meeting_image_url: meetingImageUrl || null,
       });
