@@ -4,6 +4,8 @@ import FoodCard from '../../components/foods/FoodCard';
 import { FoodsList } from '../../types/types';
 import { getItem } from '../../utils/storage';
 import { postAllFoods } from '../../api/apis/foods';
+import { getCookie } from '../../utils/cookie';
+import { useNavigate } from 'react-router-dom';
 
 const filter: string[] = ['기본', '점심', '저녁', '간식', '데이트', '회식', '다이어트'];
 
@@ -12,6 +14,8 @@ const Foods = () => {
   const [filteredFoods, setFilteredFoods] = useState<FoodsList[]>([]);
   const [sessionFoods, setSessionFoods] = useState<FoodsList[]>([]);
   const [apiFoods, setApiFoods] = useState<FoodsList[]>([]);
+
+  const navigate = useNavigate();
 
   const handleTagClick = (tag: string) => {
     setSelectedTag(tag);
@@ -44,11 +48,14 @@ const Foods = () => {
 
   const getAllFoods = async () => {
     const response = await postAllFoods();
-    console.log('All foods fetched:', response.recommendations);
     setApiFoods(response.recommendations);
   };
 
   useEffect(() => {
+    const refresh = getCookie('refresh');
+    if (!refresh) {
+      return navigate('/signin');
+    }
     const recommendedFoods = getItem('foodsList-storage');
     if (recommendedFoods) {
       const parsedFoods = JSON.parse(recommendedFoods).state.foodsList;
