@@ -225,12 +225,12 @@ const BoardPost = () => {
       transition={{ duration: 0.5 }}>
       <div className="relative mx-auto max-w-full rounded-2xl bg-white p-4 shadow-2xl">
         <div className="mb-2 flex items-center font-semibold">1. 카테고리를 선택해주세요.</div>
-        <div className="mb-2 flex items-center">
+        <div className="mb-2 flex flex-wrap items-center">
           {categories.map((category: Category) => (
             <button
               key={category.id}
               type="button"
-              className={`mr-2 h-[35px] w-[85px] rounded-lg border-2 px-2 transition-all duration-100 ease-in-out hover:underline hover:shadow-md ${selectedCategory === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-[#E0D4C3] active:scale-90 active:bg-[#D1C4B2]`}
+              className={`my-1 mr-2 h-[35px] rounded-lg border-2 px-2 transition-all duration-100 ease-in-out hover:underline hover:shadow-md ${selectedCategory === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-[#E0D4C3] active:scale-90 active:bg-[#D1C4B2]`}
               onClick={() => {
                 setSelectedCategory(category.category);
                 return category.category;
