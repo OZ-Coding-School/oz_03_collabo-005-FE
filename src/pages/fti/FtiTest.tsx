@@ -65,10 +65,8 @@ const FtiTest = () => {
     setIsSubmitting(true);
     try {
       const ftiResult = await sendFtiResult(finalResults);
-      localsetItem('FtiResults', ftiResult.fti_type);
+      localsetItem('FtiResults', JSON.stringify(finalResults));
       const description = parseDescription(ftiResult.description);
-      console.log('FTI result:', ftiResult.description);
-      console.log('FTI description:', description);
       navigate(`/fti/${ftiResult.uuid}`, {
         state: {
           ftiType: ftiResult.fti_type,
