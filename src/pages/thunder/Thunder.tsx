@@ -48,7 +48,7 @@ const Thunder: React.FC = () => {
         setMeetings(res.data);
       })
       .catch((error) => {
-        console.error('Error fetching meetings:', error);
+        console.error('소셜 다이닝 목록을 가져오는 중 오류가 발생했습니다:', error);
       });
   };
 
@@ -63,8 +63,8 @@ const Thunder: React.FC = () => {
         setFilter({ location: initialLocation, time: initialTime });
         fetchMeetings(initialLocation, initialTime);
       })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
+      .catch(() => {
+        // console.error('Error fetching data:', error);
       });
   }, []);
 
@@ -113,9 +113,9 @@ const Thunder: React.FC = () => {
       {meetings.length === 0 ? (
         <div className="mb-[72px] mt-[100px] flex w-full flex-col items-center justify-evenly bg-[#EEEEEE]">
           <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">등록된 일정이 없어요</p>
-          <img src="/images/CryingEgg.svg" className="inline-block h-[40vh]" />
+          <img src="/images/CryingEgg.svg" className="inline-block h-[40vh]" alt="Crying Egg" />
           <p className="mb-4 flex items-center text-[20px] text-[#666666] xs:text-[16px]">
-            <img src="/images/plusCircle.svg" className="mr-1 w-[2rem] xs:w-[1.5rem]" />
+            <img src="/images/plusCircle.svg" className="mr-1 w-[2rem] xs:w-[1.5rem]" alt="Plus Circle" />
             버튼을 눌러 일정을 만들어보세요
           </p>
         </div>
