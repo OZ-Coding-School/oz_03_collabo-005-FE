@@ -51,11 +51,9 @@ const FtiResultId = () => {
   };
 
   useEffect(() => {
-    console.log('FTI type:', ftiType);
     if (description) {
       const parsed = parseDescription(description);
       setParsedDescription(parsed);
-      console.log('Parsed description:', parsed);
     }
     if (Kakao) {
       Kakao.cleanup();
@@ -63,7 +61,6 @@ const FtiResultId = () => {
     } else {
       console.error('Kakao object is not available.');
     }
-    console.log(ftiImage);
   }, [description]);
 
   const handleButtonClick = () => {

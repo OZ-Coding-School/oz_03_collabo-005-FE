@@ -30,7 +30,6 @@ export const signinAPI = async (email: string, password: string) => {
       email,
       password,
     });
-    console.log(response.data);
     const access = response.data.access;
 
     if (response.data.refresh) {
@@ -60,7 +59,6 @@ export const checkEmailAPI = async (email: string) => {
 export const checkNicknameAPI = async (nickname: string) => {
   try {
     const response = await baseInstance.post('/api/users/checkNickname/', { nickname: nickname });
-    console.log(response);
     return response.status === 200; // 성공 시 boolean 반환
   } catch (error) {
     if (isAxiosError(error) && error.response && error.response.status === 400) {

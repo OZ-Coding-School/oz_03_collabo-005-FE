@@ -130,7 +130,6 @@ function Map({ className }: KakaoMapProps) {
 
     const callback = (result: any, status: any) => {
       if (status === kakao.maps.services.Status.OK) {
-        console.log('Search places success', result);
         const formattedResults: SearchResult[] = result.map((place: any) => ({
           id: place.id,
           name: place.place_name,

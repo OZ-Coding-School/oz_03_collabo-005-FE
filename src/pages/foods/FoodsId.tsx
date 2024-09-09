@@ -7,11 +7,9 @@ const FoodsId = () => {
   const { setFoodName, searchResults, selectedRestaurant, setSelectedRestaurant, foodsList } = useFoodStore();
   const location = useLocation();
   const { name } = location.state || {};
-  console.log(name);
 
   const handleRestaurantClick = (id: string) => {
     setSelectedRestaurant(id);
-    console.log(id);
   };
 
   useEffect(() => {
