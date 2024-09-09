@@ -27,7 +27,9 @@ const ThunderCard: React.FC<ThunderCardProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const defaultImageUrl = '/images/CuteEgg.svg';
-  const formattedTime = formatAppointmentTime(appointmentTime);
+  const formattedTime = appointmentTime
+    ? formatAppointmentTime(appointmentTime)
+    : '날짜 없음';
   const handleImageError = () => setImageError(true);
   const handleImageLoad = () => setImageLoaded(true);
 
