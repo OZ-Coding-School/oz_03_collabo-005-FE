@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getFtiQuestions } from '../../api/apis/fti';
-import { formatQuestion } from '../../api/services/ftiService';
+import { formatQuestion, formatQuestionImage } from '../../api/services/ftiService';
 import ftiAnswer from '../../data/ftiAnswer.json';
 import Button from '../../components/common/Button';
 import ProgressBar from '../../components/flavor/ProgressBar';
@@ -10,7 +10,8 @@ import { localsetItem } from '../../utils/storage';
 
 const FtiTest = () => {
   const [questions, setQuestions] = useState<string[]>([]);
-  const [answers] = useState(ftiAnswer); // setAnswers 사용되지 않으므로 제거
+  const [images, setImages] = useState<string[]>([]);
+  const [answers] = useState(ftiAnswer);
   const [number, setNumber] = useState<number>(0);
   const [results, setResults] = useState<string[]>([]); // 각 답변의 result를 저장할 배열
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // 제출 상태 추가
@@ -20,8 +21,11 @@ const FtiTest = () => {
   const getQuestion = async () => {
     try {
       const data = await getFtiQuestions();
+      console.log('FTI questions:', data);
       const formattedData = formatQuestion(data);
+      const formattedImages = formatQuestionImage(data);
       setQuestions(formattedData);
+      setImages(formattedImages);
     } catch (error) {
       console.error('Failed to get FTI questions:', error);
       return [];
@@ -29,7 +33,6 @@ const FtiTest = () => {
   };
 
   useEffect(() => {
-    console.log(results);
     getQuestion();
   }, []);
 
@@ -87,8 +90,10 @@ const FtiTest = () => {
       {questions.length > 0 && (
         <div className="mb-[12px] mt-[60px] text-[24px] xs:text-[20px]">{questions[number]}</div>
       )}
+      {images.length > 0 && (
+        <img className="mb-[12px] w-[320px] xs:w-[240px]" src={`/${images[number]}`} alt="FTI Image" />
+      )}
 
-      <img src="/images/ftiStart.png" alt="" />
       <div className="mt-[36px] w-full px-[16px]">
         {answers
           .filter((answer) => answer.number === (number + 1).toString()) // number를 1부터 시작하는 문자열로 변환

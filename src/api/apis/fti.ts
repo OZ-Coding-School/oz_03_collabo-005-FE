@@ -13,8 +13,8 @@ export const getFtiQuestions = async () => {
 
 export const sendFtiResult = async (result: string[]) => {
   try {
-    const refreshToken = getCookie('refresh'); // 쿠키에서 리프레시 토큰 가져오기
-    const instance = refreshToken ? authInstance : baseInstance; // 리프레시 토큰이 있으면 authInstance 사용, 없으면 baseInstance 사용
+    const refreshToken = getCookie('refresh');
+    const instance = refreshToken ? authInstance : baseInstance;
 
     const response = await instance.post('/api/ftitests/result/', { fti_style: result });
     return response.data;
