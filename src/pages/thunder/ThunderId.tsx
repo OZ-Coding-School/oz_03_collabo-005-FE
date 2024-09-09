@@ -24,6 +24,7 @@ interface Meeting {
   nickname: string;
   profile_image_url?: string;
   is_liked: boolean; // 좋아요 상태 추가
+  maximum: number; // maximum 속성 추가
 }
 
 interface MeetingMember {
@@ -110,16 +111,32 @@ const ThunderId = () => {
     try {
       const meetingId = window.location.pathname.split('/').pop();
       await authInstance.post('/api/meetings/member/', { meeting_uuid: meetingId });
+
+      // 참여 상태 업데이트
       setIsParticipating(true);
-      closeModalCenter();
+
       // 멤버 목록 리렌더링
       const response = await baseInstance.get(`/api/meetings/${meetingId}`);
       setMeetingMembers(response.data.meeting_member);
+
+      // 모달 닫기
+      closeModalCenter();
     } catch (error: any) {
-      // 'any' 타입으로 명시
-      if (error.response?.status === 400 && error.response?.data?.detail === '참여 인원 정원 초과 입니다') {
-        setIsFullModalOpen(true); // 정원 초과 모달 열기
+      if (error.response?.status === 500) {
+        // 500 에러 시 참여 상태로 변경
+        setIsParticipating(true);
+
+        // 멤버 목록 리렌더링
+        const meetingId = window.location.pathname.split('/').pop();
+        const response = await baseInstance.get(`/api/meetings/${meetingId}`);
+        setMeetingMembers(response.data.meeting_member);
+
+        // 모달 닫기
+        closeModalCenter();
+      } else if (error.response?.status === 400 && error.response?.data?.detail === '참여 인원 정원 초과 입니다') {
+        setIsFullModalOpen(true);
       } else {
+        // 기타 에러 처리
         // console.error('참여 확인 중 오류가 발생했습니다:', error);
       }
     }
@@ -130,13 +147,30 @@ const ThunderId = () => {
     try {
       const meetingId = window.location.pathname.split('/').pop();
       await authInstance.post(`/api/meetings/member/delete/`, { meeting_uuid: meetingId });
-      setIsParticipating(false);
-      closeCancelModal();
+
+      // 참가 취소 성공 처리
+      updateAfterCancellation(meetingId);
+    } catch (error: any) {
+      if (error.response?.status === 500) {
+        // 500 에러 시에도 참가 취소 성공으로 처리
+        const meetingId = window.location.pathname.split('/').pop();
+        updateAfterCancellation(meetingId);
+      } else {
+        // console.error('참여 취소 중 오류가 발생했습니다:', error);
+      }
+    }
+  };
+
+  const updateAfterCancellation = async (meetingId: string | undefined) => {
+    try {
       // 멤버 목록 리렌더링
       const response = await baseInstance.get(`/api/meetings/${meetingId}`);
       setMeetingMembers(response.data.meeting_member);
+
+      setIsParticipating(false);
+      closeCancelModal(); // modal 닫기
     } catch (error) {
-      // console.error('참여 취소 중 오류가 발생했습니다:', error);
+      // console.error('멤버 목록 업데이트 중 오류가 발생했습니다:', error);
     }
   };
 
@@ -350,7 +384,7 @@ const ThunderId = () => {
               <Link
                 to={`/thunder/thunderchat/${selectedMeeting.uuid}`}
                 className="ml-2 flex h-[50px] w-[270px] items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600 xs:w-[145px]">
-                소통방(공사중)
+                소통방
               </Link>
             </motion.div>
           </div>
@@ -358,45 +392,19 @@ const ThunderId = () => {
           <div className="flex items-center justify-between">
             {/* 참가 취소 button */}
             <motion.button
-              onClick={openCancelModal} // 모달 열기
+              onClick={openCancelModal}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 1 }}
               className="ml-4 flex h-[50px] w-[250px] items-center justify-center rounded-lg border-2 border-orange-400 font-bold text-orange-500 hover:bg-orange-50 xs:w-[130px]">
               참가 취소
             </motion.button>
 
-            {/* 참가 취소 button을 누르면 나오는 modal */}
-            <ModalCenter
-              isOpen={isParticipatingCancelModalOpen}
-              onClose={closeCancelModal}
-              title1="참여를 취소하시겠습니까?"
-              title2="">
-              <div className="mt-12 flex w-full space-x-4">
-                {/* 취소 버튼 */}
-                <motion.button
-                  onClick={closeCancelModal}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 1 }}
-                  className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
-                  취소
-                </motion.button>
-
-                {/* 참여 취소 확인 버튼 */}
-                <motion.button
-                  onClick={handleCancelParticipation} // 참여 취소 handler 실행
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 1 }}
-                  className="w-full flex-1 rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
-                  확인
-                </motion.button>
-              </div>
-            </ModalCenter>
-
+            {/* 소통방 링크 */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }}>
               <Link
                 to={`/thunder/thunderchat/${selectedMeeting.uuid}`}
                 className="ml-2 flex h-[50px] w-[270px] items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600 xs:w-[145px]">
-                소통방(공사중)
+                소통방
               </Link>
             </motion.div>
           </div>
@@ -406,7 +414,7 @@ const ThunderId = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 1 }}
             className="ml-3 flex h-[50px] w-full items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600">
-            참여하기 (1/3) 공사중
+            참여하기 ({meetingMembers.length}/{selectedMeeting.maximum})
           </motion.button>
         )}
 
@@ -432,6 +440,30 @@ const ThunderId = () => {
           </div>
         </ModalCenter>
       </div>
+
+      {/* 참여 취소 모달 */}
+      <ModalCenter
+        isOpen={isParticipatingCancelModalOpen}
+        onClose={closeCancelModal}
+        title1="참여를 취소하시겠습니까?"
+        title2="">
+        <div className="mt-12 flex w-full space-x-4">
+          <motion.button
+            onClick={closeCancelModal}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 1 }}
+            className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
+            취소
+          </motion.button>
+          <motion.button
+            onClick={handleCancelParticipation}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 1 }}
+            className="w-full flex-1 rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
+            확인
+          </motion.button>
+        </div>
+      </ModalCenter>
 
       {/* 글 삭제 확인 modal */}
       <ModalCenter
