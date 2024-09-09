@@ -21,7 +21,6 @@ const FtiTest = () => {
   const getQuestion = async () => {
     try {
       const data = await getFtiQuestions();
-      console.log('FTI questions:', data);
       const formattedData = formatQuestion(data);
       const formattedImages = formatQuestionImage(data);
       setQuestions(formattedData);
@@ -33,6 +32,7 @@ const FtiTest = () => {
   };
 
   useEffect(() => {
+    console.log(results);
     getQuestion();
   }, []);
 

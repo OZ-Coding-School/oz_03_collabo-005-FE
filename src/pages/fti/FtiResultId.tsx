@@ -22,7 +22,7 @@ const { Kakao } = window;
 const FtiResultId = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { ftiType, ftiImage, description } = location.state || {};
+  const { ftiImage, description } = location.state || {};
 
   const [parsedDescription, setParsedDescription] = useState<Description | null>(null);
 
