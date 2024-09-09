@@ -82,12 +82,12 @@ const Board = () => {
 
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between" />
         <div className="flex gap-2">
-          <div className="mb-2 flex items-center">
+          <div className="mb-2 flex flex-wrap items-center">
             {categories.map((category, index) => (
               <button
                 key={index}
                 type="button"
-                className={`mr-2 h-[35px] w-[85px] rounded-xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
+                className={`mr-2 h-[35px] rounded-xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
                 onClick={() => setSelectedBoard(category.category)}>
                 {category.category}
               </button>
