@@ -30,7 +30,8 @@ const Signin = () => {
 
   const onSubmit: SubmitHandler<InputProps> = async (data) => {
     try {
-      await signinAPI(data.email, data.password);
+      const response = await signinAPI(data.email, data.password);
+      console.log(response);
       navigate('/');
       console.log('Signin successful');
     } catch (error) {
