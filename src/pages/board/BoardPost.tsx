@@ -22,7 +22,12 @@ interface Category {
 }
 
 const BoardPost = () => {
-  const { register, handleSubmit } = useForm<FormData>(); // useForm 훅을 사용하여 폼 데이터
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<FormData>(); // useForm 훅을 사용하여 폼 데이터
   const navigate = useNavigate(); // useNavigate 훅 사용
 
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false); // 중앙 모달의 열림/닫힘 상태
@@ -35,6 +40,10 @@ const BoardPost = () => {
   // const [representativeImage, setRepresentativeImage] = useState<number | null>(null); // 대표 이미지
   const [modalMessage, setModalMessage] = useState({ title1: '', title2: '' }); // 모달 메시지
   const [categories, setCategories] = useState<Category[]>([]); // 카테고리 목록
+  const [step, setStep] = useState(0); // 스텝 상태
+
+  const watchTitle = watch('title');
+  const watchContent = watch('content');
 
   useEffect(() => {
     if (!getCookie('refresh')) {
@@ -178,16 +187,50 @@ const BoardPost = () => {
     </motion.button>
   </ModalCenter>;
 
+  useEffect(() => {
+    let newStep = 0;
+    if (selectedCategory) newStep++;
+    if (watchTitle) newStep++;
+    if (watchContent) newStep++;
+    setStep(newStep);
+  }, [selectedCategory, watchTitle, watchContent]);
+
+  const totalSteps = 3;
+  const stepsCompleted = step;
+
+  const getButtonText = () => {
+    if (isUploading) return '현재 이미지 처리중입니다';
+    switch (stepsCompleted) {
+      case 0:
+        return 'Step.1 카테고리를 선택해주세요';
+      case 1:
+        return 'Step.2 제목을 입력해주세요';
+
+      case 2:
+        return 'Step.3 내용을 입력해주세요';
+      case 3:
+        return '여기를 눌러 등록을 완료해주세요';
+      default:
+        return '등록하기';
+    }
+  };
+
+  const [isSubmitting, setIsSubmitting] = useState(false); // 폼 제출 상태
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="relative mx-auto max-w-full rounded-lg bg-white p-4">
-        <div className="mb-2 flex items-center font-semibold">카테고리를 선택해주세요.</div>
+    <motion.form
+      onSubmit={handleSubmit(onSubmit)}
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}>
+      <div className="relative mx-auto max-w-full rounded-2xl bg-white p-4 shadow-2xl">
+        <div className="mb-2 flex items-center font-semibold">1. 카테고리를 선택해주세요.</div>
         <div className="mb-2 flex items-center">
           {categories.map((category: Category) => (
             <button
               key={category.id}
               type="button"
-              className={`mr-2 h-[35px] rounded-lg border-2 px-2 transition-transform duration-200 ease-in-out ${selectedCategory === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
+              className={`mr-2 h-[35px] w-[85px] rounded-lg border-2 px-2 transition-all duration-100 ease-in-out hover:underline hover:shadow-md ${selectedCategory === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-[#E0D4C3] active:scale-90 active:bg-[#D1C4B2]`}
               onClick={() => {
                 setSelectedCategory(category.category);
                 return category.category;
@@ -197,20 +240,21 @@ const BoardPost = () => {
           ))}
         </div>
 
-        <div className="mb-2 mt-5 flex items-center font-semibold">제목</div>
+        <div className="mb-2 mt-5 flex items-center font-semibold">2. 제목</div>
         <input
           type="text"
           placeholder="제목을 입력해주세요"
-          className="mt-1 block h-[40px] w-full rounded-md border border-gray-300 px-3"
-          {...register('title')}
+          className="mt-1 block h-[40px] w-full rounded-md border border-gray-300 px-3 transition-all duration-100 ease-in-out hover:shadow-md"
+          {...register('title', { required: true })}
         />
+        {errors.title && <p className="font-semibold text-orange-900">※ 제목은 필수 입력입니다</p>}
 
-        <div className="mb-2 mt-5 flex items-center font-semibold">내용</div>
+        <div className="mb-2 mt-5 flex items-center font-semibold">3. 내용</div>
 
         <textarea
           placeholder="내용을 입력해주세요"
-          className="mt-1 block w-full resize-none rounded-md border border-gray-300 px-3 py-3"
-          {...register('content')}
+          className="mt-1 block w-full resize-none rounded-md border border-gray-300 px-3 py-3 transition-all duration-100 ease-in-out hover:shadow-md"
+          {...register('content', { required: true })}
           rows={5} // 내용 입력 textarea에서 5줄이상 초과되면 자동으로 입력 칸 길이 확장
           onInput={(e) => {
             const target = e.target as HTMLTextAreaElement;
@@ -218,14 +262,15 @@ const BoardPost = () => {
             target.style.height = `${target.scrollHeight}px`;
           }}
         />
+        {errors.content && <p className="font-semibold text-orange-900">※ 내용은 필수 입력입니다</p>}
 
-        <div className="mb-2 mt-5 flex items-center font-semibold">이미지 등록</div>
+        <div className="mb-3 mt-10 flex items-center font-semibold">(선택) 이미지 등록</div>
         <div className="flex items-center">
           <label htmlFor="file-upload" className="cursor-pointer">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex flex-col items-center justify-center rounded-lg border border-gray-300 px-4 py-2">
+              className="flex flex-col items-center justify-center rounded-lg border border-gray-300 px-4 py-2 transition-all duration-100 hover:shadow-md">
               <img src="../images/ThunderImageUpdate.svg" alt="이미지 등록" className="h-[20px] text-gray-500" />
               <span className="text-gray-500">{selectedImage ? '1/1' : '0/1'}</span>
             </motion.div>
@@ -279,18 +324,32 @@ const BoardPost = () => {
           </div>
         )}
 
-        <div className="mb-20" />
+        <div className="mb-20 xs:mb-10" />
 
         <motion.button
           type="submit"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 1 }}
-          className={`mt-4 flex w-full justify-center rounded-xl px-4 py-4 font-bold text-white ${isUploading ? 'animate-gradient bg-gradient-to-r from-orange-500 to-orange-700' : 'bg-orange-500'}`}
-          disabled={isUploading}>
-          {isUploading ? '현재 이미지 처리중입니다' : '등록하기'}
+          className={`mt-4 flex w-full justify-center rounded-xl px-4 py-4 font-bold text-white shadow-lg transition-colors duration-200 ease-in-out ${
+            isUploading || stepsCompleted < totalSteps ? 'cursor-not-allowed' : ''
+          }`}
+          style={{
+            background: `linear-gradient(to right, #FFA500 ${(stepsCompleted / totalSteps) * 100}%, #1c3e8e)`,
+          }}
+          disabled={isUploading || stepsCompleted < totalSteps}
+          onClick={() => setIsSubmitting(true)}>
+          {getButtonText()}
         </motion.button>
       </div>
-    </form>
+      {isSubmitting && (
+        <motion.div
+          initial={{ y: 0, opacity: 1 }}
+          animate={{ y: -50, opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute inset-0 bg-white"
+        />
+      )}
+    </motion.form>
   );
 };
 
