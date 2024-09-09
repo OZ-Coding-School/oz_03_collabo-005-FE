@@ -34,7 +34,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, refetchUserProfile }) => {
     if (FtiResults) {
       openModalCenter();
     } else {
-      navigate('/FTI');
+      navigate('/fti');
     }
   };
 
@@ -90,7 +90,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, refetchUserProfile }) => {
         <p className="text-[#666666] xs:text-[14px]">이전 테스트 결과를 프로필에 저장하시겠어요?</p>
         <div className="mt-8 flex w-full gap-3">
           <button
-            onClick={() => navigate('/FTI')}
+            onClick={() => navigate('/fti')}
             className="w-full rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
             FTI 테스트로 이동
           </button>

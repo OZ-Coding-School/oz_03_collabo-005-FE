@@ -30,6 +30,7 @@ export const signinAPI = async (email: string, password: string) => {
       email,
       password,
     });
+    console.log(response.data);
     const access = response.data.access;
 
     if (response.data.refresh) {
