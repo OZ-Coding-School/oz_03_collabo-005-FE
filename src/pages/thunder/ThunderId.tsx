@@ -22,6 +22,8 @@ interface Meeting {
   description: string;
   created_at: string;
   nickname: string;
+  profile_image_url?: string;
+  is_liked: boolean; // 좋아요 상태 추가
 }
 
 interface MeetingMember {
@@ -45,19 +47,33 @@ const ThunderId = () => {
   const [meetingMembers, setMeetingMembers] = useState<MeetingMember[]>([]); // 모임 멤버 정보를 관리
   const [isLoading, setIsLoading] = useState(true);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null); // 작성자 프로필 이미지 URL을 관리
+  const [isHost, setIsHost] = useState(false); // 호스트 상태를 관리
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 삭제 모달 상태 관리
+  const [isFullModalOpen, setIsFullModalOpen] = useState(false); // 정원 초과 모달 상태 관리
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
         const meetingId = window.location.pathname.split('/').pop();
+        // authInstance, baseInstance
         const response = await baseInstance.get(`/api/meetings/${meetingId}`);
-        console.log('Meeting data:', response.data.meeting);
-        console.log('Meeting members:', response.data.meeting_member);
+        // console.log('Meeting data:', response.data.meeting);
+        // console.log('Meeting members:', response.data.meeting_member);
         setSelectedMeeting(response.data.meeting);
         setMeetingMembers(response.data.meeting_member);
         setIsLoading(false);
+
+        // 좋아요 상태 확인
+        const likeResponse = await authInstance.get(`/api/meetings/${meetingId}`);
+        setIsLiked(likeResponse.data.is_liked);
+        setIsHost(likeResponse.data.is_host); // 호스트 상태 설정
+        // console.log('좋아요 상태:', likeResponse.data.is_liked); // 좋아요 상태 콘솔에 출력
+
+        // 참여 상태 확인
+        const participationResponse = await authInstance.get(`/api/meetings/member/check/${meetingId}`);
+        setIsParticipating(participationResponse.data.result); // 참여 상태 설정
       } catch (error) {
-        console.error('모임 정보를 불러오는 중 오류가 발생했습니다:', error);
+        // console.error('모임 정보를 불러오는 중 오류가 발생했습니다:', error);
         setIsLoading(false);
       }
     };
@@ -89,28 +105,54 @@ const ThunderId = () => {
   const openCancelModal = () => setIsParticipatingCancelModalOpen(true);
   const closeCancelModal = () => setIsParticipatingCancelModalOpen(false);
 
-  // 참여 확인 handler
+  // 참여 handler
   const handleConfirmParticipation = async () => {
     try {
       const meetingId = window.location.pathname.split('/').pop();
-      await authInstance.post(`/api/meetings/${meetingId}/join`, { is_host: false });
-      await authInstance.post('/api/meetings/member/', { meeting_uuid: selectedMeeting.uuid });
+      await authInstance.post('/api/meetings/member/', { meeting_uuid: meetingId });
       setIsParticipating(true);
       closeModalCenter();
-    } catch (error) {
-      console.error('참여 확인 중 오류가 발생했습니다:', error);
+      // 멤버 목록 리렌더링
+      const response = await baseInstance.get(`/api/meetings/${meetingId}`);
+      setMeetingMembers(response.data.meeting_member);
+    } catch (error: any) {
+      // 'any' 타입으로 명시
+      if (error.response?.status === 400 && error.response?.data?.detail === '참여 인원 정원 초과 입니다') {
+        setIsFullModalOpen(true); // 정원 초과 모달 열기
+      } else {
+        // console.error('참여 확인 중 오류가 발생했습니다:', error);
+      }
     }
   };
 
   // 참여 취소 handler
-  const handleCancelParticipation = () => {
-    setIsParticipating(false);
-    closeCancelModal();
+  const handleCancelParticipation = async () => {
+    try {
+      const meetingId = window.location.pathname.split('/').pop();
+      await authInstance.post(`/api/meetings/member/delete/`, { meeting_uuid: meetingId });
+      setIsParticipating(false);
+      closeCancelModal();
+      // 멤버 목록 리렌더링
+      const response = await baseInstance.get(`/api/meetings/${meetingId}`);
+      setMeetingMembers(response.data.meeting_member);
+    } catch (error) {
+      // console.error('참여 취소 중 오류가 발생했습니다:', error);
+    }
   };
 
   // 좋아요 toggle
-  const toggleLike = () => {
-    setIsLiked(!isLiked);
+  const toggleLike = async () => {
+    try {
+      const meetingId = window.location.pathname.split('/').pop();
+      if (isLiked) {
+        await authInstance.post(`/api/likes/delete/`, { uuid: meetingId });
+      } else {
+        await authInstance.post(`/api/likes/`, { uuid: meetingId });
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      // console.error('좋아요 토글 중 오류가 발생했습니다:', error);
+    }
   };
 
   // 이미지 modal 열기
@@ -137,8 +179,28 @@ const ThunderId = () => {
     }
   };
 
+  // 글 삭제 modal
+  const openDeleteModal = () => setIsDeleteModalOpen(true);
+  const closeDeleteModal = () => setIsDeleteModalOpen(false);
+
+  const handleDeleteMeeting = async () => {
+    try {
+      const meetingId = window.location.pathname.split('/').pop();
+      await authInstance.post(`/api/meetings/delete/`, { meeting_uuid: meetingId });
+      // 삭제 성공 후 - thunder 페이지로 이동
+      window.location.href = '/thunder';
+    } catch (error) {
+      // console.error('모임 삭제 중 오류가 발생했습니다:', error);
+    }
+    closeDeleteModal();
+  };
+
   return (
-    <div className="relative mx-auto max-w-full rounded-lg bg-white p-4">
+    <motion.div
+      className="relative mx-auto max-w-full rounded-lg bg-white p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}>
       {/* 모임 제목 */}
       <div className="mb-4 text-xl font-bold">{selectedMeeting.title}</div>
 
@@ -163,7 +225,7 @@ const ThunderId = () => {
       <div className="mb-4 flex items-center">
         <Link to={`/profile/${selectedMeeting.nickname}`}>
           <img
-            src={profileImageUrl || selectedMeeting.meeting_image_url || '../images/anonymous_avatars.svg'}
+            src={profileImageUrl || selectedMeeting.profile_image_url || '../images/anonymous_avatars.svg'}
             alt="프로필 사진"
             className="mr-2 h-10 w-10 rounded-full"
             onError={(e) => {
@@ -211,49 +273,92 @@ const ThunderId = () => {
       <ThunderImageModal isOpen={isThunderImageModalOpen} onClose={closeThunderImageModal} images={selectedImages} />
 
       <hr className="mb-5 mt-5 border-2 border-gray-200" />
+
       {/* 같이 드실 멤버 */}
-      <div className="mb-4 flex items-center">
+      <div className="mb-4 flex h-full items-center">
         <div className="text-sm font-bold">같이 드실 멤버</div>
       </div>
-      {/* 같이 드실 멤버 프로필 */}
-      {meetingMembers.map((member) => (
-        <div key={member.id} className="mb-4 flex items-center">
-          <Link to={`/profile/${member.nickname}`}>
-            <img
-              src={member.profile_image_url}
-              alt="같이 드실 멤버 프로필 사진"
-              className="mr-2 h-10 w-10 rounded-full"
-              onError={(e) => {
-                (e.target as HTMLImageElement).onerror = null;
-                (e.target as HTMLImageElement).src = '../images/anonymous_avatars.svg';
-              }}
-            />
-          </Link>
-          <div>
-            <Link to={`/profile/${member.nickname}`} className="text-sm font-medium">
-              {member.nickname}
-            </Link>
-            <p className="text-xs text-gray-500">{member.introduction}</p>
+
+      {/* 같이 드실 멤버 프로필 정보 */}
+
+      {/* backend - 멤버 정보 받아오기 - id 순으로 정렬 */}
+      {meetingMembers
+        .sort((a, b) => a.id - b.id)
+        .map((member) => (
+          <div key={member.id} className="flex flex-col">
+            <div className="flex">
+              <Link to={`/profile/${member.nickname}`}>
+                <img
+                  src={member.profile_image_url || '../images/anonymous_avatars.svg'}
+                  alt="같이 드실 멤버 프로필 사진"
+                  className="mr-2 h-10 w-10 rounded-full"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).onerror = null;
+                    (e.target as HTMLImageElement).src = '../images/anonymous_avatars.svg';
+                  }}
+                />
+              </Link>
+              <div className="ml-1 flex flex-col">
+                <Link to={`/profile/${member.nickname}`} className="text-black">
+                  {member.nickname}
+                </Link>
+                <div className="text-xs text-gray-500">{member.introduction}</div>
+              </div>
+            </div>
+            {/* 하단 여백 추가 */}
+            <div className="mb-8" />
           </div>
-        </div>
-      ))}
+        ))}
 
       <div className="flex bg-white">
         {/* 좋아요 button */}
-        <motion.img
-          src={isLiked ? '../images/SocialDiningLikeActive.svg' : '../images/SocialDiningLike.svg'}
-          alt="좋아요"
-          className="cursor-pointer rounded-lg text-white"
-          onClick={toggleLike}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 1 }}
-        />
+        <motion.div className="relative cursor-pointer rounded-lg text-white" onClick={toggleLike}>
+          <motion.img
+            src={isLiked ? '../images/SocialDiningLikeActive.svg' : '../images/SocialDiningLike.svg'}
+            alt="좋아요"
+            className="h-12 w-10" // 버튼 크기 증가
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 1 }}
+          />
+        </motion.div>
+        <style>
+          {`
+            @keyframes likeAnimation {
+              0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+              }
+              100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(1.5);
+              }
+            }
+          `}
+        </style>
 
-        {isParticipating ? (
+        {isHost ? (
+          <div className="flex items-center justify-between">
+            {/* 글 삭제 button */}
+            <motion.button
+              onClick={openDeleteModal}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 1 }}
+              className="ml-4 flex h-[50px] w-[250px] items-center justify-center rounded-lg border-2 border-orange-400 font-bold text-orange-500 hover:bg-orange-50 xs:w-[130px]">
+              모임 삭제
+            </motion.button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }}>
+              <Link
+                to={`/thunder/thunderchat/${selectedMeeting.uuid}`}
+                className="ml-2 flex h-[50px] w-[270px] items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600 xs:w-[145px]">
+                소통방(공사중)
+              </Link>
+            </motion.div>
+          </div>
+        ) : isParticipating ? (
           <div className="flex items-center justify-between">
             {/* 참가 취소 button */}
             <motion.button
-              onClick={openCancelModal}
+              onClick={openCancelModal} // 모달 열기
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 1 }}
               className="ml-4 flex h-[50px] w-[250px] items-center justify-center rounded-lg border-2 border-orange-400 font-bold text-orange-500 hover:bg-orange-50 xs:w-[130px]">
@@ -276,9 +381,9 @@ const ThunderId = () => {
                   취소
                 </motion.button>
 
-                {/* 참여하기 버튼 을 누르면 나오는 modal 에서 확인 button */}
+                {/* 참여 취소 확인 버튼 */}
                 <motion.button
-                  onClick={handleCancelParticipation}
+                  onClick={handleCancelParticipation} // 참여 취소 handler 실행
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 1 }}
                   className="w-full flex-1 rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
@@ -287,22 +392,21 @@ const ThunderId = () => {
               </div>
             </ModalCenter>
 
-            <motion.button />
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }}>
               <Link
                 to={`/thunder/thunderchat/${selectedMeeting.uuid}`}
                 className="ml-2 flex h-[50px] w-[270px] items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600 xs:w-[145px]">
-                소통방
+                소통방(공사중)
               </Link>
             </motion.div>
           </div>
         ) : (
           <motion.button
             onClick={openModalCenter}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 1 }}
             className="ml-3 flex h-[50px] w-full items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600">
-            참여하기 (1/3)
+            참여하기 (1/3) 공사중
           </motion.button>
         )}
 
@@ -328,7 +432,48 @@ const ThunderId = () => {
           </div>
         </ModalCenter>
       </div>
-    </div>
+
+      {/* 글 삭제 확인 modal */}
+      <ModalCenter
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        title1="현재 글을 삭제 합니다 계속할까요?"
+        title2="현재 참여된 인원은 모두 나가기 됩니다">
+        <div className="mt-12 flex w-full space-x-4">
+          <motion.button
+            onClick={closeDeleteModal}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 1 }}
+            className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
+            취소
+          </motion.button>
+          <motion.button
+            onClick={handleDeleteMeeting}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 1 }}
+            className="w-full flex-1 rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
+            확인
+          </motion.button>
+        </div>
+      </ModalCenter>
+
+      {/* 정원 초과 모달 */}
+      <ModalCenter
+        isOpen={isFullModalOpen}
+        onClose={() => setIsFullModalOpen(false)}
+        title1="현재 글은 참여하기 정원 초과입니다"
+        title2="">
+        <div className="mt-12 flex w-full space-x-4">
+          <motion.button
+            onClick={() => setIsFullModalOpen(false)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 1 }}
+            className="w-full flex-1 rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
+            확인
+          </motion.button>
+        </div>
+      </ModalCenter>
+    </motion.div>
   );
 };
 

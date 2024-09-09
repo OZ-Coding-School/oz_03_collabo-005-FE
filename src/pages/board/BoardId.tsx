@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ThunderImageModal from '../../components/thunder/ThunderImageModal';
 import ContentLoader from 'react-content-loader';
-import { baseInstance } from '../../api/util/instance'; // authInstance 가져오기
-import { authInstance } from '../../api/util/instance';
+import { baseInstance, authInstance } from '../../api/util/instance';
 import { format, differenceInMinutes, differenceInHours } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { IoMdMore } from 'react-icons/io';
 import ModalBottom from '../../components/common/ModalBottom';
 import ModalCenter from '../../components/common/ModalCenter';
 import BoardCommentModal from '../../components/board/BoardCommentModal';
 import { NotFound } from '../notfound';
 import Loading from '../../components/common/Loading';
+import BoardComments from '../../components/board/BoardComments';
 
 interface BoardItem {
   uuid: string;
@@ -26,6 +25,7 @@ interface BoardItem {
   created_at: string;
   nickname: string;
   comments: {
+    id: number;
     nickname: string;
     profile_image_url: string;
     created_at: string;
@@ -34,6 +34,7 @@ interface BoardItem {
 }
 
 const BoardId = () => {
+  const { uuid } = useParams<{ uuid: string }>();
   const [isThunderImageModalOpen, setIsThunderImageModalOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -41,7 +42,7 @@ const BoardId = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('');
   const [comments, setComments] = useState<
-    { text: string; timestamp: Date; nickname?: string; profile_image_url?: string }[]
+    { id: number; text: string; timestamp: Date; nickname?: string; profile_image_url?: string }[]
   >([]);
   const [isBottomModalOpen, setIsBottomModalOpen] = useState(false);
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false);
@@ -51,39 +52,59 @@ const BoardId = () => {
   const [editCommentText, setEditCommentText] = useState<string>('');
   const [profileImageUrl, setProfileImageUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const commentsEndRef = useRef<HTMLDivElement | null>(null);
+  const [isUnauthorizedModalOpen, setIsUnauthorizedModalOpen] = useState(false);
+  const [unauthorizedMessage, setUnauthorizedMessage] = useState('');
 
   useEffect(() => {
     const fetchBoardItem = async () => {
       const boardId = window.location.pathname.split('/').pop();
       try {
+        // baseInstance로 게시물 정보 가져오기
         const response = await baseInstance.get(`/api/reviews/detail/${boardId}`);
         const boardItem = response.data.review;
         setSelectedBoardItem(boardItem);
+
         setComments(
-          boardItem.comments.map(
-            (comment: { content: string; created_at: string; nickname: string; profile_image_url: string }) => ({
-              text: comment.content,
-              timestamp: new Date(comment.created_at),
-              nickname: comment.nickname,
-              profile_image_url: comment.profile_image_url,
-            }),
-          ),
+          boardItem.comments
+            .map(
+              (comment: {
+                id: number;
+                content: string;
+                created_at: string;
+                nickname: string;
+                profile_image_url: string;
+              }) => ({
+                id: comment.id,
+                text: comment.content,
+                timestamp: new Date(comment.created_at),
+                nickname: comment.nickname,
+                profile_image_url: comment.profile_image_url,
+              }),
+            )
+            .sort((a: { timestamp: Date }, b: { timestamp: Date }) => a.timestamp.getTime() - b.timestamp.getTime()), // 오름차순 정렬
         );
+
+        // 좋아요 상태를 authInstance로 확인 (좋아요 활성화 여부)
+        const likeResponse = await authInstance.get(`/api/reviews/detail/${boardId}`);
+        setIsLiked(likeResponse.data.is_liked);
+        // console.log('좋아요 상태:', likeResponse.data.is_liked); // 좋아요 상태 콘솔에 출력
 
         // 게시물 작성자의 프로필 이미지를 가져오기 위해 API 요청을 보냄
         const profileResponse = await baseInstance.get(`/api/profile/${boardItem.nickname}`);
         // 프로필 이미지 URL을 상태로 설정
         setProfileImageUrl(profileResponse.data.profile_image_url);
+
         setIsLoading(false);
       } catch (error) {
         // 게시물 정보를 불러오는 중 오류가 발생했을 때 콘솔에 오류 메시지를 출력
-        console.error('게시물 정보를 불러오는 중 오류가 발생했습니다:', error);
+        // console.error('게시물 정보를 불러오는 중 오류가 발생했습니다:', error);
         setIsLoading(false);
       }
     };
 
     fetchBoardItem();
-  }, []);
+  }, [uuid]);
 
   if (isLoading) {
     return <Loading />;
@@ -93,8 +114,17 @@ const BoardId = () => {
     return <NotFound />;
   }
 
-  const toggleLike = () => {
+  const toggleLike = async () => {
     setIsLiked(!isLiked);
+    try {
+      if (isLiked) {
+        await authInstance.post('/api/likes/delete/', { uuid: selectedBoardItem.uuid });
+      } else {
+        await authInstance.post('/api/likes/', { uuid: selectedBoardItem.uuid });
+      }
+    } catch (error) {
+      // console.error('좋아요 요청 중 오류가 발생했습니다:', error);
+    }
   };
 
   const openThunderImageModal = () => {
@@ -124,28 +154,49 @@ const BoardId = () => {
   const handleSendMessage = async () => {
     if (message.trim() !== '') {
       const newComment = {
-        comments: message,
+        content: message,
         uuid: selectedBoardItem.uuid,
       };
 
       try {
         // 댓글을 작성하기 위해 API 요청을 보냄
-        const response = await authInstance.post(`/api/reviews/detail/${selectedBoardItem.uuid}/comments`, {
+        const response = await authInstance.post(`/api/comments/review/`, {
           uuid: newComment.uuid,
-          comments: newComment.comments,
+          content: newComment.content,
         });
-        if (response.status === 200) {
-          setComments((prevComments) => [
-            ...prevComments,
-            {
-              text: newComment.comments,
-              timestamp: new Date(),
-            },
-          ]);
+        // backend - 201번 상태로 응답받으면, 댓글부분이 리렌더링
+        if (response.status === 201) {
+          const commentsResponse = await baseInstance.get(`/api/reviews/detail/${selectedBoardItem.uuid}`);
+          const boardItem = commentsResponse.data.review;
+          setComments(
+            boardItem.comments
+              .map(
+                (comment: {
+                  id: number;
+                  content: string;
+                  created_at: string;
+                  nickname: string;
+                  profile_image_url: string;
+                }) => ({
+                  id: comment.id,
+                  text: comment.content,
+                  timestamp: new Date(comment.created_at),
+                  nickname: comment.nickname,
+                  profile_image_url: comment.profile_image_url,
+                }),
+              )
+              .sort((a: { timestamp: Date }, b: { timestamp: Date }) => a.timestamp.getTime() - b.timestamp.getTime()), // 오름차순 정렬
+          );
           setMessage('');
+          // 댓글부분이 리렌더링된 후 생성한 댓글 리스트 바로 아래로 자동 스크롤
+          setTimeout(() => {
+            if (commentsEndRef.current) {
+              commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 0);
         }
       } catch (error) {
-        console.error('댓글을 작성하는 중 오류가 발생했습니다:', error);
+        // console.error('댓글을 작성하는 중 오류가 발생했습니다:', error);
       }
     }
   };
@@ -163,6 +214,11 @@ const BoardId = () => {
   // 댓글 수정 모달을 토글하는 함수
   // index가 null이 아닌 경우, 수정할 댓글의 인덱스를 설정하고 수정할 댓글의 텍스트를 설정
   const toggleEditModal = (index: number | null = null) => {
+    if (index !== null && comments[index].nickname !== selectedBoardItem.nickname) {
+      setUnauthorizedMessage('댓글 작성자만 수정할 수 있습니다');
+      setIsUnauthorizedModalOpen(true);
+      return; // 댓글 작성자가 아닌 경우 수정 modal를 열지 않음
+    }
     setIsEditModalOpen((prev) => !prev);
     if (index !== null) {
       setCommentToEdit(index);
@@ -172,31 +228,89 @@ const BoardId = () => {
 
   // 댓글을 삭제하는 함수
   // commentToDelete가 null이 아닌 경우, 해당 인덱스의 댓글을 삭제하고 모달을 닫음
-  const handleDeleteComment = () => {
+  const handleDeleteComment = async () => {
     if (commentToDelete !== null) {
-      setComments((prevComments) => prevComments.filter((_, index) => index !== commentToDelete));
-      setCommentToDelete(null);
-      toggleCenterModal();
-      toggleBottomModal(); // 댓글 삭제 후 BottomSheet 모달 닫기
+      if (comments[commentToDelete].nickname === selectedBoardItem.nickname) {
+        try {
+          // 댓글을 삭제하기 위해 API 요청을 보냄
+          const response = await authInstance.post(`/api/comments/review/delete/`, {
+            id: comments[commentToDelete].id,
+          });
+          if (response.status === 200) {
+            // 댓글 삭제 후 댓글 목록을 다시 불러오기 위해 API 요청
+            const commentsResponse = await baseInstance.get(`/api/reviews/detail/${selectedBoardItem.uuid}`);
+            const boardItem = commentsResponse.data.review;
+            setComments(
+              boardItem.comments
+                .map(
+                  (comment: {
+                    id: number;
+                    content: string;
+                    created_at: string;
+                    nickname: string;
+                    profile_image_url: string;
+                  }) => ({
+                    id: comment.id,
+                    text: comment.content,
+                    timestamp: new Date(comment.created_at),
+                    nickname: comment.nickname,
+                    profile_image_url: comment.profile_image_url,
+                  }),
+                )
+                .sort(
+                  (a: { timestamp: Date }, b: { timestamp: Date }) => a.timestamp.getTime() - b.timestamp.getTime(),
+                ), // timestamp 등록 기준으로 오름차순 정렬(최신순)
+            );
+            setCommentToDelete(null);
+          }
+        } catch (error) {
+          // console.error('댓글을 삭제하는 중 오류가 발생했습니다:', error);
+        }
+      }
+    }
+    // 댓글 삭제 후 모달 닫기
+    setIsCenterModalOpen(false);
+    setIsBottomModalOpen(false);
+  };
+
+  const handleEditComment = async () => {
+    if (commentToEdit !== null) {
+      try {
+        // 댓글을 수정하기 위해 API 요청을 보냄
+        const response = await authInstance.post(`/api/comments/review/update/`, {
+          id: comments[commentToEdit].id, // 댓글 ID 추가
+          content: editCommentText,
+        });
+        if (response.status === 200) {
+          setComments((prevComments) =>
+            prevComments.map((comment) =>
+              comment.id === comments[commentToEdit].id ? { ...comment, text: editCommentText } : comment,
+            ),
+          );
+          setCommentToEdit(null);
+          setEditCommentText('');
+          setIsEditModalOpen(false); // 수정하기 버튼을 누르면 EditModal Close
+          setIsBottomModalOpen(false); // 수정하기 버튼을 누르면 ModalBottom Close
+          setIsCenterModalOpen(false); // 수정하기 버튼을 누르면 ModalCenter Close
+        }
+      } catch (error) {
+        // console.error('댓글을 수정하는 중 오류가 발생했습니다:', error);
+      }
     }
   };
 
-  const handleEditComment = () => {
-    if (commentToEdit !== null) {
-      setComments((prevComments) =>
-        prevComments.map((comment, index) =>
-          index === commentToEdit ? { ...comment, text: editCommentText } : comment,
-        ),
-      );
-      setCommentToEdit(null);
-      setEditCommentText('');
-      toggleEditModal();
-      toggleBottomModal(); // 댓글 수정이 완료되면 BottomSheet modal 닫기
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
     }
   };
 
   return (
-    <div className="relative mx-auto max-w-full rounded-lg bg-white p-4">
+    <motion.div
+      className="relative mx-auto max-w-full rounded-lg bg-white p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}>
       {/* 카테고리 표시 섹션 */}
       <div className="mb-2 flex items-center">
         <div className="mr-2 rounded-lg border-2 border-[#ffe7e2] bg-[#FAF2F0] px-2 py-1 text-gray-800">
@@ -229,6 +343,8 @@ const BoardId = () => {
             </Link>
             {/* 작성 시간 */}
             <div className="ml-2 text-xs font-medium text-gray-500">{formattedCreatedAt}</div>
+            {/* Object ID 표시 */}
+            {/* <div className="ml-2 text-xs font-medium text-gray-500">ID: {selectedBoardItem.uuid}</div> */}
           </div>
         </div>
       </div>
@@ -263,53 +379,16 @@ const BoardId = () => {
       </div>
       <hr className="mb-5 mt-5 border-2 border-gray-200" />
 
-      <div className="mb-[72px] mt-[10px] flex flex-col items-center overflow-auto">
-        <div className="mb-[15px] w-full text-left text-sm text-black">댓글 {comments.length}</div>
-        {comments.map((comment, index) => {
-          const now = new Date();
-          const commentTime = new Date(comment.timestamp);
-          const minutesDifference = Math.floor((now.getTime() - commentTime.getTime()) / 1000 / 60);
+      <BoardComments
+        comments={comments}
+        profileImageUrl={profileImageUrl}
+        setCommentToEdit={setCommentToEdit}
+        setEditCommentText={setEditCommentText}
+        toggleBottomModal={toggleBottomModal}
+        commentsEndRef={commentsEndRef}
+      />
 
-          let timeDisplay;
-          if (minutesDifference < 1) {
-            timeDisplay = '방금 전';
-          } else if (minutesDifference < 60) {
-            timeDisplay = `${minutesDifference}분 전`;
-          } else if (minutesDifference < 1440) {
-            timeDisplay = `${Math.floor(minutesDifference / 60)}시간 전`;
-          } else {
-            timeDisplay = commentTime.toLocaleDateString();
-          }
-          return (
-            <div key={index} className="flex w-full items-center border-b border-gray-300 p-2">
-              <img
-                src={comment.profile_image_url}
-                alt="프로필 이미지"
-                className="mb-[28px] mr-2 h-8 w-8 rounded-full"
-                onError={(e) => {
-                  e.currentTarget.src = '/images/anonymous_avatars.svg';
-                }}
-              />
-              <div>
-                <div className="font-normal">{comment.nickname}</div>
-                <div className="text-sm text-gray-500">{timeDisplay}</div>
-                <div>{comment.text}</div>
-              </div>
-              <button
-                className="mb-[24px] ml-auto p-2 text-gray-400"
-                title="더보기"
-                onClick={() => {
-                  setCommentToEdit(index);
-                  setEditCommentText(comment.text);
-                  toggleBottomModal();
-                }}>
-                <IoMdMore size={28} />
-              </button>
-            </div>
-          );
-        })}
-      </div>
-
+      {/* 좋아요 버튼 */}
       <div className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-[600px] -translate-x-1/2 items-center justify-center bg-white py-4 pr-4 xs:py-2 xs:pr-0">
         <motion.img
           src={isLiked ? '../images/SocialDiningLikeActive.svg' : '../images/SocialDiningLike.svg'}
@@ -326,6 +405,7 @@ const BoardId = () => {
             className="grow rounded-l-md py-2 pl-2"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
           />
           <button className="p-2" onClick={handleSendMessage}>
             <img src="/images/ThunderChatSend.svg" alt="Send" width={24} height={24} />
@@ -333,6 +413,7 @@ const BoardId = () => {
         </div>
       </div>
 
+      {/* 댓글 수정 modal */}
       <ModalBottom isOpen={isBottomModalOpen} onClose={toggleBottomModal}>
         <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
         <div className="flex flex-col gap-[20px] p-[20px]">
@@ -353,9 +434,15 @@ const BoardId = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 1 }}
               className="w-full rounded-xl px-4 py-4 font-bold text-black hover:bg-yellow-800 hover:text-white"
+              // 댓글 작성자만 삭제할 수 있음
               onClick={() => {
-                setCommentToDelete(commentToEdit);
-                toggleCenterModal();
+                if (comments[commentToEdit!].nickname !== selectedBoardItem.nickname) {
+                  setUnauthorizedMessage('댓글 작성자만 삭제할 수 있습니다');
+                  setIsUnauthorizedModalOpen(true);
+                } else {
+                  setCommentToDelete(commentToEdit);
+                  toggleCenterModal();
+                }
               }}>
               삭제하기
             </motion.button>
@@ -391,6 +478,24 @@ const BoardId = () => {
         </div>
       </ModalCenter>
 
+      <ModalCenter
+        isOpen={isUnauthorizedModalOpen}
+        onClose={() => setIsUnauthorizedModalOpen(false)}
+        title1={unauthorizedMessage}
+        title2={''}>
+        <div className="p-2">
+          <div className="mt-4 flex justify-center gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600"
+              onClick={() => setIsUnauthorizedModalOpen(false)}>
+              확인
+            </motion.button>
+          </div>
+        </div>
+      </ModalCenter>
+
       <BoardCommentModal isOpen={isEditModalOpen} onClose={toggleEditModal} title1={'댓글 수정'} title2={''}>
         <div className="px-0 py-0">
           <textarea
@@ -415,7 +520,7 @@ const BoardId = () => {
           </div>
         </div>
       </BoardCommentModal>
-    </div>
+    </motion.div>
   );
 };
 
