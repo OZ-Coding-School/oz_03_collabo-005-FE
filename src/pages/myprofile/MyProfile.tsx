@@ -85,7 +85,7 @@ const MyProfile = () => {
           내 프로필
         </Link>
       </div>
-      <UserLink text={'FTI 검사'} src={'/FTI'} isUserLoggedIn={true} />
+      <UserLink text={'FTI 검사'} src={'/fti'} isUserLoggedIn={true} />
       <UserLink text={'나의 소셜 다이닝'} src={'/myprofile/myprofilethunder'} isUserLoggedIn={!!user} />
       <UserLink text={'나의 맛있는 발견'} src={'/myprofile/myprofileboard'} isUserLoggedIn={!!user} />
       <Link to={'https://suist.notion.site/e2c6e050f097489fb620469d397f70d8'} target="_blank">
