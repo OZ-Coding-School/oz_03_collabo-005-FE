@@ -66,7 +66,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
               className={`block h-full w-full object-cover transition-transform duration-200 ${
                 imageLoaded ? 'block' : 'hidden'
               } hover:scale-105`}
-              src={review_image_url || defaultImageUrl} // 수정된 부분
+              src={review_image_url || defaultImageUrl}
               alt={title}
               onLoad={() => setImageLoaded(true)}
             />
