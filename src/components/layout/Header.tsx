@@ -71,7 +71,18 @@ const Header = () => {
     if (isIntroductionPath) return '밥피엔스란?';
   };
 
+  // 렌딩 페이지 타이틀
   if (isLandingPage) {
+    return <HeaderLanding />;
+  }
+
+  // 소셜 다이닝 페이지 타이틀
+  if (isThunderPage) {
+    return <HeaderLanding />;
+  }
+
+  // 맛있는 발견 페이지 타이틀
+  if (isBoardPage) {
     return <HeaderLanding />;
   }
 
