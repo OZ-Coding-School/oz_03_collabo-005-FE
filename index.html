@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/images/babpiens_favicon.svg" />
+    <link rel="icon" href="/images/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
@@ -19,6 +19,7 @@
     <meta
       property="og:image"
       content="https://s3.ap-northeast-2.amazonaws.com/www.babpiens.com/Title/babpiens_title.png" />
+    <meta name="naver-site-verification" content="015c3a7b801dee746eb2c5fea65e5f0c248d9cba" />
     <title>밥피엔스 - 당신의 맛있는 경험을 더욱 특별하게!</title>
     <script
       type="text/javascript"
@@ -28,6 +29,27 @@
       src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
       integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
       crossorigin="anonymous"></script>
+    <!-- Meta Pixel Code -->
+    <script>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = '2.0';
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '782242920545570');
+      fbq('track', 'PageView');
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-S3N16BQ4F4"></script>
     <script>
@@ -43,6 +65,13 @@
     <div id="root"></div>
     <!-- modal 추가를 위한 div 생성 -->
     <div id="modal-root"></div>
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style="display: none"
+        src="https://www.facebook.com/tr?id=782242920545570&ev=PageView&noscript=1" />
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
