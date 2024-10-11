@@ -74,14 +74,14 @@ const MyProfile = () => {
         <Link
           to={user ? '/flavor' : '#'}
           onClick={handlePreventNavigate}
-          className="mr-2 flex h-[52px] w-[43%] items-center justify-center rounded-lg bg-primary text-[20px] font-bold text-white xs:h-[42px] xs:text-[14px]">
+          className="mr-2 flex h-[52px] w-[43%] items-center justify-center rounded-lg bg-primary text-[20px] font-bold text-white transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-orange-600 active:scale-95 xs:h-[42px] xs:text-[14px]">
           내 입맛 설정
         </Link>
         <Link
           to={user ? '/myprofile/myprofileedit' : '#'}
           state={{ user }}
           onClick={handlePreventNavigate}
-          className="ml-2 flex h-[52px] w-[43%] items-center justify-center rounded-lg bg-[#F5E3DB] text-[20px] font-bold xs:h-[42px] xs:text-[14px]">
+          className="ml-2 flex h-[52px] w-[43%] items-center justify-center rounded-lg bg-[#F5E3DB] text-[20px] font-bold transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-[#cfc1b9] active:scale-95 xs:h-[42px] xs:text-[14px]">
           내 프로필
         </Link>
       </div>
@@ -92,6 +92,14 @@ const MyProfile = () => {
         <motion.div whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 200 }}>
           <div className="flex w-full cursor-pointer items-center justify-between p-[12px] px-4 text-[20px] hover:rounded-lg hover:font-bold hover:text-primary xs:py-[0.7rem] xs:text-[14px]">
             이용약관
+            <IoIosArrowForward className="text-[20px] xs:text-[16px]" />
+          </div>
+        </motion.div>
+      </Link>
+      <Link to={'/updatenote'}>
+        <motion.div whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 200 }}>
+          <div className="flex w-full cursor-pointer items-center justify-between p-[12px] px-4 text-[20px] hover:rounded-lg hover:font-bold hover:text-primary xs:py-[0.7rem] xs:text-[14px]">
+            개발자 노트
             <IoIosArrowForward className="text-[20px] xs:text-[16px]" />
           </div>
         </motion.div>
