@@ -76,18 +76,18 @@ const Board = () => {
   }
 
   return (
-    <div className="relative mb-2 h-full w-full max-w-[600px] p-4 pt-0">
-      <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
-        <h1 className="my-[12px] text-2xl font-bold xs:text-xl">맛있는 이야기의 시작</h1>
+    <div className="relative w-full p-4 pt-0 md:mx-auto md:max-w-[1000px]">
+      <div className="fixed top-[72px] z-20 w-full max-w-[600px] justify-center bg-white pr-8 xs:top-[52px]">
+        <h1 className="my-[12px] ml-2 text-2xl font-bold text-gray-800 xs:text-xl">맛있는 이야기의 시작</h1>
 
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between" />
         <div className="flex gap-2">
-          <div className="mb-2 flex flex-wrap items-center">
+          <div className="mb-2 ml-2 flex flex-wrap items-center">
             {categories.map((category, index) => (
               <button
                 key={index}
                 type="button"
-                className={`mr-2 h-[35px] rounded-xl border-2 px-2 transition-transform duration-200 ease-in-out ${selectedBoard === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-orange-200 active:scale-90`}
+                className={`mr-2 h-[35px] rounded-2xl px-4 text-gray-800 transition-transform duration-200 ease-in-out xs:px-3 ${selectedBoard === category.category ? 'bg-[#F5E3DB]' : 'bg-[#F2F2F2]'} hover:scale-105 hover:bg-[#E0D4C3] hover:underline active:scale-90 active:bg-[#D1C4B2]`}
                 onClick={() => setSelectedBoard(category.category)}>
                 {category.category}
               </button>
@@ -95,6 +95,15 @@ const Board = () => {
           </div>
         </div>
       </div>
+
+      <div
+        onClick={checkLogin} // 링크 대신 onClick으로 로그인 체크
+        className="fixed bottom-[120px] right-[calc(50%-260px)] z-50 cursor-pointer md:right-[calc(50%-480px)] md:top-[100px] xs:bottom-[100px] xs:right-[5%]">
+        <div className="flex h-[63px] w-[63px] items-center justify-center rounded-full bg-white shadow-xl transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]">
+          <img src="/images/plusCircle.svg" alt="Plus Circle" className="h-[63px] w-[63px] xs:h-[63px] xs:w-[63px]" />
+        </div>
+      </div>
+
       {filteredBoardList.length === 0 ? (
         <div className="mb-[72px] mt-[100px] flex w-full flex-col items-center justify-evenly bg-[#EEEEEE]">
           <p className="mt-10 text-[24px] text-[#666666] xs:text-[20px]">등록된 일정이 없어요</p>
@@ -105,7 +114,7 @@ const Board = () => {
           </p>
         </div>
       ) : (
-        <div className="mt-[107px] flex flex-col items-center overflow-auto">
+        <div className="mb-[120px] mt-[120px] flex w-auto flex-col items-center overflow-y-scroll rounded-xl border-2 shadow-xl">
           {filteredBoardList.map((item) => {
             if (!item) return null;
             // console.log('Board Item:', item);
@@ -125,11 +134,6 @@ const Board = () => {
           })}
         </div>
       )}
-      <div
-        onClick={checkLogin} // 링크 대신 onClick으로 로그인 체크
-        className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 cursor-pointer xs:bottom-[100px] xs:right-[calc(5%)]">
-        <div className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]' />
-      </div>
       {/* 로그인 모달 추가 */}
       <ModalBottom isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}>
         <div className="p-4 text-center">
@@ -139,7 +143,7 @@ const Board = () => {
             className="mt-4 w-full rounded-lg bg-primary px-10 py-2 font-bold text-white"
             onClick={() => {
               setIsLoginModalOpen(false);
-              navigate('/signIn');
+              navigate('/signin');
             }}>
             로그인하기
           </button>
