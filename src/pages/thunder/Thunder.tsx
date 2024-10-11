@@ -17,6 +17,7 @@ interface Meeting {
   payment_method_name: string;
   gender_group_name: string;
   meeting_image_url: string;
+  location_name: string;
 }
 
 interface Category {
@@ -61,10 +62,11 @@ const Thunder: React.FC = () => {
         const initialLocation = res.data.location_categories[0]?.location_name;
         const initialTime = res.data.time_categories[0]?.sort_name;
         setFilter({ location: initialLocation, time: initialTime });
-        fetchMeetings(initialLocation, initialTime);
+
+        setMeetings(res.data.meetings);
       })
       .catch(() => {
-        // console.error('Error fetching data:', error);
+        // console.error('데이터 가져오기 오류:', error);
       });
   }, []);
 
@@ -97,10 +99,12 @@ const Thunder: React.FC = () => {
   }
 
   return (
-    <div className="relative w-full max-w-[600px] p-4 pt-0">
+    <div className="relative mx-auto w-full p-4 pt-0 md:mx-auto md:max-w-[1000px]">
       <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
-        <h1 className="my-[12px] min-w-[300px] text-2xl font-bold xs:text-xl">음식으로 시작되는 인연</h1>
-        <div className="my-2 flex w-full min-w-[314px] max-w-[600px] items-center justify-between">
+        <h1 className="my-[12px] ml-1 min-w-[300px] text-2xl font-bold text-gray-800 xs:text-xl">
+          음식으로 시작되는 인연
+        </h1>
+        <div className="my-2 flex w-full min-w-[310px] max-w-[600px] items-center justify-between">
           <RoundedButton onClick={() => handleListSelection(true)}>
             {locationCategories.find((category) => category.location_name === filter.location)?.location_name ||
               '지역 선택'}
@@ -120,7 +124,7 @@ const Thunder: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="mb-[72px] mt-[100px] flex flex-col items-center overflow-auto">
+        <div className="mb-[72px] mt-[110px] flex w-auto flex-col items-center overflow-y-scroll rounded-xl border-2 shadow-xl">
           {meetings.map((item) => (
             <ThunderCard
               key={item.uuid}
@@ -132,32 +136,39 @@ const Thunder: React.FC = () => {
               title={item.title}
               genderGroup={item.gender_group_name}
               ageGroup={item.age_group_name}
+              locationName={item.location_name}
             />
           ))}
         </div>
       )}
       <div
         onClick={checkLogin}
-        className="fixed bottom-[120px] right-[calc(50%-260px)] z-10 cursor-pointer xs:bottom-[100px] xs:right-[5%]">
-        <div className='h-[63px] w-[63px] bg-[url("/images/plusCircle.svg")] bg-cover bg-center bg-no-repeat transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]' />
+        className="fixed bottom-[120px] right-[calc(50%-260px)] z-50 cursor-pointer md:right-[calc(50%-480px)] md:top-[100px] xs:bottom-[100px] xs:right-[5%]">
+        <div className="flex h-[63px] w-[63px] items-center justify-center rounded-full bg-white shadow-xl transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]">
+          <img src="/images/plusCircle.svg" alt="Plus Circle" className="h-[63px] w-[63px] xs:h-[63px] xs:w-[63px]" />
+        </div>
       </div>
       <ModalBottom isOpen={modalState === 'filter'} onClose={toggleModal}>
         <div className="mx-auto h-[6px] w-[66px] rounded-[8px] bg-[#d9d9d9]" />
         <div className="flex flex-col gap-[20px] p-[20px]">
           <div className="text-[18px] font-bold">{isSelectedList ? '지역 선택' : '정렬 선택'}</div>
           {(isSelectedList ? locationCategories : timeCategories).map((item) => (
-            <SelectionItem
-              key={item.id}
-              item={isSelectedList ? item.location_name : item.sort_name}
-              isSelected={isSelectedList ? filter.location === item.location_name : filter.time === item.sort_name}
-              onClick={() => {
-                if (isSelectedList) {
-                  setFilter((prev) => ({ ...prev, location: item.location_name }));
-                } else {
-                  setFilter((prev) => ({ ...prev, time: item.sort_name }));
-                }
-              }}
-            />
+            <div className="hover:underline" key={item.id}>
+              <SelectionItem
+                key={item.id}
+                item={isSelectedList ? item.location_name : item.sort_name}
+                isSelected={isSelectedList ? filter.location === item.location_name : filter.time === item.sort_name}
+                onClick={() => {
+                  if (isSelectedList) {
+                    setFilter((prev) => ({ ...prev, location: item.location_name }));
+                    toggleModal(); // 지역 선택 후 modal 닫기
+                  } else {
+                    setFilter((prev) => ({ ...prev, time: item.sort_name }));
+                    toggleModal(); // 정렬 선택 후 modal 닫기
+                  }
+                }}
+              />
+            </div>
           ))}
         </div>
       </ModalBottom>
@@ -169,7 +180,7 @@ const Thunder: React.FC = () => {
             className="mt-4 w-full rounded-lg bg-primary px-10 py-3 font-bold text-white"
             onClick={() => {
               setModalState('none');
-              navigate('/signIn');
+              navigate('/signin');
             }}>
             로그인하기
           </button>
