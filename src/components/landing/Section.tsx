@@ -51,42 +51,46 @@ const Section: React.FC<SectionProps> = ({
   return (
     <div
       ref={sectionRef}
-      className="relative w-full max-w-[600px] overflow-hidden bg-slate-100 bg-gradient-to-r from-gray-100 to-gray-200 p-4 text-center">
-      <h2
-        className={`mt-20 text-2xl font-semibold text-orange-500 xs:text-xl ${isVisible ? 'animate-slideInLeft' : 'opacity-0'}`}>
-        {title}
-      </h2>
-      <p className={`mt-10 text-3xl font-bold xs:text-2xl ${isVisible ? 'animate-slideInLeft' : 'opacity-0'}`}>
-        {subtitle}
-      </p>
-      <p
-        className={`mt-10 text-[16px] text-gray-500 xs:text-[16px] ${isVisible ? 'animate-slideInLeft' : 'opacity-0'}`}>
-        {description}
-      </p>
-      <div className={`flex justify-center ${isVisible ? 'animate-slideInLeft' : 'opacity-0'}`}>
-        <Link
-          to={linkTo}
-          className="gray-400 mt-4 flex h-12 w-32 items-center justify-center rounded-[20px] bg-white px-4 py-2 font-bold hover:bg-orange-600 hover:text-white xs:h-11 xs:w-28">
-          {buttonText} <RiArrowRightSLine size={20} />
-        </Link>
+      className="relative w-full overflow-hidden bg-slate-100 bg-gradient-to-r from-gray-100 to-gray-200 p-4 text-center md:flex md:max-w-full md:items-center md:justify-between">
+      <div className="md:ml-[150px] md:flex md:w-[500px] md:justify-center">
+        {!isImageLoaded && (
+          <ContentLoader
+            height={200}
+            width={200}
+            speed={2}
+            backgroundColor="#f3f3f3"
+            foregroundColor="#ecebeb"
+            className="mx-auto mb-20 mt-20">
+            <circle cx="100" cy="100" r="100" />
+          </ContentLoader>
+        )}
+        <img
+          src={imgUrl}
+          alt="example"
+          className={`mx-auto mb-5 mt-20 xs:mt-10 ${isVisible ? 'animate-slideInRight' : 'opacity-0'}`}
+          onLoad={() => setIsImageLoaded(true)}
+        />
       </div>
-      {!isImageLoaded && (
-        <ContentLoader
-          height={200}
-          width={200}
-          speed={2}
-          backgroundColor="#f3f3f3"
-          foregroundColor="#ecebeb"
-          className="mx-auto mb-20 mt-20">
-          <circle cx="100" cy="100" r="100" />
-        </ContentLoader>
-      )}
-      <img
-        src={imgUrl}
-        alt="example"
-        className={`mx-auto mb-5 mt-20 xs:mt-10 ${isVisible ? 'animate-slideInRight' : 'opacity-0'}`}
-        onLoad={() => setIsImageLoaded(true)}
-      />
+      <div className="md:mr-[200px] md:w-1/2">
+        <h2
+          className={`mt-20 text-2xl font-semibold text-orange-500 xs:text-xl ${isVisible ? 'animate-slideInLeft' : 'opacity-0'}`}>
+          {title}
+        </h2>
+        <p className={`mt-10 text-3xl font-bold xs:text-2xl ${isVisible ? 'animate-slideInLeft' : 'opacity-0'}`}>
+          {subtitle}
+        </p>
+        <p
+          className={`mt-10 text-[16px] text-gray-500 xs:text-[16px] ${isVisible ? 'animate-slideInLeft' : 'opacity-0'}`}>
+          {description}
+        </p>
+        <div className={`flex justify-center ${isVisible ? 'animate-slideInLeft' : 'opacity-0'}`}>
+          <Link
+            to={linkTo}
+            className="gray-400 mt-4 flex h-12 w-32 items-center justify-center rounded-[20px] bg-white px-4 py-2 font-bold hover:bg-orange-600 hover:text-white xs:h-11 xs:w-28">
+            {buttonText} <RiArrowRightSLine size={20} />
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

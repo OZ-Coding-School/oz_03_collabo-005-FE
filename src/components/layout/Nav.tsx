@@ -5,12 +5,10 @@ const Nav = () => {
   const isHomePath = location.pathname === '/';
 
   const isThunderPath = location.pathname === '/thunder'; // 소셜 다이닝 게시글 목록
-  const isThunderPostPath = location.pathname.startsWith('/thunder/'); // 소셜 다이닝 게시글 상세
   const isFlavorPath = location.pathname === '/flavor'; // 입맛 검사
   const isFlavorTestPage = location.pathname === '/flavor/test';
 
   const isBoardPath = location.pathname === '/board'; // 맛있는 발견
-  const isBoardPostPath = location.pathname.startsWith('/board/'); // 소셜 다이닝
 
   const isFoodsPage = location.pathname.startsWith('/foods');
   const isFTIPage = location.pathname.startsWith('/fti');
@@ -29,13 +27,13 @@ const Nav = () => {
 
   const isIntroductionPath = location.pathname === '/introduction';
 
+  const isUpdateNotePath = location.pathname === '/updatenote'; // 개발자 노트 페이지
+
   // Signin, Signup, Flavor, ThunderPost, MyProfile 페이지에서는 Navbar가 보이지 않게 설정.
   if (
     isSigninPath ||
     isSignupPath ||
     isFlavorPath ||
-    isThunderPostPath ||
-    isBoardPostPath ||
     isMyProfileEditPath ||
     isMyProfileThunder ||
     isMyProfileBoard ||
@@ -44,14 +42,17 @@ const Nav = () => {
     isFlavorTestPage ||
     isFoodsPage ||
     isIntroductionPath ||
-    isFTIPage
+    isFTIPage ||
+    isUpdateNotePath
   ) {
     return null;
   }
 
   return (
-    <div className="fixed bottom-0 z-50 flex h-[75px] w-full max-w-[600px] justify-around bg-white xs:h-[65px]">
-      <Link to="/" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
+    <div className="fixed bottom-0 z-50 flex h-[75px] w-full max-w-[600px] justify-around bg-white bg-opacity-80 backdrop-blur-lg md:hidden xs:h-[65px]">
+      <Link
+        to="/"
+        className="flex w-1/4 flex-col items-center justify-center rounded-xl text-center transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-slate-100 active:scale-95 xs:gap-2">
         <img
           className="mb-2 h-[20px] w-[20px] xs:mb-0 xs:w-[18px]"
           src={isHomePath ? '/images/Home.svg' : '/images/HomeInactive.svg'}
@@ -62,7 +63,9 @@ const Nav = () => {
         </span>
       </Link>
 
-      <Link to="/thunder" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
+      <Link
+        to="/thunder"
+        className="flex w-1/4 flex-col items-center justify-center rounded-xl text-center transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-slate-100 active:scale-95 xs:gap-2">
         <img
           className="mb-2 h-[20px] w-[20px] xs:mb-0 xs:w-[18px]"
           src={isThunderPath ? '/images/SocialDiningActive.svg' : '/images/SocialDining.svg'}
@@ -74,7 +77,9 @@ const Nav = () => {
         </span>
       </Link>
 
-      <Link to="/board" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
+      <Link
+        to="/board"
+        className="flex w-1/4 flex-col items-center justify-center rounded-xl text-center transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-slate-100 active:scale-95 xs:gap-2">
         <img
           className="mb-2 h-[20px] w-[20px] xs:mb-0 xs:w-[18px]"
           src={isBoardPath ? '/images/DeliciousInFinder.svg' : '/images/DeliciousFinder.svg'}
@@ -85,7 +90,9 @@ const Nav = () => {
         </span>
       </Link>
 
-      <Link to="/myprofile" className="flex w-1/4 flex-col items-center justify-center text-center xs:gap-2">
+      <Link
+        to="/myprofile"
+        className="flex w-1/4 flex-col items-center justify-center rounded-xl text-center transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-slate-100 active:scale-95 xs:gap-2">
         <img
           className="mb-2 h-[20px] w-[20px] xs:mb-0 xs:w-[18px]"
           src={isMyProfilePath ? '/images/ProfileActive.svg' : '/images/ProfileInactive.svg'}
