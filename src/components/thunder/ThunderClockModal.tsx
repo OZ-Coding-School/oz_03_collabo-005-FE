@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
@@ -51,6 +51,21 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
     event.currentTarget.select();
   };
 
+  // esc 키를 눌렀을 때 모달을 닫는 함수
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  // 컴포넌트가 마운트될 때 이벤트 리스너 추가
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -66,7 +81,7 @@ const ThunderClockModal: React.FC<{ isOpen: boolean; onClose: () => void; onTime
             animate={{ y: 0 }} // 모달이 열릴 때의 위치
             exit={{ y: '100%' }} // 모달이 닫힐 때의 위치
             transition={{ type: 'spring', stiffness: 300, damping: 30 }} // 모달의 애니메이션
-            className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex w-full max-w-[600px] flex-col items-center justify-center rounded-t-xl border-2 bg-white p-4 shadow-md">
+            className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex w-full max-w-[600px] flex-col items-center justify-center rounded-t-xl border-2 bg-white p-4 shadow-md xs:bottom-[62px]">
             {' '}
             {/* // modal의 스타일 설정 */}
             <div className="flex items-center text-2xl">
