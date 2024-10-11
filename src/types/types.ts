@@ -22,3 +22,38 @@ export type FoodsListStore = {
   foodsList: FoodsList[] | null;
   setFoodsList: (newFoodsList: FoodsList[] | null) => void;
 };
+
+export interface BoardItem {
+  uuid: string;
+  category_name: string;
+  title: string;
+  content: string;
+  review_image_url: string;
+  hits: number;
+  comment_count: number;
+  likes_count: number;
+  created_at: string;
+  nickname: string;
+  profile_image_url: string;
+  comment: Comment[];
+}
+
+export interface Comment {
+  id: number;
+  content: string;
+  created_at: string;
+  nickname: string;
+  profile_image_url: string;
+  user_uuid: string;
+  is_host: boolean;
+}
+
+export interface MeetingMember {
+  nickname: string;
+  profile_image_url: string;
+}
+
+export interface Meeting {
+  uuid: string;
+  title: string;
+}
