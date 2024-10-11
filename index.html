@@ -73,5 +73,33 @@
         src="https://www.facebook.com/tr?id=782242920545570&ev=PageView&noscript=1" />
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- browser tab 전환 시 자동 새로고침 -->
+    <script>
+      let hidden, visibilityChange;
+      if (typeof document.hidden !== 'undefined') {
+        hidden = 'hidden';
+        visibilityChange = 'visibilitychange';
+      } else if (typeof document.msHidden !== 'undefined') {
+        hidden = 'msHidden';
+        visibilityChange = 'msvisibilitychange';
+      } else if (typeof document.webkitHidden !== 'undefined') {
+        hidden = 'webkitHidden';
+        visibilityChange = 'webkitvisibilitychange';
+      }
+
+      let wasHidden = false;
+
+      document.addEventListener(
+        visibilityChange,
+        function () {
+          if (document[hidden]) {
+            wasHidden = true;
+          } else if (wasHidden) {
+            location.reload();
+          }
+        },
+        false,
+      );
+    </script>
   </body>
 </html>
