@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ModalCenter from '../../components/common/ModalCenter';
 import ThunderImageModal from '../../components/thunder/ThunderImageModal';
-import ContentLoader from 'react-content-loader';
-import { format, differenceInMinutes, differenceInHours } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import { NotFound } from '../notfound';
 import Loading from '../../components/common/Loading';
 import { authInstance, baseInstance } from '../../api/util/instance';
+import ThunderIdHeader from '../../components/thunder/ThunderIdHeader';
+import ThunderIdContent from '../../components/thunder/ThunderIdContent';
+import ThunderIdComments from '../../components/thunder/ThunderIdComments';
+import ThunderIdFooter from '../../components/thunder/ThunderIdFooter';
+import { useNavigate } from 'react-router-dom';
+import ModalBottom from '../../components/common/ModalBottom';
+import { getCookie } from '../../utils/cookie'; // getCookie 함수 추가
+import { IoHeart } from 'react-icons/io5';
 
 // ThunderId - 소셜다이닝 글 목록 조회
 interface Meeting {
@@ -23,8 +27,9 @@ interface Meeting {
   created_at: string;
   nickname: string;
   profile_image_url?: string;
-  is_liked: boolean; // 좋아요 상태 추가
-  maximum: number; // maximum 속성 추가
+  is_liked: boolean;
+  maximum: number;
+  location_name: string;
 }
 
 interface MeetingMember {
@@ -32,11 +37,16 @@ interface MeetingMember {
   profile_image_url: string;
   introduction: string;
   nickname: string;
+  created_at: string;
+  is_host: boolean;
+  is_participating: boolean;
+  is_liked: boolean;
+  is_full: boolean;
+  is_deleted: boolean;
 }
 
 const ThunderId = () => {
-  const param = useParams();
-  console.log(param);
+  const navigate = useNavigate();
   const [isModalCenterOpen, setIsModalCenterOpen] = useState(false); // ModalCenter의 Open/Close 상태를 관리
   const [isThunderImageModalOpen, setIsThunderImageModalOpen] = useState(false); // ImageModal Open/Close 상태 관리
   const [isLiked, setIsLiked] = useState(false); // 좋아요 상태를 관리하는 상태
@@ -47,40 +57,38 @@ const ThunderId = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]); // 선택된 이미지 URL들을 관리
   const [meetingMembers, setMeetingMembers] = useState<MeetingMember[]>([]); // 모임 멤버 정보를 관리
   const [isLoading, setIsLoading] = useState(true);
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null); // 작성자 프로필 이미지 URL을 관리
+  const [profileImageUrl, setProfileImageUrl] = useState<string>(''); // 작성자 프로필 이미지 URL을 관리
   const [isHost, setIsHost] = useState(false); // 호스트 상태를 관리
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 삭제 모달 상태 관리
   const [isFullModalOpen, setIsFullModalOpen] = useState(false); // 정원 초과 모달 상태 관리
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isLikeModalOpen, setIsLikeModalOpen] = useState(false); // 좋아요 Modal 상태 추가
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
         const meetingId = window.location.pathname.split('/').pop();
-        // authInstance, baseInstance
         const response = await baseInstance.get(`/api/meetings/${meetingId}`);
-        // console.log('Meeting data:', response.data.meeting);
-        // console.log('Meeting members:', response.data.meeting_member);
         setSelectedMeeting(response.data.meeting);
         setMeetingMembers(response.data.meeting_member);
         setIsLoading(false);
 
         // 좋아요 상태 확인
         const likeResponse = await authInstance.get(`/api/meetings/${meetingId}`);
-        setIsLiked(likeResponse.data.is_liked);
+        setIsLiked(likeResponse.data.is_liked); // is_liked 상태 설정
         setIsHost(likeResponse.data.is_host); // 호스트 상태 설정
-        // console.log('좋아요 상태:', likeResponse.data.is_liked); // 좋아요 상태 콘솔에 출력
 
         // 참여 상태 확인
         const participationResponse = await authInstance.get(`/api/meetings/member/check/${meetingId}`);
         setIsParticipating(participationResponse.data.result); // 참여 상태 설정
       } catch (error) {
-        // console.error('모임 정보를 불러오는 중 오류가 발생했습니다:', error);
         setIsLoading(false);
       }
     };
 
     fetchMeeting();
-  }, []);
+  }, []); // 빈 배열을 추가하여 무한 루프 방지
 
   useEffect(() => {
     if (selectedMeeting) {
@@ -90,6 +98,19 @@ const ThunderId = () => {
     }
   }, [selectedMeeting]);
 
+  useEffect(() => {
+    // 로그인 상태 확인
+    const refreshToken = getCookie('refresh'); // 쿠키에서 refreshToken 가져오기
+    setIsLoggedIn(!!refreshToken);
+  }, []); // 컴포넌트 마운트 시 한 번만 실행
+
+  // 댓글 최신순 정렬
+  useEffect(() => {
+    setMeetingMembers((prevMembers) =>
+      [...prevMembers].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+    );
+  }, [selectedMeeting]); // selectedMeeting이 변경될 때만 실행
+
   if (isLoading) {
     return <Loading />;
   }
@@ -98,48 +119,46 @@ const ThunderId = () => {
     return <NotFound />;
   }
 
-  // 참여 하기 modal
-  const openModalCenter = () => setIsModalCenterOpen(true);
-  const closeModalCenter = () => setIsModalCenterOpen(false);
-
-  // 참여 취소 modal
-  const openCancelModal = () => setIsParticipatingCancelModalOpen(true);
-  const closeCancelModal = () => setIsParticipatingCancelModalOpen(false);
+  // 로그인 상태 확인 및 모달 표시 함수
+  const checkLoginAndProceed = (action: () => void) => {
+    if (!isLoggedIn) {
+      // 비로그인 상태일 경우
+      setIsLoginModalOpen(true); // 로그인 안내 모달 열기
+    } else {
+      action(); // 로그인 상태일 경우 주어진 액션 실행
+    }
+  };
 
   // 참여 handler
-  const handleConfirmParticipation = async () => {
-    try {
-      const meetingId = window.location.pathname.split('/').pop();
-      await authInstance.post('/api/meetings/member/', { meeting_uuid: meetingId });
-
-      // 참여 상태 업데이트
-      setIsParticipating(true);
-
-      // 멤버 목록 리렌더링
-      const response = await baseInstance.get(`/api/meetings/${meetingId}`);
-      setMeetingMembers(response.data.meeting_member);
-
-      // 모달 닫기
-      closeModalCenter();
-    } catch (error: any) {
-      if (error.response?.status === 500) {
-        // 500 에러 시 참여 상태로 변경
-        setIsParticipating(true);
-
-        // 멤버 목록 리렌더링
+  const handleConfirmParticipation = () => {
+    checkLoginAndProceed(async () => {
+      try {
         const meetingId = window.location.pathname.split('/').pop();
+        await authInstance.post('/api/meetings/member/', { meeting_uuid: meetingId });
+        setIsParticipating(true);
         const response = await baseInstance.get(`/api/meetings/${meetingId}`);
         setMeetingMembers(response.data.meeting_member);
+        setIsModalCenterOpen(false);
+      } catch (error: any) {
+        if (error.response?.status === 500) {
+          // backend - 500번 응답 시 참여 상태로 변경
+          setIsParticipating(true);
 
-        // 모달 닫기
-        closeModalCenter();
-      } else if (error.response?.status === 400 && error.response?.data?.detail === '참여 인원 정원 초과 입니다') {
-        setIsFullModalOpen(true);
-      } else {
-        // 기타 에러 처리
-        // console.error('참여 확인 중 오류가 발생했습니다:', error);
+          // 멤버 목록 리렌더링
+          const meetingId = window.location.pathname.split('/').pop();
+          const response = await baseInstance.get(`/api/meetings/${meetingId}`);
+          setMeetingMembers(response.data.meeting_member);
+
+          // 모달 닫기
+          setIsModalCenterOpen(false);
+        } else if (error.response?.status === 400 && error.response?.data?.detail === '참여 인원 정원 초과 입니다') {
+          setIsFullModalOpen(true);
+        } else {
+          // 기타 에러 처리
+          // console.error('참여 확인 중 오류가 발생했습니다:', error);
+        }
       }
-    }
+    });
   };
 
   // 참여 취소 handler
@@ -168,7 +187,7 @@ const ThunderId = () => {
       setMeetingMembers(response.data.meeting_member);
 
       setIsParticipating(false);
-      closeCancelModal(); // modal 닫기
+      setIsParticipatingCancelModalOpen(false); // modal 닫기
     } catch (error) {
       // console.error('멤버 목록 업데이트 중 오류가 발생했습니다:', error);
     }
@@ -176,17 +195,23 @@ const ThunderId = () => {
 
   // 좋아요 toggle
   const toggleLike = async () => {
-    try {
-      const meetingId = window.location.pathname.split('/').pop();
-      if (isLiked) {
-        await authInstance.post(`/api/likes/delete/`, { uuid: meetingId });
-      } else {
-        await authInstance.post(`/api/likes/`, { uuid: meetingId });
+    checkLoginAndProceed(async () => {
+      try {
+        const meetingId = window.location.pathname.split('/').pop();
+        // 좋아요 상태에 따라 API 호출
+        if (isLiked) {
+          await authInstance.post(`/api/likes/delete/`, { uuid: meetingId });
+          setIsLiked(false);
+          setIsLikeModalOpen(true); // 좋아요 취소 Modal 열기
+        } else {
+          await authInstance.post(`/api/likes/`, { uuid: meetingId });
+          setIsLiked(true);
+          setIsLikeModalOpen(true); // 좋아요 추가 Modal 열기
+        }
+      } catch (error) {
+        console.error('좋아요 토글 중 오류가 발생했습니다:', error);
       }
-      setIsLiked(!isLiked);
-    } catch (error) {
-      // console.error('좋아요 토글 중 오류가 발생했습니다:', error);
-    }
+    });
   };
 
   // 이미지 modal 열기
@@ -196,27 +221,7 @@ const ThunderId = () => {
   };
   const closeThunderImageModal = () => setIsThunderImageModalOpen(false);
 
-  // 작성 시간 포맷팅 함수
-  const formatCreatedAt = (createdAt: string) => {
-    const now = new Date();
-    const createdDate = new Date(createdAt);
-    const minutesDifference = differenceInMinutes(now, createdDate);
-    const hoursDifference = differenceInHours(now, createdDate);
-    if (minutesDifference < 1) {
-      return '방금 전';
-    } else if (minutesDifference < 60) {
-      return `${Math.floor(minutesDifference)}분 전`;
-    } else if (hoursDifference < 24) {
-      return `${Math.floor(hoursDifference)}시간 전`;
-    } else {
-      return format(createdDate, 'M월 d일', { locale: ko });
-    }
-  };
-
-  // 글 삭제 modal
-  const openDeleteModal = () => setIsDeleteModalOpen(true);
-  const closeDeleteModal = () => setIsDeleteModalOpen(false);
-
+  // 글 삭제 handler
   const handleDeleteMeeting = async () => {
     try {
       const meetingId = window.location.pathname.split('/').pop();
@@ -226,230 +231,101 @@ const ThunderId = () => {
     } catch (error) {
       // console.error('모임 삭제 중 오류가 발생했습니다:', error);
     }
-    closeDeleteModal();
+    setIsDeleteModalOpen(false);
+  };
+
+  // refresh token 없을 때 나오는 modal에서 로그인 버튼을 누르면 로그인 페이지로 이동
+  const handleLogin = () => {
+    navigate('/signin');
+    setIsLoginModalOpen(false);
+  };
+
+  // 참여하기 버튼 클릭 시
+  const handleParticipationClick = () => {
+    checkLoginAndProceed(() => {
+      setIsModalCenterOpen(true);
+    });
+  };
+
+  // 수정하기 핸들러 정의
+  const handleEditMeeting = () => {
+    if (selectedMeeting) {
+      navigate(`/thunder/thunderpostedit/${selectedMeeting.uuid}`, {
+        state: {
+          meeting_uuid: selectedMeeting.uuid, // meeting_uuid 추가
+          title: selectedMeeting.title, // 제목
+          description: selectedMeeting.description, // 내용
+          payment_method_name: selectedMeeting.payment_method_name, // 결제 방식
+          age_group_name: selectedMeeting.age_group_name, // 연령대
+          gender_group_name: selectedMeeting.gender_group_name, // 성별
+          meeting_time: selectedMeeting.meeting_time, // 날짜 및 시간
+          meeting_image_url: selectedMeeting.meeting_image_url, // 이미지 URL
+          maximum: selectedMeeting.maximum, // 최대 인원
+          nickname: selectedMeeting.nickname, // 작성자 닉네임
+          location: selectedMeeting.location_name, // 지역
+        },
+      });
+    }
   };
 
   return (
     <motion.div
-      className="relative mx-auto max-w-full rounded-lg bg-white p-4"
+      className="relative mx-auto max-w-full overflow-y-scroll rounded-xl border-2 bg-white p-4 shadow-xl md:max-w-[1000px] xs:mb-20 xs:w-[400px]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}>
-      {/* 모임 제목 */}
-      <div className="mb-4 text-xl font-bold">{selectedMeeting.title}</div>
-
-      {/* 모임 정보 */}
-      <div className="mb-4 flex items-center text-sm text-gray-500">
-        {/* 결제 방식 */}
-        <div className="mr-2 rounded-md border-2 border-gray-200 bg-slate-100 px-2 py-1 text-black">
-          {selectedMeeting.payment_method_name}
-        </div>
-
-        {/* 연령대 */}
-        <div className="mr-2 rounded-md border-2 border-gray-200 bg-slate-100 px-2 py-1 text-black">
-          {selectedMeeting.age_group_name}
-        </div>
-
-        {/* 성별 */}
-        <div className="mr-2 rounded-md border-2 border-gray-200 bg-slate-100 px-2 py-1 text-black">
-          {selectedMeeting.gender_group_name}
-        </div>
-      </div>
-      {/* 작성자 정보 */}
-      <div className="mb-4 flex items-center">
-        <Link to={`/profile/${selectedMeeting.nickname}`}>
-          <img
-            src={profileImageUrl || selectedMeeting.profile_image_url || '../images/anonymous_avatars.svg'}
-            alt="프로필 사진"
-            className="mr-2 h-10 w-10 rounded-full"
-            onError={(e) => {
-              (e.target as HTMLImageElement).onerror = null;
-              (e.target as HTMLImageElement).src = '../images/anonymous_avatars.svg';
-            }}
-          />
-        </Link>
-        <div>
-          <div className="flex items-center">
-            <Link to={`/profile/${selectedMeeting.nickname}`} className="text-sm font-medium">
-              {selectedMeeting.nickname}
-            </Link>
-            <div className="ml-2 text-xs font-medium text-gray-500">{formatCreatedAt(selectedMeeting.created_at)}</div>
-          </div>
-        </div>
-      </div>
-      {/* 모임 일정 */}
-      <div className="mb-4 flex h-full w-full items-center rounded-[11.5px] border-2 border-[#ffe7e2] text-sm text-gray-500">
-        <img src="../images/ThunderCalender.svg" alt="캘린더" className="mr-[10px] h-[70px] w-[70px]" />
-        <p className="ml-2 text-[14px] text-[#333333]">{new Date(selectedMeeting.meeting_time).toLocaleString()}</p>
-      </div>
-      {/* 모임 설명 */}
-      <p className="mb-4 text-[#333333]">{selectedMeeting.description}</p>
-      {/* <hr className="mb-5 mt-5 border border-gray-200" /> */}
-      {/* 이미지 불러올 때  content-loader 표시*/}
-      {selectedMeeting.meeting_image_url && !isImageLoaded && (
-        <ContentLoader height={200} width={300} speed={2} backgroundColor="#f3f3f3" foregroundColor="#ecebeb">
-          <rect x="0" y="56" rx="3" ry="3" width="300" height="10" />
-          <rect x="0" y="72" rx="3" ry="3" width="200" height="10" />
-          <rect x="0" y="88" rx="3" ry="3" width="100" height="10" />
-        </ContentLoader>
-      )}
-      {/* 이미지 불러오기 완료 후 나오는 이미지 경로 */}
-      {selectedMeeting.meeting_image_url && (
-        <img
-          src={selectedMeeting.meeting_image_url}
-          alt="소셜다이닝 게시판 이미지"
-          className={`mb-4 mt-8 h-full w-full cursor-pointer rounded-lg object-cover ${isImageLoaded ? 'block' : 'hidden'}`}
-          onLoad={() => setIsImageLoaded(true)}
-          onClick={() => openThunderImageModal()}
-        />
-      )}
-      {/* 이미지 모달 - 이미지를 선택하면 modal open, 사용자는 옆으로 스크롤 하여 이미지를 볼 수 있다.*/}
+      <ThunderIdHeader selectedMeeting={selectedMeeting} profileImageUrl={profileImageUrl} />
+      <ThunderIdContent
+        selectedMeeting={selectedMeeting}
+        isImageLoaded={isImageLoaded}
+        setIsImageLoaded={setIsImageLoaded}
+        openThunderImageModal={openThunderImageModal}
+      />
+      <ThunderIdComments meetingMembers={meetingMembers} />
+      <ThunderIdFooter
+        isLiked={isLiked}
+        toggleLike={toggleLike}
+        isHost={isHost}
+        openDeleteModal={() => setIsDeleteModalOpen(true)}
+        isParticipating={isParticipating}
+        openCancelModal={() => setIsParticipatingCancelModalOpen(true)}
+        handleParticipationClick={handleParticipationClick}
+        meetingMembers={meetingMembers}
+        selectedMeeting={selectedMeeting}
+        handleEditMeeting={handleEditMeeting}
+      />
+      {/* 모달들 */}
       <ThunderImageModal isOpen={isThunderImageModalOpen} onClose={closeThunderImageModal} images={selectedImages} />
-
-      <hr className="mb-5 mt-5 border-2 border-gray-200" />
-
-      {/* 같이 드실 멤버 */}
-      <div className="mb-4 flex h-full items-center">
-        <div className="text-sm font-bold">같이 드실 멤버</div>
-      </div>
-
-      {/* 같이 드실 멤버 프로필 정보 */}
-
-      {/* backend - 멤버 정보 받아오기 - id 순으로 정렬 */}
-      {meetingMembers
-        .sort((a, b) => a.id - b.id)
-        .map((member) => (
-          <div key={member.id} className="flex flex-col">
-            <div className="flex">
-              <Link to={`/profile/${member.nickname}`}>
-                <img
-                  src={member.profile_image_url || '../images/anonymous_avatars.svg'}
-                  alt="같이 드실 멤버 프로필 사진"
-                  className="mr-2 h-10 w-10 rounded-full"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).onerror = null;
-                    (e.target as HTMLImageElement).src = '../images/anonymous_avatars.svg';
-                  }}
-                />
-              </Link>
-              <div className="ml-1 flex flex-col">
-                <Link to={`/profile/${member.nickname}`} className="text-black">
-                  {member.nickname}
-                </Link>
-                <div className="text-xs text-gray-500">{member.introduction}</div>
-              </div>
-            </div>
-            {/* 하단 여백 추가 */}
-            <div className="mb-8" />
-          </div>
-        ))}
-
-      <div className="flex bg-white">
-        {/* 좋아요 button */}
-        <motion.div className="relative cursor-pointer rounded-lg text-white" onClick={toggleLike}>
-          <motion.img
-            src={isLiked ? '../images/SocialDiningLikeActive.svg' : '../images/SocialDiningLike.svg'}
-            alt="좋아요"
-            className="h-12 w-10" // 버튼 크기 증가
+      <ModalCenter
+        isOpen={isModalCenterOpen}
+        onClose={() => setIsModalCenterOpen(false)}
+        title1="참여하시겠습니까?"
+        title2="">
+        <div className="mt-12 flex w-full space-x-4">
+          <motion.button
+            onClick={() => setIsModalCenterOpen(false)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 1 }}
-          />
-        </motion.div>
-        <style>
-          {`
-            @keyframes likeAnimation {
-              0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-              }
-              100% {
-                opacity: 0;
-                transform: translateY(-50px) scale(1.5);
-              }
-            }
-          `}
-        </style>
-
-        {isHost ? (
-          <div className="flex items-center justify-between">
-            {/* 글 삭제 button */}
-            <motion.button
-              onClick={openDeleteModal}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 1 }}
-              className="ml-4 flex h-[50px] w-[250px] items-center justify-center rounded-lg border-2 border-orange-400 font-bold text-orange-500 hover:bg-orange-50 xs:w-[130px]">
-              모임 삭제
-            </motion.button>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }}>
-              <Link
-                to={`/thunder/thunderchat/${selectedMeeting.uuid}`}
-                className="ml-2 flex h-[50px] w-[270px] items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600 xs:w-[145px]">
-                소통방
-              </Link>
-            </motion.div>
-          </div>
-        ) : isParticipating ? (
-          <div className="flex items-center justify-between">
-            {/* 참가 취소 button */}
-            <motion.button
-              onClick={openCancelModal}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 1 }}
-              className="ml-4 flex h-[50px] w-[250px] items-center justify-center rounded-lg border-2 border-orange-400 font-bold text-orange-500 hover:bg-orange-50 xs:w-[130px]">
-              참가 취소
-            </motion.button>
-
-            {/* 소통방 링크 */}
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 1 }}>
-              <Link
-                to={`/thunder/thunderchat/${selectedMeeting.uuid}`}
-                className="ml-2 flex h-[50px] w-[270px] items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600 xs:w-[145px]">
-                소통방
-              </Link>
-            </motion.div>
-          </div>
-        ) : (
-          <motion.button
-            onClick={openModalCenter}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 1 }}
-            className="ml-3 flex h-[50px] w-full items-center justify-center rounded-lg bg-orange-500 font-bold text-white hover:bg-orange-600">
-            참여하기 ({meetingMembers.length}/{selectedMeeting.maximum})
+            className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
+            취소
           </motion.button>
-        )}
-
-        {/*  참여하기 버튼 누를 시 ModalCenter Open*/}
-        <ModalCenter isOpen={isModalCenterOpen} onClose={closeModalCenter} title1="참여하시겠습니까?" title2="">
-          <div className="mt-12 flex w-full space-x-4">
-            <motion.button
-              onClick={closeModalCenter}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 1 }}
-              className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
-              취소
-            </motion.button>
-
-            {/* 확인 버튼을 클릭하면 참여 확인 handler 실행 */}
-            <motion.button
-              onClick={handleConfirmParticipation}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 1 }}
-              className="w-full flex-1 rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
-              확인
-            </motion.button>
-          </div>
-        </ModalCenter>
-      </div>
-
-      {/* 참여 취소 모달 */}
+          <motion.button
+            onClick={handleConfirmParticipation}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 1 }}
+            className="w-full flex-1 rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white hover:bg-orange-600">
+            확인
+          </motion.button>
+        </div>
+      </ModalCenter>
       <ModalCenter
         isOpen={isParticipatingCancelModalOpen}
-        onClose={closeCancelModal}
+        onClose={() => setIsParticipatingCancelModalOpen(false)}
         title1="참여를 취소하시겠습니까?"
         title2="">
         <div className="mt-12 flex w-full space-x-4">
           <motion.button
-            onClick={closeCancelModal}
+            onClick={() => setIsParticipatingCancelModalOpen(false)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 1 }}
             className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
@@ -464,16 +340,14 @@ const ThunderId = () => {
           </motion.button>
         </div>
       </ModalCenter>
-
-      {/* 글 삭제 확인 modal */}
       <ModalCenter
         isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
+        onClose={() => setIsDeleteModalOpen(false)}
         title1="현재 글을 삭제 합니다 계속할까요?"
         title2="현재 참여된 인원은 모두 나가기 됩니다">
         <div className="mt-12 flex w-full space-x-4">
           <motion.button
-            onClick={closeDeleteModal}
+            onClick={() => setIsDeleteModalOpen(false)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 1 }}
             className="w-full flex-1 rounded-xl border-2 border-orange-400 px-1 py-2 font-semibold text-orange-500 hover:bg-orange-50">
@@ -488,12 +362,10 @@ const ThunderId = () => {
           </motion.button>
         </div>
       </ModalCenter>
-
-      {/* 정원 초과 모달 */}
       <ModalCenter
         isOpen={isFullModalOpen}
         onClose={() => setIsFullModalOpen(false)}
-        title1="현재 글은 참여하기 정원 초과입니다"
+        title1="현재 글은 참여하기 정원 초과입니다."
         title2="">
         <div className="mt-12 flex w-full space-x-4">
           <motion.button
@@ -505,6 +377,48 @@ const ThunderId = () => {
           </motion.button>
         </div>
       </ModalCenter>
+      <ModalBottom isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}>
+        <div className="p-4 text-center">
+          <p className="my-4 text-2xl font-semibold xs:text-xl">로그인이 필요한 서비스입니다.</p>
+          <p className="my-2 text-gray-600 xs:text-[14px]">이 기능을 사용하려면 먼저 로그인해주세요.</p>
+          <button className="mt-4 w-full rounded-lg bg-primary px-10 py-3 font-bold text-white" onClick={handleLogin}>
+            로그인하기
+          </button>
+        </div>
+      </ModalBottom>
+      {/* 좋아요 Modal */}
+      <ModalBottom isOpen={isLikeModalOpen} onClose={() => setIsLikeModalOpen(false)}>
+        <div className="p-4 text-center">
+          <div className="mb-2 flex justify-center">
+            {isLiked ? (
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: -10, opacity: 1 }}
+                transition={{ duration: 0.5, type: 'spring', stiffness: 300, delay: 0.15 }} // 0.5초 지연 추가
+                className="relative">
+                <IoHeart className="text-[50px] text-pink-500" />
+                <motion.div
+                  initial={{ scale: 1 }}
+                  animate={{ scale: 1.2 }}
+                  transition={{ duration: 0.2, yoyo: Infinity }}
+                  className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-4 w-4 rounded-full bg-pink-500" />
+                </motion.div>
+              </motion.div>
+            ) : (
+              <IoHeart className="text-[50px] text-slate-500" /> // 좋아요가 취소되었을 때
+            )}
+          </div>
+          <p className="my-4 text-lg font-semibold">
+            {isLiked ? '게시글에 좋아요를 눌렀습니다.' : '좋아요가 취소되었습니다.'}
+          </p>
+          <button
+            className="mt-4 w-full rounded-lg bg-primary px-10 py-3 font-bold text-white transition-transform duration-300 ease-in-out hover:scale-105 hover:bg-orange-600 active:scale-95"
+            onClick={() => setIsLikeModalOpen(false)}>
+            확인
+          </button>
+        </div>
+      </ModalBottom>
     </motion.div>
   );
 };

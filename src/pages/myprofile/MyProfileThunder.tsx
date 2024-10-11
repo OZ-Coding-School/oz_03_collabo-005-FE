@@ -16,6 +16,7 @@ interface ThunderItem {
   meeting_time: string;
   meeting_image_url: string;
   description: string;
+  locationName: string;
 }
 
 const MyProfileThunder = () => {

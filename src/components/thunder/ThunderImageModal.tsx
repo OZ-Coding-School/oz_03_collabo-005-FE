@@ -8,12 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface ThunderImageModalProps {
   isOpen: boolean;
   onClose: () => void;
-  images: string[];
+  images?: string[];
 }
 
 // ThunderImageModal 를 위한 컴포넌트.
 
-const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, images }) => {
+const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, images = [] }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -41,6 +41,10 @@ const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, 
     };
   }, [isOpen, onClose]);
 
+  if (!isOpen || images.length === 0) {
+    return null;
+  }
+
   return ReactDOM.createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -50,22 +54,16 @@ const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}>
+          transition={{ duration: 0.1 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title">
           <motion.div
             className="relative h-[1000px] w-[600px] overflow-hidden rounded-xl bg-black shadow-lg xs:h-[600px] xs:w-[380px]"
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0.8 }}
             transition={{ duration: 0.1 }}>
-            {/* modal 닫기 버튼 */}
-            <motion.button
-              className="absolute bottom-[500px] right-0 top-0 z-50 text-white hover:text-orange-500 xs:top-0"
-              onClick={onClose}
-              whileTap={{ scale: 0.9 }}
-              transition={{ duration: 0.2 }}>
-              <IoClose size={32} />
-            </motion.button>
-
             <Swiper
               spaceBetween={50}
               slidesPerView={1}
@@ -74,6 +72,15 @@ const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, 
               {images.map((image, index) => (
                 <SwiperSlide key={index} className="flex items-center justify-center">
                   <img src={image} alt={`이미지 ${index + 1}`} className="w-full object-cover" />
+                  {/* modal 닫기 버튼 */}
+                  <motion.button
+                    className="absolute right-0 top-0 z-50 m-auto text-white shadow-xl hover:text-orange-500"
+                    onClick={onClose}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ duration: 0.2 }}
+                    aria-label="모달 닫기">
+                    <IoClose size={32} />
+                  </motion.button>
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -84,6 +91,11 @@ const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, 
                 <div
                   key={index}
                   className={`h-2 w-2 rounded-full ${index === currentPage ? 'bg-white' : 'bg-gray-700'}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${index + 1}번 이미지로 이동`}
+                  onClick={() => setCurrentPage(index)}
+                  onKeyPress={(e) => e.key === 'Enter' && setCurrentPage(index)}
                 />
               ))}
             </div>
@@ -92,7 +104,7 @@ const ThunderImageModal: React.FC<ThunderImageModalProps> = ({ isOpen, onClose, 
       )}
     </AnimatePresence>,
 
-    document.getElementById('modal-root')!,
+    document.getElementById('modal-root') || document.body
   );
 };
 

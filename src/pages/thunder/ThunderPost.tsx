@@ -60,7 +60,16 @@ const ThunderPost = () => {
 
   useEffect(() => {
     updateStepsCompleted();
-  }, [formData, selectedPayment, selectedAgeGroup, selectedGenderGroup, selectedDate, selectedTime, selectedLocation]);
+  }, [
+    formData.title,
+    formData.content,
+    selectedPayment,
+    selectedAgeGroup,
+    selectedGenderGroup,
+    selectedDate,
+    selectedTime,
+    selectedLocation,
+  ]);
 
   useEffect(() => {
     const fetchPaymentMethods = async () => {
@@ -188,6 +197,7 @@ const ThunderPost = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    updateStepsCompleted(); // 입력 필드 변경 시 단계 업데이트
   };
 
   const isFormValid = () => {
@@ -211,28 +221,15 @@ const ThunderPost = () => {
 
   const getButtonText = () => {
     if (isUploading) return '현재 이미지 처리중입니다';
-    switch (stepsCompleted) {
-      case 0:
-        return 'Step1. 지불 방식을 선택해주세요';
-      case 1:
-        return 'Step2. 연령대를 선택해주세요';
-      case 2:
-        return 'Step3. 성별을 선택해주세요';
-      case 3:
-        return 'Step4. 날짜를 선택해주세요';
-      case 4:
-        return 'Step5. 시간을 선택해주세요';
-      case 5:
-        return 'Step6. 지역을 선택해주세요';
-      case 6:
-        return 'Step7. 제목을 입력해주세요'; // 제목 필드 추가
-      case 7:
-        return 'Step8. 내용을 입력해주세요'; // 내용 필드 추가
-      case 8:
-        return '여기를 눌러 등록을 완료해주세요';
-      default:
-        return '등록하기';
-    }
+    if (selectedPayment === '') return 'Step1. 지불 방식을 선택해주세요';
+    if (selectedAgeGroup === '') return 'Step2. 연령대를 선택해주세요';
+    if (selectedGenderGroup === '') return 'Step3. 성별을 선택해주세요';
+    if (selectedDate === null) return 'Step4. 날짜를 선택해주세요';
+    if (selectedTime === null) return 'Step5. 시간을 선택해주세요';
+    if (selectedLocation === '여기를 눌러 지역 선택하기') return 'Step6. 지역을 선택해주세요';
+    if (formData.title === '') return 'Step7. 제목을 입력해주세요'; // 제목 필드 추가
+    if (formData.content === '') return 'Step8. 내용을 입력해주세요'; // 내용 필드 추가
+    return '여기를 눌러 등록을 완료해주세요';
   };
 
   //  폼 데이터 제출 시 미입력 필드에 따른 Modal 알림
@@ -312,7 +309,7 @@ const ThunderPost = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}>
-        <div className="relative mx-auto max-w-full rounded-2xl bg-white p-4 shadow-2xl">
+        <div className="relative mx-auto w-full max-w-full rounded-2xl border-2 bg-white p-4 pt-0 shadow-2xl md:mx-auto md:max-w-[1000px] md:pt-2 xs:mb-20">
           <div className="mb-2 flex flex-wrap items-center font-semibold">
             <span>1. 지불 방식을 선택해주세요</span>
           </div>
@@ -544,7 +541,7 @@ const ThunderPost = () => {
               {locations.map((location, index) => (
                 <button
                   key={`${index}`}
-                  className={`ml-4 mt-4 flex items-center justify-between text-left ${selectedLocation === location ? 'text-orange-500' : 'text-gray-800'}`}
+                  className={`ml-4 mt-4 flex items-center justify-between text-left ${selectedLocation === location ? 'text-orange-500' : 'text-gray-800'} hover:underline`}
                   onClick={() => handleLocationSelect(location)}>
                   {location}
                   {selectedLocation === location && <IoMdCheckmark className="ml-2 text-2xl text-orange-500" />}

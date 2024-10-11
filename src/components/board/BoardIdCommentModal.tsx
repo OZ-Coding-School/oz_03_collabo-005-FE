@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { RxArrowLeft } from 'react-icons/rx';
 import { motion, AnimatePresence } from 'framer-motion'; // AnimatePresence 추가
 
-interface BoardCommentModalProps {
+interface BoardIdCommentModalProps {
   isOpen: boolean;
   onClose: () => void;
   title1: string;
@@ -11,9 +11,9 @@ interface BoardCommentModalProps {
   children: React.ReactNode;
 }
 
-// BoardCommentModal 를 위한 컴포넌트.
+// BoardIdCommentModal 를 위한 컴포넌트.
 
-const BoardCommentModal: React.FC<BoardCommentModalProps> = ({ isOpen, title1, title2, children, onClose }) => {
+const BoardIdCommentModal: React.FC<BoardIdCommentModalProps> = ({ isOpen, title1, title2, children, onClose }) => {
   return ReactDOM.createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -29,7 +29,7 @@ const BoardCommentModal: React.FC<BoardCommentModalProps> = ({ isOpen, title1, t
             exit={{ y: '100vh' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
             <div className="flex items-center">
-              <button onClick={() => onClose()} className="flex items-center hover:text-gray-700" title="Close">
+              <button onClick={() => onClose()} className="flex items-center hover:text-gray-700" title="닫기">
                 <RxArrowLeft size={25} />
               </button>
               <div className="ml-4 text-xl font-semibold">{title1}</div>
@@ -44,4 +44,4 @@ const BoardCommentModal: React.FC<BoardCommentModalProps> = ({ isOpen, title1, t
   );
 };
 
-export default BoardCommentModal;
+export default BoardIdCommentModal;

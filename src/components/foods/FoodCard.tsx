@@ -18,7 +18,9 @@ const FoodCard = ({ id, name, tag, img }: FoodCardProps) => {
       <img src={`/${img}`} alt={name} className="grow rounded-[8px]" />
       <div className="mt-[10px]">
         <h1 className="text-[14px] font-medium">{name}</h1>
-        <div className="mt-[10px] flex gap-[10px]">
+
+        {/* 음식 카테고리 스타일 정의 */}
+        <div className="mt-[10px] flex gap-[10px] md:flex-wrap">
           {tag.map((item) => (
             <Tag key={item} height="sm" rounded="sm" padding="sm" className="text-[12px] text-gray-66">
               {item}

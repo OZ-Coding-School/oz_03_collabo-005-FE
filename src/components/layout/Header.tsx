@@ -40,6 +40,8 @@ const Header = () => {
 
   const isIntroductionPath = location.pathname === '/introduction';
 
+  const isUpdateNotePath = location.pathname === '/updatenote';
+
   // 페이지에 따른 타이틀 변경.
   const changeTitle = () => {
     if (isFlavorPage) return '미각 DNA 검사';
@@ -81,17 +83,57 @@ const Header = () => {
     return <HeaderLanding />;
   }
 
+  // 소셜 다이닝 상세 페이지 타이틀
+  if (isThunderDetailPage) {
+    return <HeaderLanding />;
+  }
   // 맛있는 발견 페이지 타이틀
   if (isBoardPage) {
     return <HeaderLanding />;
   }
 
+  // 입맛 검사 페이지 타이틀
+  if (isFlavorPage) {
+    return <HeaderLanding />;
+  }
+
+  // 음식탐색 FTI 검사 페이지 타이틀
+  if (isFtiPage) {
+    return <HeaderLanding />;
+  }
+
+  // 음식탐색 FTI 검사 결과 페이지 타이틀
+  if (isFtiResultPage) {
+    return <HeaderLanding />;
+  }
+
+  // 로그인 페이지 타이틀
+  if (isSigninPage) {
+    return <HeaderLanding />;
+  }
+  // 회원가입 페이지 타이틀
+  if (isSignupPage) {
+    return <HeaderLanding />;
+  }
+
+  // 음식 추천 타이틀
+  if (isFoodsPage) {
+    return <HeaderLanding />;
+  }
+
+  // 회원가입 페이지 타이틀
+  if (isBoardDetailPage) {
+    return <HeaderLanding />;
+  }
+
   return (
-    <div className="fixed z-50 mt-0 flex h-[72px] w-full max-w-[600px] items-center bg-white px-4 py-5 text-xl font-semibold xs:h-[52px] xs:pl-[10px]">
+    <div className="fixed z-50 mt-0 flex h-[72px] w-full max-w-[600px] items-center bg-white px-4 py-5 text-xl font-semibold xs:h-[52px] xs:pl-[15px]">
       {/* 뒤로가기 버튼 활성화되어야 할 페이지
       MyProfile, Foods, Flavor, Fti, Thunder, ThunderChat, Board, Signin, Signup, ResetPassword, MyProfileThunder, MyProfileBoard */}
       <div className="flex w-full items-center justify-center">
-        {(isMyProfilePage ||
+        {(isUpdateNotePath ||
+          isMyProfilePage ||
+          isProfilePath ||
           isFoodsPage ||
           isFoodsPageId ||
           isFlavorPage ||
@@ -109,11 +151,18 @@ const Header = () => {
           isResetPasswordPage ||
           isMyProfileThunderPage ||
           isMyProfileBoardPage ||
-          isProfilePath ||
           isImgPath ||
           isFlavorTestPage ||
           isIntroductionPath) && (
-          <button onClick={() => navigate(-1)} className="flex items-center">
+          <button
+            onClick={() => {
+              if (isUpdateNotePath) {
+                navigate('/');
+              } else {
+                navigate(-1);
+              }
+            }}
+            className="flex items-center">
             <RxArrowLeft size={25} className="xs:w-[20px]" />
           </button>
         )}

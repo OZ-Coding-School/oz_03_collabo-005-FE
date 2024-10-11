@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format, differenceInMinutes, differenceInHours } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import Badge from '../thunder/Badge';
+import BoardBadge from './BoardBadge';
 import { LuDot } from 'react-icons/lu';
 
 interface BoardCardProps {
@@ -75,7 +75,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
         <div className="ml-4 flex h-full grow flex-col justify-between gap-1">
           <h2 className="line-clamp-2 text-[20px] font-medium xs:text-[16px]">{title}</h2>
           <div className="flex gap-2">
-            <Badge label={category} />
+            <BoardBadge label={category} type="other" />
           </div>
           <p className="line-clamp-1 text-[16px] xs:text-[14px]">{content}</p>
           <div className="flex items-center justify-between text-[#666666]">

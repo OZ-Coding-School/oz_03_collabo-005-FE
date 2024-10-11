@@ -28,7 +28,7 @@ const Flavor = () => {
 
   return (
     <div className="mt-[100px] flex h-[300px] flex-col items-center justify-center bg-white">
-      <div className="w-full items-center" />
+      <div className="relative w-full items-center md:max-w-[1000px]" />
       <div className="mt-5 flex flex-col items-center">
         {!isImageLoaded && (
           <ContentLoader height={5} width={5} speed={2} backgroundColor="#f3f3f3" foregroundColor="#ecebeb">

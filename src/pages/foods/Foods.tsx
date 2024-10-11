@@ -70,8 +70,8 @@ const Foods = () => {
 
   return (
     <div>
-      <h1 className="mb-[12px] mt-[20px] px-[16px] text-[28px]">맛있는 발견의 시작✨</h1>
-      <div className="flex gap-[12px] overflow-x-scroll px-[12px] py-[8px] scrollbar-hide">
+      <h1 className="mb-[12px] mt-[20px] px-[16px] text-[28px] md:ml-[80px]">맛있는 발견의 시작✨</h1>
+      <div className="flex gap-[12px] overflow-x-scroll px-[12px] py-[8px] scrollbar-hide md:ml-[80px]">
         {filter.map((item) => (
           <Tag
             key={item}
@@ -80,21 +80,19 @@ const Foods = () => {
             onClick={() => handleTagClick(item)}
             padding="lg"
             isSelected={selectedTag === item}
-            className="cursor-pointer text-nowrap text-[14px]">
+            className="cursor-pointer text-nowrap text-[14px] transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-orange-100 active:scale-95">
             {item}
           </Tag>
         ))}
       </div>
-      <div className="flex flex-col gap-[20px] px-[16px] py-[12px]">
+      <div className="flex flex-col gap-[20px] px-[16px] py-[12px] md:grid md:w-full md:grid-cols-2 md:flex-wrap md:gap-[50px] md:px-[100px] lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {Array.isArray(filteredFoods) &&
           filteredFoods.map((item, index) => (
-            <FoodCard
+            <div
               key={`${item.food_id}-${index}`}
-              id={item.food_id}
-              name={item.food_name}
-              tag={mapTags(item)}
-              img={item.image_url || ''}
-            />
+              className="transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95">
+              <FoodCard id={item.food_id} name={item.food_name} tag={mapTags(item)} img={item.image_url || ''} />
+            </div>
           ))}
       </div>
     </div>

@@ -34,6 +34,7 @@ const ProfileId = () => {
 
   return (
     <div className="mt-4 p-4">
+    
       <div className="relative mx-auto flex w-[30%] items-center justify-center pt-[30%] xs:w-[35%] xs:pt-[35%]">
         <Image
           className="absolute inset-0 h-full w-full rounded-full object-cover"
@@ -42,6 +43,9 @@ const ProfileId = () => {
         />
       </div>
       <p className="my-5 h-10 w-full text-center text-[22px] font-bold xs:text-[18px]">{user?.nickname}</p>
+        <div className="mb-4 hidden rounded-xl bg-sky-100 px-1 py-2 text-center text-gray-800 md:block">
+        프로필 수정기능은 현재 모바일에만 지원됩니다
+      </div>
       <div className="flex gap-3 text-[18px] font-medium xs:text-[16px]">
         <img src="/images/forkknife.svg" alt="fork&knife image" className="w-6" />
         {user?.fti_type_name || '아직 FTI 타입이 없어요'}

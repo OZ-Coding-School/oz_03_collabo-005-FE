@@ -18,7 +18,7 @@ export const ProfileImageSection: React.FC<ProfileImageSectionProps> = ({
 }) => {
   return (
     <div className="flex h-[35%] flex-col items-center justify-evenly p-[1rem]">
-      <div className="relative mb-3 flex w-[30%] items-center justify-center pt-[30%] xs:w-[35%] xs:pt-[35%]">
+      <div className="relative mb-3 flex w-[30%] items-center justify-center pt-[10%] xs:w-[40%] xs:pt-[40%]">
         {isLoading ? (
           <LoadingSpinner />
         ) : (

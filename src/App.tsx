@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/layout/Layout.tsx';
 import { Signin, Signup, ResetPassword } from './pages/auth';
-import { Board, BoardId, BoardPost, BoardCommentEdit } from './pages/board';
+import { Board, BoardId, BoardPost } from './pages/board';
 import { Flavor, FlavorTest } from './pages/flavor';
 import { Foods, FoodsId } from './pages/foods';
 import { Fti, FtiResultId, FtiTest } from './pages/fti';
@@ -11,7 +11,10 @@ import Landing from './pages/Home/Landing.tsx';
 import ProfileId from './pages/profile/ProfileId.tsx';
 import ImageOverview from './pages/Image/ImageOverview.tsx';
 import Introduction from './pages/introduction/Introduction.tsx';
+import UpdateNote from './pages/UpdateNotes/UpdateNotes.tsx';
 import NotFound from './pages/notfound/NotFound.tsx';
+import ThunderPostEdit from './pages/thunder/ThunderPostEdit.tsx';
+import BoardPostEdit from './pages/board/BoardPostEdit.tsx';
 
 function App() {
   return (
@@ -29,7 +32,7 @@ function App() {
           <Route index element={<Board />} />
           <Route path=":boardId" element={<BoardId />} />
           <Route path="boardpost" element={<BoardPost />} />
-          <Route path="boardcommentedit" element={<BoardCommentEdit />} />
+          <Route path="boardpostedit/:boardrId" element={<BoardPostEdit />} />
         </Route>
 
         <Route path="flavor">
@@ -60,6 +63,7 @@ function App() {
           <Route path="thunderchat/:thunderId" element={<ThunderChat />} />
           <Route path=":thunderId" element={<ThunderId />} />
           <Route path="thunderpost" element={<ThunderPost />} />
+          <Route path="thunderpostedit/:thunderId" element={<ThunderPostEdit />} />
         </Route>
 
         <Route path="profile/:Id" element={<ProfileId />} />
@@ -67,6 +71,8 @@ function App() {
         <Route path="image" element={<ImageOverview />} />
 
         <Route path="introduction" element={<Introduction />} />
+
+        <Route path="updatenote" element={<UpdateNote />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>

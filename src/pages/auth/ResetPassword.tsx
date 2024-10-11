@@ -34,7 +34,7 @@ const ResetPassword = () => {
       />
 
       <Button buttonSize="normal" bgColor="filled" className="h-[48px] font-bold" disabled={isSubmitting} type="submit">
-        가입완료
+        비밀번호 찾기
       </Button>
     </form>
   );

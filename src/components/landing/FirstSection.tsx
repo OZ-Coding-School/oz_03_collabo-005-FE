@@ -7,26 +7,26 @@ interface FirstSectionProps {
 }
 
 const FirstSection: React.FC<FirstSectionProps> = ({ isVisible, setIsImageLoaded, spicy }) => (
-  <div className="relative z-10 flex h-[550px] w-full max-w-[800px] flex-col justify-between bg-gradient-to-r from-black/40 to-black/60 p-4 pb-0 xs:h-[440px]">
-    <div className="mx-2 mt-14 text-[32px] font-bold text-white xs:mt-7 xs:text-[28px]">
+  <div className="relative z-10 flex h-[550px] w-full flex-col bg-gradient-to-r from-black/40 to-black/60 p-4 pb-0 md:w-full md:bg-[#f3c6aa] md:bg-gradient-to-l md:from-[#b89481] md:via-[#a98c7b] md:to-[#69564a] xs:h-[440px] xs:justify-center">
+    <div className="mx-2 mt-14 text-[32px] font-bold text-white md:ml-[120px] md:mt-[200px] md:text-[40px] xs:mt-7 xs:text-[28px]">
       당신의 미각을 깨우는
       <br />
       맞춤형 메뉴와
       <br />
       색다른 설렘이 있는 곳
+      <Link
+        to={spicy ? '/foods' : '/flavor'}
+        className="mt-4 flex h-12 w-40 items-center justify-center rounded-xl bg-orange-500 px-4 py-2 font-bold text-white transition-transform duration-300 ease-in-out hover:scale-105 hover:bg-orange-600 active:scale-95 md:w-[400px] md:text-[20px] xs:w-[250px] xs:px-3 xs:text-[14px]">
+        {spicy ? '음식 추천받기' : '입맛 설정하기'}
+      </Link>
     </div>
-    <div className="mt-auto flex justify-between">
+    <div className="mt-auto flex justify-between md:absolute md:bottom-0 md:left-[80px] md:ml-[520px]">
       <img
         src="/images/HomeMonkey.svg"
         alt="monkey"
         className={`${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'} block h-[240px] transition-transform duration-1000 xs:h-[200px]`}
         onLoad={() => setIsImageLoaded(true)}
       />
-      <Link
-        to={spicy ? '/foods' : '/flavor'}
-        className="mr-20 flex h-12 w-40 items-center justify-center rounded-xl bg-orange-500 px-4 py-2 font-bold text-white hover:bg-orange-600 xs:mr-0 xs:px-3 xs:text-[14px]">
-        {spicy ? '음식 추천받기' : '입맛 설정하기'}
-      </Link>
     </div>
   </div>
 );

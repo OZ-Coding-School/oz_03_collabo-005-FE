@@ -37,9 +37,10 @@ export const signinAPI = async (email: string, password: string) => {
     }
 
     setItem('access', access);
+    return true; // 로그인 성공 시 true 반환
   } catch (error) {
-    console.error('Failed to login:', error); // 에러 로그 출력
-    throw error; // 에러를 throw
+    console.error('로그인 실패:', error); // 에러 로그 출력
+    return false; // 로그인 실패 시 false 반환
   }
 };
 
