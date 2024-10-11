@@ -53,7 +53,9 @@ const BoardPost = () => {
     const fetchCategories = async () => {
       try {
         const response = await authInstance.get('/api/categories/reviewfilter/');
-        setCategories(response.data);
+        // 전체 카테고리 제외
+        const filteredCategories = response.data.filter((category: Category) => category.category !== '전체');
+        setCategories(filteredCategories);
       } catch (error) {
         console.error('카테고리를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -131,7 +133,7 @@ const BoardPost = () => {
         // 선택된 이미지를 새로운 파일로 생성
         const newFile = new File([selectedImage], selectedImage.name);
         const formData = new FormData();
-        // 폼 데이터에 input_source - s3 에 저정될 폴더이름과 images 파일이 들어갈 공간 추가
+        // 폼 데이터에 input_source - s3 에 저장될 폴더이름과 images 파일이 들어갈 공간 추가
         formData.append('input_source', 'board');
         formData.append('images', newFile);
 
@@ -200,19 +202,10 @@ const BoardPost = () => {
 
   const getButtonText = () => {
     if (isUploading) return '현재 이미지 처리중입니다';
-    switch (stepsCompleted) {
-      case 0:
-        return 'Step.1 카테고리를 선택해주세요';
-      case 1:
-        return 'Step.2 제목을 입력해주세요';
-
-      case 2:
-        return 'Step.3 내용을 입력해주세요';
-      case 3:
-        return '여기를 눌러 등록을 완료해주세요';
-      default:
-        return '등록하기';
-    }
+    if (!selectedCategory) return 'Step.1 카테고리를 선택해주세요';
+    if (!watchTitle) return 'Step.2 제목을 입력해주세요';
+    if (!watchContent) return 'Step.3 내용을 입력해주세요';
+    return '여기를 눌러 등록을 완료해주세요';
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false); // 폼 제출 상태
@@ -223,7 +216,7 @@ const BoardPost = () => {
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}>
-      <div className="relative mx-auto max-w-full rounded-2xl bg-white p-4 shadow-2xl">
+      <div className="relative mx-auto max-w-full rounded-2xl border-2 bg-white p-4 shadow-2xl md:mx-auto md:max-w-[1000px] md:pt-2 xs:mb-20">
         <div className="mb-2 flex items-center font-semibold">1. 카테고리를 선택해주세요.</div>
         <div className="mb-2 flex flex-wrap items-center">
           {categories.map((category: Category) => (
