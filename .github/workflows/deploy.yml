@@ -18,6 +18,11 @@ jobs:
       - name: Install dependencies
         run: yarn install # 프로젝트의 의존성 설치
 
+      - name: Create .env file
+        run: |
+          echo "VITE_APP_KAKAO_MAP_KEY=${{ secrets.VITE_APP_KAKAO_MAP_KEY }}" >> .env
+          echo "VITE_APP_BASE_URL=${{ secrets.VITE_APP_BASE_URL }}" >> .env
+
       - name: Build
         run: yarn build # 프로젝트 빌드
 
