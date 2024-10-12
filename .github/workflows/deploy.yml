@@ -20,8 +20,8 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "VITE_APP_KAKAO_MAP_KEY=${{ secrets.VITE_APP_KAKAO_MAP_KEY }}" >> .env
           echo "VITE_APP_BASE_URL=${{ secrets.VITE_APP_BASE_URL }}" >> .env
+          echo "VITE_APP_KAKAO_MAP_KEY=${{ secrets.VITE_APP_KAKAO_MAP_KEY }}" >> .env
 
       - name: Build
         run: yarn build # 프로젝트 빌드
