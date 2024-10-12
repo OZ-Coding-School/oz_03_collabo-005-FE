@@ -37,6 +37,9 @@ jobs:
       - name: Invalidate CloudFront Cache
         uses: chetan/invalidate-cloudfront-action@master # CloudFront 캐시 무효화 - CloudFront는 배포 시 적용까지 24시간이 소요된다. 업데이트 내용을 반영하기위해서는 반드시 무효화 처리가 필요하다
         env:
-          AWS_DISTRIBUTION: ${{ secrets.AWS_DISTRIBUTION_ID }} # CloudFront 배포 ID
+          DISTRIBUTION: ${{ secrets.AWS_DISTRIBUTION_ID }} # CloudFront 배포 ID
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
           PATHS: '/*' # 무효화할 경로
         continue-on-error: true # 오류 발생 시에도 계속 진행
