@@ -13,7 +13,12 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2 # 워크플로우에서 액세스할 수 있도록 저장소를 체크아웃
+        uses: actions/checkout@v3 # 워크플로우에서 액세스할 수 있도록 저장소를 체크아웃
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
 
       - name: Install dependencies
         run: yarn install # 프로젝트의 의존성 설치
@@ -21,15 +26,17 @@ jobs:
       - name: Build
         run: yarn build # 프로젝트 빌드
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # AWS 액세스 키 ID
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS 시크릿 액세스 키
+          aws-region: ${{ secrets.AWS_REGION }} # AWS 리전
+
       - name: S3 Deploy
-        run: aws s3 sync ./dist s3://bobpience-s3-bucket/ --acl bucket-owner-full-control # 현재 빌드된 폴더에 접근 후 S3 버킷에 빌드 파일 업로드
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # AWS 액세스 키 ID
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS 시크릿 액세스 키
-          AWS_REGION: ${{ secrets.AWS_REGION }} # AWS 리전
+        run: aws s3 sync ./dist s3://bobpience-s3-bucket/ --delete # 현재 빌드된 폴더에 접근 후 S3 버킷에 빌드 파일 업로드, 불필요한 파일 삭제
+
       - name: Invalidate CloudFront Cache
-        uses: chetan/invalidate-cloudfront-action@master # CloudFront 캐시 무효화 - CloudFront는 배포 시 적용까지 24시간이 소요된다. 업데이트 내용을 반영하기위해서는 반드시 무효화 처리가 필요하다
-        env:
-          AWS_DISTRIBUTION: ${{ secrets.AWS_DISTRIBUTION_ID }} # CloudFront 배포 ID
-          PATHS: '/*' # 무효화할 경로
-        continue-on-error: true # 오류 발생 시에도 계속 진행
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"
+        # CloudFront 캐시 무효화 - CloudFront는 배포 시 적용까지 24시간이 소요된다. 업데이트 내용을 반영하기위해서는 반드시 무효화 처리가 필요하다
