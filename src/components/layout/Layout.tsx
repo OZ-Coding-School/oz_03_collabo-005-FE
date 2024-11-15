@@ -13,9 +13,11 @@ const Layout = () => {
   const isBoardDetailPagePath = pathname.startsWith('/board/');
   const isMyProfilePagePath = pathname === '/myprofile';
   const isFoodsPagePath = pathname === '/foods';
+  const isFoodsDetailPagePath = pathname.startsWith('/foods/');
   const isFtiPagePath = pathname === '/fti';
   const isSigninPagePath = pathname === '/signin';
   const isFlavorPagePath = pathname === '/flavor';
+  const isMaintainPagePath = pathname === '/maintain';
 
   useEffect(() => {
     document.getElementById('root')?.scrollTo(0, 0);
@@ -23,7 +25,7 @@ const Layout = () => {
 
   return (
     <div
-      className={`mx-auto flex h-full max-w-[600px] flex-col justify-between ${isUpdateNotePath ? 'mx-auto flex h-full max-w-[800px] flex-col justify-between backdrop-blur-xl' : ''} ${isLandingPagePath ? 'md:max-w-full' : ''} ${isThunderPagePath ? 'md:max-w-full' : ''} ${isThunderDetailPagePath ? 'md:max-w-full' : ''} ${isBoardPagePath ? 'md:max-w-full' : ''} ${isBoardDetailPagePath ? 'md:max-w-full' : ''} ${isMyProfilePagePath ? 'md:max-w-full' : ''} ${isFoodsPagePath ? 'md:max-w-full' : ''} ${isFtiPagePath ? 'md:max-w-full' : ''} ${isSigninPagePath ? 'md:max-w-full' : ''} ${isFlavorPagePath ? 'md:max-w-full' : ''}`}>
+      className={`mx-auto flex h-full max-w-[600px] flex-col justify-between ${isUpdateNotePath ? 'mx-auto flex h-full max-w-[800px] flex-col justify-between backdrop-blur-xl' : ''} ${isLandingPagePath ? 'md:max-w-full' : ''} ${isThunderPagePath ? 'md:max-w-full' : ''} ${isThunderDetailPagePath ? 'md:max-w-full' : ''} ${isBoardPagePath ? 'md:max-w-full' : ''} ${isBoardDetailPagePath ? 'md:max-w-full' : ''} ${isMyProfilePagePath ? 'md:max-w-full' : ''} ${isFoodsPagePath ? 'md:max-w-full' : ''} ${isFoodsDetailPagePath ? 'md:ml-[20px] md:mr-[20px] md:max-w-full' : ''} ${isFtiPagePath ? 'md:max-w-full' : ''} ${isSigninPagePath ? 'md:max-w-full' : ''} ${isFlavorPagePath ? 'md:max-w-full' : ''} ${isMaintainPagePath ? 'md:max-w-full' : ''}`}>
       <Header />
       <div className="mt-[72px] grow xs:mt-[52px]">
         <Outlet />
