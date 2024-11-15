@@ -31,7 +31,7 @@ const PostNav: React.FC<List> = ({ list, setSelectedItem, selectedIndex }) => {
         <span
           key={item}
           ref={(el) => (buttonRefs.current[index] = el)}
-          className={`relative flex h-[63px] w-[130px] grow cursor-pointer items-center justify-center text-[18px] duration-300 xs:h-[53px] xs:w-[120px] xs:text-[16px] ${
+          className={`relative flex h-[63px] w-[130px] grow cursor-pointer items-center justify-center rounded-t-lg text-[18px] duration-300 hover:bg-slate-200 active:bg-slate-300 xs:h-[53px] xs:w-[120px] xs:text-[16px] ${
             selectedIndex === index ? 'font-bold text-black' : 'text-gray-600'
           } `}
           onClick={() => handleClick(index)}>
