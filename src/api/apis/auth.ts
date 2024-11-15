@@ -33,14 +33,25 @@ export const signinAPI = async (email: string, password: string) => {
     const access = response.data.access;
 
     if (response.data.refresh) {
-      setCookie('refresh', response.data.refresh, 7); // 리프레시 쿠키에 저장
+      setCookie('refresh', response.data.refresh, 7);
     }
 
     setItem('access', access);
-    return true; // 로그인 성공 시 true 반환
+    return {
+      success: true,
+      message: ''
+    };
   } catch (error) {
-    console.error('로그인 실패:', error); // 에러 로그 출력
-    return false; // 로그인 실패 시 false 반환
+    if (isAxiosError(error) && error.response?.status === 400) {
+      return {
+        success: false,
+        message: '이메일 또는 비밀번호가 올바르지 않습니다.'
+      };
+    }
+    return {
+      success: false,
+      message: '로그인 중 오류가 발생했습니다.'
+    };
   }
 };
 

@@ -11,7 +11,7 @@ interface ThunderItem {
   meeting_time: string;
   meeting_image_url: string;
   description: string;
-  locationName: string;
+  location_name: string;
 }
 
 // ThunderListProps 인터페이스 정의: 컴포넌트의 props 타입 명시
@@ -42,7 +42,7 @@ const ThunderList = ({ thunderItems, type }: ThunderListProps) => {
       <ThunderCard
         key={item.uuid}
         id={item.uuid}
-        locationName={item.locationName}
+        locationName={item.location_name}
         meeting_image_url={item.meeting_image_url}
         description={item.description}
         paymentMethod={item.payment_method_name}

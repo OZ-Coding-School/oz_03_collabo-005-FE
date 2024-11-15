@@ -1,9 +1,15 @@
-import { defineConfig } from 'vite'; // Vite 설정을 정의하기 위해 import
+import path from 'path'; // 경로 처리를 위해 import
 import react from '@vitejs/plugin-react'; // React 플러그인을 사용하기 위해 import
+import { defineConfig } from 'vite'; // Vite 설정을 정의하기 위해 import
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()], // React 플러그인을 Vite 설정에 추가
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'), // '@' 별칭을 'src' 디렉토리로 설정
+    },
+  },
   build: {
     outDir: 'dist',
     rollupOptions: {

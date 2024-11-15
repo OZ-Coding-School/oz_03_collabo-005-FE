@@ -29,6 +29,7 @@ const Header = () => {
   const isSigninPage = location.pathname === '/signin';
   const isSignupPage = location.pathname === '/signup';
   const isResetPasswordPage = location.pathname === '/signin/resetpassword';
+  const isResetPasswordMainPage = location.pathname === '/signin/resetpasswordmain';
 
   const isMyProfilePage = location.pathname === '/myprofile/myprofileedit';
   const isMyProfileBoardPage = location.pathname === '/myprofile/myprofileboard';
@@ -61,6 +62,7 @@ const Header = () => {
     if (isSigninPage) return '로그인';
     if (isSignupPage) return '회원가입';
     if (isResetPasswordPage) return '비밀번호를 잊어버렸어요';
+    if (isResetPasswordMainPage) return '비밀번호 재설정 센터 입니다.';
 
     if (isMyProfilePage) return '프로필 수정';
     if (isMyProfileBoardPage) return '나의 맛있는 발견';
@@ -149,6 +151,7 @@ const Header = () => {
           isSigninPage ||
           isSignupPage ||
           isResetPasswordPage ||
+          isResetPasswordMainPage ||
           isMyProfileThunderPage ||
           isMyProfileBoardPage ||
           isImgPath ||
