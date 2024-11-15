@@ -8,6 +8,7 @@ import { PiCoffee } from 'react-icons/pi';
 import { PiFileDoc } from 'react-icons/pi';
 import { PiNotebookLight } from 'react-icons/pi';
 import { RiEdit2Fill } from 'react-icons/ri';
+import { FaRegCommentDots } from 'react-icons/fa';
 import ModalCenter from '../common/ModalCenter';
 import { motion } from 'framer-motion';
 
@@ -90,6 +91,12 @@ const ModalRight: React.FC<ModalRightProps> = ({ isOpen, onClose, title1, title2
     };
   }, [onClose]);
 
+  useEffect(() => {
+    if (isOpen) {
+      fetchUserProfile();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleLogout = () => {
@@ -121,6 +128,15 @@ const ModalRight: React.FC<ModalRightProps> = ({ isOpen, onClose, title1, title2
     if (!user) {
       e.preventDefault();
       openDeliciousDiscoveryPrompt();
+    }
+  };
+
+  const handleFlavorSettingClick = () => {
+    if (user) {
+      onClose();
+      navigate('/flavor');
+    } else {
+      openLoginPrompt();
     }
   };
 
@@ -194,12 +210,11 @@ const ModalRight: React.FC<ModalRightProps> = ({ isOpen, onClose, title1, title2
           </div>
         )}
         <div className="flex flex-col items-center justify-center">
-          <Link
-            to={user ? '/flavor' : '#'}
-            onClick={!user ? openLoginPrompt : undefined}
+          <button
+            onClick={handleFlavorSettingClick}
             className="mt-4 flex h-[52px] w-[82%] items-center justify-center rounded-full bg-primary text-[20px] font-bold text-white transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-orange-600 active:scale-95 xs:h-[42px] xs:text-[14px]">
             내 입맛 설정
-          </Link>
+          </button>
           <Link
             to="/fti"
             state={{ user }}
@@ -212,7 +227,7 @@ const ModalRight: React.FC<ModalRightProps> = ({ isOpen, onClose, title1, title2
           <Link
             to={user ? '/myprofile/myprofilethunder' : '#'}
             onClick={handleSocialDiningClick}
-            className="mt-8 flex h-[52px] w-[82%] items-center justify-start rounded-full text-[20px] font-bold text-black">
+            className="mt-8 flex h-[52px] w-[82%] items-center justify-start rounded-full text-[20px] font-bold text-black transition-all duration-300 ease-in-out hover:bg-slate-600 hover:px-5 hover:py-2 hover:text-white active:bg-slate-800">
             <PiCoffee className="mr-2 text-[20px]" />
             나의 소셜 다이닝
             <IoIosArrowForward className="ml-2 text-[20px]" />
@@ -220,18 +235,18 @@ const ModalRight: React.FC<ModalRightProps> = ({ isOpen, onClose, title1, title2
           <Link
             to={user ? '/myprofile/myprofileboard' : '#'}
             onClick={handleDeliciousDiscoveryClick}
-            className="mt-2 flex h-[52px] w-[82%] items-center justify-start rounded-full text-[20px] font-bold text-black">
+            className="mt-2 flex h-[52px] w-[82%] items-center justify-start rounded-full text-[20px] font-bold text-black transition-all duration-300 ease-in-out hover:bg-slate-600 hover:px-5 hover:py-2 hover:text-white active:bg-slate-800">
             <img
               src="/images/ProfileDeliciousFinder.svg"
               alt="Profile Delicious Finder"
-              className="mr-2 h-[20px] w-[20px]"
+              className="mr-2 h-[20px] w-[20px] transition-all duration-300 ease-in-out hover:invert"
             />
             나의 맛있는 발견
             <IoIosArrowForward className="ml-2 text-[20px]" />
           </Link>
           <Link
             to="/updatenote"
-            className="mt-2 flex h-[52px] w-[82%] items-center justify-start rounded-full text-[20px] font-bold text-black">
+            className="mt-2 flex h-[52px] w-[82%] items-center justify-start rounded-full text-[20px] font-bold text-black transition-all duration-300 ease-in-out hover:bg-slate-600 hover:px-5 hover:py-2 hover:text-white active:bg-slate-800">
             <PiNotebookLight className="mr-2 text-[20px]" />
             개발자 노트
             <IoIosArrowForward className="ml-2 text-[20px]" />
@@ -241,7 +256,7 @@ const ModalRight: React.FC<ModalRightProps> = ({ isOpen, onClose, title1, title2
           <Link
             to={'https://suist.notion.site/e2c6e050f097489fb620469d397f70d8'}
             target="_blank"
-            className="mt-2 flex h-[52px] w-[82%] items-center justify-start rounded-full text-[20px] font-bold text-black">
+            className="mt-2 flex h-[52px] w-[82%] items-center justify-start rounded-full text-[20px] font-bold text-black transition-all duration-300 ease-in-out hover:bg-slate-600 hover:px-5 hover:py-2 hover:text-white active:bg-slate-800">
             <PiFileDoc className="mr-2 text-[20px]" />
             이용약관
             <IoIosArrowForward className="ml-2 text-[20px]" />
@@ -249,7 +264,8 @@ const ModalRight: React.FC<ModalRightProps> = ({ isOpen, onClose, title1, title2
           <div className="mt-8 flex h-[52px] w-[82%] items-center justify-start">
             <button
               onClick={() => window.open('https://pf.kakao.com/_xixaBxoG/chat', '_blank')}
-              className="flex h-full w-[50%] items-center justify-start rounded-full text-[20px] font-bold">
+              className="flex h-full w-[50%] items-center justify-start rounded-full px-2 py-1 text-[20px] font-bold">
+              <FaRegCommentDots className="mr-2 text-[20px]" />
               의견 보내기
             </button>
             <Link to={'/introduction'} className="flex h-full w-[50%] items-center justify-start text-[18px] font-bold">
