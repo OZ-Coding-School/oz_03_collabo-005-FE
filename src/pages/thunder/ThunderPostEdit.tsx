@@ -24,7 +24,7 @@ const ThunderPostEdit = () => {
   const { state } = location; // 전달된 상태 가져오기
 
   // meeting_uuid 상태 추가
-  const meetinguuid = state?.meeting_uuid; // meeting_uuid 가져오기
+  const meetingUuid = state?.meeting_uuid; // meeting_uuid 가져오기
 
   const { handleSubmit } = useForm<FormData>(); // useForm 훅을 사용하여 폼 데이터
   const [formData, setFormData] = useState<FormData>({
@@ -126,6 +126,7 @@ const ThunderPostEdit = () => {
   }, []);
 
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!getCookie('refresh')) {
       navigate('/');
@@ -247,26 +248,26 @@ const ThunderPostEdit = () => {
 
     try {
       let meetingImageUrl = '';
-      // 선택된 이미지를 새로운 파일로 생성
+            // 선택된 이미지를 새로운 파일로 생성
       if (selectedImage) {
         const newFile = new File([selectedImage], selectedImage.name);
         const formData = new FormData();
-        // 폼 데이터에 input_source - s3 에 저정될 폴더이름과 images 파일이 들어갈 공간 추가
+           // 폼 데이터에 input_source - s3 에 저정될 폴더이름과 images 파일이 들어갈 공간 추가
         formData.append('input_source', 'meeting');
         formData.append('images', newFile);
 
-        // 이미지 업로드 API 호출
-        const response = await authInstance.post('/api/common/image/', formData, {
+         // 이미지 업로드 API 호출
+        const imageResponse = await authInstance.post('/api/common/image/', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 
-        // 업로드된 이미지 URL 저장
-        meetingImageUrl = response.data.images_urls[0];
+            // 업로드된 이미지 URL 저장
+        meetingImageUrl = imageResponse.data.images_urls[0];
       }
 
-      // 리뷰 업데이트 API 호출
-      const response = await authInstance.post('/api/meetings/update/', {
-        meeting_uuid: meetinguuid, // meetinguuid 사용
+        // 리뷰 업데이트 API 호출
+      await authInstance.post('/api/meetings/update/', {
+        meeting_uuid: meetingUuid,  // meetinguuid 사용
         // 제목, 내용은 formData로 입력받으므로 반드시 formData로 보내줘야함.
         title: formData.title, // 제목 필드 입력 내용
         description: formData.content, // 내용 필드 입력 내용
@@ -279,11 +280,8 @@ const ThunderPostEdit = () => {
         meeting_image_url: meetingImageUrl || null,
       });
 
-      // console.log(response.data);
-      setModalMessage({ title1: '소셜 다이닝 글 쓰기 작성이 완료되었습니다.', title2: '' });
-      const meetingUuid = response.data.meeting_uuid;
+      setModalMessage({ title1: '소셜 다이닝 글 수정이 완료되었습니다.', title2: '' });
       toggleCenterModal();
-      navigate(`/thunder/${meetingUuid}`);
     } catch (error) {
       console.error('폼 제출 중 오류가 발생했습니다:', error);
       setModalMessage({ title1: '폼 제출 중 오류가 발생했습니다.', title2: '다시 시도해주세요.' });
@@ -291,22 +289,23 @@ const ThunderPostEdit = () => {
     }
   };
 
+  const closeCenterModal = () => {
+    setIsCenterModalOpen(false);
+    // 모달이 닫힐 때 thunder/{meetinguuid} 페이지로 이동
+    navigate(`/thunder/${meetingUuid}`);
+  };
+
   return (
     <>
       <ModalCenter
         isOpen={isCenterModalOpen}
-        onClose={toggleCenterModal}
+        onClose={closeCenterModal}
         title1={modalMessage.title1}
         title2={modalMessage.title2}>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 1 }}
-          onClick={() => {
-            toggleCenterModal();
-            if (modalMessage.title1 === '소셜 다이닝 글 쓰기 작성이 완료되었습니다.') {
-              navigate('/thunder');
-            }
-          }}
+          onClick={closeCenterModal}
           className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
           확인
         </motion.button>
