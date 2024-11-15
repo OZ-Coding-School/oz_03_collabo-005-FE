@@ -92,6 +92,11 @@
       document.addEventListener(
         visibilityChange,
         function () {
+          // foods 페이지에서는 자동 새로고침 방지
+          if (window.location.pathname.includes('/foods')) {
+            return;
+          }
+
           if (document[hidden]) {
             wasHidden = true;
           } else if (wasHidden) {
