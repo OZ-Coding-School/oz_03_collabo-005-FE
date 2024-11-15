@@ -167,6 +167,13 @@ function Map({ className }: KakaoMapProps) {
     if (map && selectedRestaurant) {
       const selectedPlace = markers.find((marker) => marker.id === selectedRestaurant);
       if (selectedPlace) {
+        // 선택된 마커의 위치로 지도 중심 이동
+        const moveLatLng = new kakao.maps.LatLng(
+          selectedPlace.getPosition().getLat(),
+          selectedPlace.getPosition().getLng(),
+        );
+        map.panTo(moveLatLng);
+
         markers.forEach((marker) => {
           if (marker.id === selectedRestaurant) {
             marker.setImage(clickedMarkerImage);
