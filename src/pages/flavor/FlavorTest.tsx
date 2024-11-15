@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authInstance } from '../../api/util/instance';
 import Loading from '../../components/common/Loading';
 import { getCookie } from '../../utils/cookie';
+import Button from '../../components/common/Button'; // Button 컴포넌트 추가
 
 interface Answer {
   id: number;
@@ -91,12 +92,14 @@ const FlavorTest = () => {
           alt="Question Image"
         />
         {currentTest.answers.map((item) => (
-          <button
+          <Button
             key={item.id}
-            className={`my-[6px] flex h-[52px] w-[90%] transform items-center justify-center rounded-lg border text-[18px] font-medium text-[#333333] duration-300 ease-in-out active:scale-95 xs:h-[40px] xs:text-[14px]`}
+            buttonSize="normal"
+            bgColor="black"
+            className="my-[6px] flex h-[52px] w-[90%] transform items-center justify-center rounded-lg border text-[18px] font-medium text-[#333333] shadow-md transition duration-100 ease-in-out hover:border-orange-500 active:bg-orange-200 xs:h-[40px] xs:text-[14px]"
             onClick={() => handleAnswerClick(item)}>
             {item.taste_answer}
-          </button>
+          </Button>
         ))}
       </div>
       <ModalCenter
@@ -106,9 +109,12 @@ const FlavorTest = () => {
         title2="완료되었습니다">
         <div className="mt-8">
           <Link to="/" className="w-full">
-            <button className="w-full rounded-xl bg-orange-500 px-2 py-3 font-semibold text-white transition-colors duration-200 ease-in-out hover:bg-orange-600">
+            <Button
+              buttonSize="normal"
+              bgColor="filled"
+              className="w-full rounded-xl px-2 py-3 font-semibold text-white transition-colors duration-200 ease-in-out hover:bg-orange-600">
               홈에서 음식 추천받기
-            </button>
+            </Button>
           </Link>
         </div>
       </ModalCenter>
