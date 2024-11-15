@@ -38,17 +38,22 @@ const HeaderLanding = () => {
   };
 
   useEffect(() => {
-    fetchUserProfile(); // 로그인 상태일 때 프로필 이미지 가져오기
-  }, [isLoggedIn, profileImage]); // profileImage 추가
+    fetchUserProfile(); // 컴포넌트가 마운트될 때 프로필 이미지 가져오기
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const loggedIn = !!getCookie('refresh');
-      setIsLoggedIn(loggedIn); // 로그인 상태 감지
+      if (loggedIn !== isLoggedIn) {
+        setIsLoggedIn(loggedIn); // 로그인 상태가 변경되었을 때만 상태 업데이트
+        if (loggedIn) {
+          fetchUserProfile(); // 로그인 상태가 변경되었을 때 프로필 이미지 다시 가져오기
+        }
+      }
     }, 5000); // 5초마다 로그인 상태 확인
 
     return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 정리
-  }, []);
+  }, [isLoggedIn]);
 
   const handleProfileClick = () => {
     setIsModalOpen(true); // 프로필 클릭 시 모달 열기
