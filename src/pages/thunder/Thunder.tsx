@@ -7,6 +7,7 @@ import { baseInstance } from '../../api/util/instance';
 import Loading from '../../components/common/Loading';
 import { getCookie } from '../../utils/cookie';
 import { useNavigate } from 'react-router-dom';
+import ThunderPagination from '../../components/thunder/ThunderPagination';
 
 interface Meeting {
   uuid: string;
@@ -37,6 +38,10 @@ const Thunder: React.FC = () => {
   const [modalState, setModalState] = useState<'none' | 'filter' | 'login'>('none');
   const [isSelectedList, setIsSelectedList] = useState<boolean>(true);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  //  5개 이상 게시글이 넘어가면 자동 페이지네이션 분할
+  const itemsPerPage = 5;
 
   useEffect(() => {
     document.getElementById('root')?.scrollTo(0, 0);
@@ -47,6 +52,7 @@ const Thunder: React.FC = () => {
       .get(`/api/meetings/filter/${locationName}/${timeName}`)
       .then((res) => {
         setMeetings(res.data);
+        setTotalPages(Math.ceil(res.data.length / itemsPerPage));
       })
       .catch((error) => {
         console.error('소셜 다이닝 목록을 가져오는 중 오류가 발생했습니다:', error);
@@ -94,13 +100,21 @@ const Thunder: React.FC = () => {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    document.getElementById('root')?.scrollTo(0, 0);
+  };
+
+  // 현재 페이지에 해당하는 미팅 목록 계산
+  const currentMeetings = meetings?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) || [];
+
   if (meetings === null) {
     return <Loading />;
   }
 
   return (
     <div className="relative mx-auto w-full p-4 pt-0 md:mx-auto md:max-w-[1000px]">
-      <div className="fixed top-[72px] z-20 w-full max-w-[600px] bg-white pr-8 xs:top-[52px]">
+      <div className="fixed top-[72px] z-20 w-full max-w-[1000px] bg-white pr-8 xs:top-[52px]">
         <h1 className="my-[12px] ml-1 min-w-[300px] text-2xl font-bold text-gray-800 xs:text-xl">
           음식으로 시작되는 인연
         </h1>
@@ -125,7 +139,7 @@ const Thunder: React.FC = () => {
         </div>
       ) : (
         <div className="mb-[72px] mt-[110px] flex w-auto flex-col items-center overflow-y-scroll rounded-xl border-2 shadow-xl">
-          {meetings.map((item) => (
+          {currentMeetings.map((item) => (
             <ThunderCard
               key={item.uuid}
               id={item.uuid}
@@ -139,6 +153,7 @@ const Thunder: React.FC = () => {
               locationName={item.location_name}
             />
           ))}
+          <ThunderPagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
         </div>
       )}
       <div
