@@ -74,7 +74,7 @@ const FoodsId = () => {
           <p className="text-center text-gray-600">지도를 불러오려면 위치정보 권한을 허용해주세요</p>
         </div>
       )}
-      <div className="z-20 flex max-h-[40%] min-h-[134px] w-full flex-col rounded-t-[16px] bg-white shadow-[0_-2px_21px_0_rgba(0,0,0,0.25)]">
+      <div className="z-20 flex max-h-[80%] min-h-[140px] w-full flex-col rounded-t-[16px] bg-white shadow-[0_-2px_21px_0_rgba(0,0,0,0.25)]">
         <div className="mx-auto mb-[20px] mt-[12px] h-[6px] min-h-[6px] w-[66px] rounded-full bg-gray-d9" />
 
         <div className="mb-2 flex gap-2 px-[12px]">
