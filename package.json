@@ -46,6 +46,7 @@
     "@hookform/devtools": "^4.3.1",
     "@types/date-fns": "^2.6.0",
     "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.9.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
