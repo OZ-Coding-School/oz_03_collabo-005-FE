@@ -1,10 +1,10 @@
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/layout/Layout.tsx';
-import { Signin, Signup, ResetPassword } from './pages/auth';
+import { Signin, Signup, ResetPassword, ResetPasswordMain } from './pages/auth';
 import { Board, BoardId, BoardPost } from './pages/board';
 import { Flavor, FlavorTest } from './pages/flavor';
 import { Foods, FoodsId } from './pages/foods';
-import { Fti, FtiResultId, FtiTest } from './pages/fti';
+import { Fti, FtiTest, FtiResultId, FtiShareId } from './pages/fti';
 import { MyProfile, MyProfileBoard, MyProfileEdit, MyProfileThunder } from './pages/myprofile';
 import { Thunder, ThunderChat, ThunderId, ThunderPost } from './pages/thunder';
 import Landing from './pages/Home/Landing.tsx';
@@ -13,6 +13,7 @@ import ImageOverview from './pages/Image/ImageOverview.tsx';
 import Introduction from './pages/introduction/Introduction.tsx';
 import UpdateNote from './pages/UpdateNotes/UpdateNotes.tsx';
 import NotFound from './pages/notfound/NotFound.tsx';
+import Maintain from './pages/notfound/Maintain.tsx';
 import ThunderPostEdit from './pages/thunder/ThunderPostEdit.tsx';
 import BoardPostEdit from './pages/board/BoardPostEdit.tsx';
 
@@ -26,6 +27,7 @@ function App() {
         <Route path="signin">
           <Route index element={<Signin />} />
           <Route path="resetpassword" element={<ResetPassword />} />
+          <Route path="resetpasswordmain" element={<ResetPasswordMain />} />
         </Route>
 
         <Route path="board">
@@ -48,7 +50,8 @@ function App() {
         <Route path="fti">
           <Route index element={<Fti />} />
           <Route path="test" element={<FtiTest />} />
-          <Route path=":resultId" element={<FtiResultId />} />
+          <Route path="/fti/:resultId" element={<FtiResultId />} />
+          <Route path="/fti/:shareId" element={<FtiShareId />} />
         </Route>
 
         <Route path="myprofile">
@@ -75,6 +78,7 @@ function App() {
         <Route path="updatenote" element={<UpdateNote />} />
 
         <Route path="*" element={<NotFound />} />
+        <Route path="maintain" element={<Maintain />} />
       </Route>
     </Routes>
   );

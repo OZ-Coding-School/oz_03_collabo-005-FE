@@ -1,4 +1,6 @@
 import Fti from './Fti';
-import FtiResultId from './FtiResultId';
 import FtiTest from './FtiTest';
-export { Fti, FtiResultId, FtiTest };
+import FtiResultId from './FtiResultId';
+import FtiShareId from './FtiShareId';
+
+export { Fti, FtiTest, FtiResultId, FtiShareId };
