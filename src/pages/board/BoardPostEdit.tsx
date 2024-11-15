@@ -176,7 +176,7 @@ const BoardPostEdit = () => {
       const response = await authInstance.post(`/api/reviews/detail/update/`, {
         review_uuid: data.review_uuid,
         title: data.title,
-        category_name: selectedCategory, // 여기를 수정했습니다
+        category_name: selectedCategory,
         nickname: data.nickname,
         content: data.content,
         review_image_url: reviewImageUrl,
@@ -212,6 +212,12 @@ const BoardPostEdit = () => {
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // modal 바깥쪽을 눌러도 modal이 닫히게
+  const handleModalClose = () => {
+    setIsCenterModalOpen(false);
+    // 수정된 게시글의 uuid 페이지로 이동
+    navigate(`/board/${watch('review_uuid')}`);
+  };
 
   return (
     <motion.form
@@ -348,16 +354,13 @@ const BoardPostEdit = () => {
 
       <ModalCenter
         isOpen={isCenterModalOpen}
-        onClose={() => setIsCenterModalOpen(false)}
+        onClose={handleModalClose}
         title1={modalMessage.title1}
         title2={modalMessage.title2}>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 1 }}
-          onClick={() => {
-            setIsCenterModalOpen(false);
-            navigate('/board');
-          }}
+          onClick={handleModalClose}
           className="mt-4 h-[50px] w-full rounded-xl bg-orange-500 px-4 py-2 font-bold text-white">
           확인
         </motion.button>
