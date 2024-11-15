@@ -5,6 +5,7 @@ import { getCookie } from '../../utils/cookie'; // getCookie 가져오기
 import BoardCard from '../../components/board/BoardCard'; // BoardCard 컴포넌트 추가
 import Loading from '../../components/common/Loading'; // Loading 컴포넌트 추가
 import ModalBottom from '../../components/common/ModalBottom';
+import BoardPagination from '../../components/board/BoardPagination';
 
 const Board = () => {
   const [selectedBoard, setSelectedBoard] = useState<string>('전체'); // 초기값을 '전체'로 설정
@@ -25,6 +26,9 @@ const Board = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false); // 로그인 모달 상태 추가
   const [categories, setCategories] = useState<{ category: string }[]>([]); // 카테고리 목록 상태 추가
   const navigate = useNavigate(); // useNavigate 훅 사용
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  //  5개 이상 게시글이 넘어가면 자동 페이지네이션 분할
+  const itemsPerPage = 5;
 
   useEffect(() => {
     setSelectedBoard('전체'); // 컴포넌트가 처음 렌더링될 때 '전체'로 설정
@@ -70,6 +74,14 @@ const Board = () => {
           return item.category_name === selectedBoard;
         });
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredBoardList.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   // 로딩 상태일 때 Loading 컴포넌트 렌더링
   if (isLoading) {
     return <Loading />;
@@ -77,7 +89,7 @@ const Board = () => {
 
   return (
     <div className="relative w-full p-4 pt-0 md:mx-auto md:max-w-[1000px]">
-      <div className="fixed top-[72px] z-20 w-full max-w-[600px] justify-center bg-white pr-8 xs:top-[52px]">
+      <div className="fixed top-[72px] z-20 w-full max-w-[1000px] justify-center bg-white pr-8 xs:top-[52px]">
         <h1 className="my-[12px] ml-2 text-2xl font-bold text-gray-800 xs:text-xl">맛있는 이야기의 시작</h1>
 
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between" />
@@ -115,9 +127,8 @@ const Board = () => {
         </div>
       ) : (
         <div className="mb-[120px] mt-[120px] flex w-auto flex-col items-center overflow-y-scroll rounded-xl border-2 shadow-xl">
-          {filteredBoardList.map((item) => {
+          {currentItems.map((item) => {
             if (!item) return null;
-            // console.log('Board Item:', item);
             return (
               <BoardCard
                 key={item.uuid}
@@ -128,10 +139,15 @@ const Board = () => {
                 hits={item.hits}
                 review_image_url={item.review_image_url}
                 createdAt={item.created_at}
-                commentLength={item.comment_count} // commentLength를 숫자로 변환
+                commentLength={item.comment_count}
               />
             );
           })}
+          <BoardPagination 
+            currentPage={currentPage} 
+            totalPages={Math.ceil(filteredBoardList.length / itemsPerPage)} 
+            onPageChange={handlePageChange} 
+          />
         </div>
       )}
       {/* 로그인 모달 추가 */}
