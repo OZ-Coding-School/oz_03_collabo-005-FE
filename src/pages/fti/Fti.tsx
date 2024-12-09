@@ -33,11 +33,11 @@ const Fti = () => {
   };
 
   return (
-    <div className="relative mx-auto flex flex-col items-center px-[16px] md:max-w-[1200px]">
+    <div className="relative mx-auto mt-[20px] flex flex-col items-center px-[16px] md:max-w-[1200px]">
       {showElements && (
         <>
           <motion.img
-            className="mt-[20px] w-[200px] drop-shadow-2xl xs:mt-[25px]"
+            className="mt-[100px] w-[200px] drop-shadow-2xl xs:mt-[25px]"
             src="/images/ftiStart.png"
             animate={{ y: [0, -20, 0] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
