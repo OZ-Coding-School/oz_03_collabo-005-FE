@@ -22,7 +22,7 @@ const FoodsId = () => {
   const [showCafes, setShowCafes] = useState(false);
   const [cafeResults, setCafeResults] = useState<any[]>([]);
   const [mapKey] = useState(0);
-  const [setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRestaurantClick = (id: string) => {
     setSelectedRestaurant(id);
@@ -202,66 +202,72 @@ const FoodsId = () => {
         </div>
         <div className="mb-2 h-[1px] w-full bg-gray-200" />
         <div className="flex flex-col overflow-y-scroll scrollbar-hide">
-          {filteredResults.map((result) => (
-            <div
-              className={`mb-1 flex max-h-[96px] gap-[12px] rounded-xl px-[12px] py-[8px] ${
-                selectedRestaurant === result.id ? 'bg-[#FAF2F0]' : ''
-              }`}
-              key={result.id}
-              onClick={() => handleRestaurantClick(result.id)}>
-              <div className="max-h-[80px] flex-1">
-                <div className="flex items-center">
-                  <p className="text-[15px] font-medium md:text-[20px] xs:text-[12px]">{result.name}</p>
-                  <a href={`https://place.map.kakao.com/${result.id}`} target="_blank" rel="noopener noreferrer">
-                    <AiOutlineInfoCircle className="ml-1 text-gray-600 md:text-[20px] xs:text-[10px]" />
-                  </a>
-                  <div className="mx-1 h-4 w-[1px] bg-gray-300" />
-                  <div className="flex items-center">
-                    <TbRulerMeasure className="text-gray-600 md:text-[20px] xs:text-[10px]" />
-                    <p className="ml-1 text-[10px] text-gray-800 md:text-[20px]">
-                      {`${(parseInt(result.distance) / 1000).toFixed(2)}km`}
-                      {parseInt(result.distance) / 1000 <= 0.5 && parseInt(result.distance) / 1000 >= 0.1 && (
-                        <span className="ml-2 rounded-full border-2 bg-slate-200 px-2 py-1 text-gray-800">
-                          가까워요
-                        </span>
-                      )}
-                      {parseInt(result.distance) / 1000 > 0.5 && parseInt(result.distance) / 1000 <= 1.0 && (
-                        <span className="ml-2 rounded-full bg-green-500 px-2 py-1 text-white">조금 멀어요</span>
-                      )}
-                      {parseInt(result.distance) / 1000 > 1.0 && parseInt(result.distance) / 1000 <= 3.0 && (
-                        <span className="ml-2 rounded-full bg-indigo-500 px-2 py-1 text-white">많이 멀어요</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                <p className="flex items-center gap-1 text-[12px] md:text-[20px] xs:text-[10px]">
-                  <BsTelephone className="text-gray-800" />
-                  {result.number || '전화번호 없음'}
-                </p>
-                <p className="flex items-center gap-1 text-[12px] md:text-[20px] xs:text-[10px]">
-                  <HiLocationMarker className="text-gray-800" />
-                  {result.address}
-                </p>
-              </div>
-              <div className="flex flex-col justify-center">
-                <a
-                  href={
-                    currentPosition
-                      ? `https://map.kakao.com/link/from/${currentAddress},${currentPosition.lat},${currentPosition.lng}/to/${result.name},${result.y},${result.x}`
-                      : `https://map.kakao.com/link/to/${result.name},${result.y},${result.x}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 rounded-lg bg-sky-500 px-2 py-2 text-white transition-colors duration-200 ease-in-out hover:bg-sky-600 active:bg-sky-700"
-                  onClick={(e) => e.stopPropagation()}>
-                  <div className="flex flex-col items-center">
-                    <FaDirections className="text-[20px] md:text-[40px]" />
-                  </div>
-                </a>
-              </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center p-4">
+              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
             </div>
-          ))}
+          ) : (
+            filteredResults.map((result) => (
+              <div
+                className={`mb-1 flex max-h-[96px] gap-[12px] rounded-xl px-[12px] py-[8px] ${
+                  selectedRestaurant === result.id ? 'bg-[#FAF2F0]' : ''
+                }`}
+                key={result.id}
+                onClick={() => handleRestaurantClick(result.id)}>
+                <div className="max-h-[80px] flex-1">
+                  <div className="flex items-center">
+                    <p className="text-[15px] font-medium md:text-[20px] xs:text-[12px]">{result.name}</p>
+                    <a href={`https://place.map.kakao.com/${result.id}`} target="_blank" rel="noopener noreferrer">
+                      <AiOutlineInfoCircle className="ml-1 text-gray-600 md:text-[20px] xs:text-[10px]" />
+                    </a>
+                    <div className="mx-1 h-4 w-[1px] bg-gray-300" />
+                    <div className="flex items-center">
+                      <TbRulerMeasure className="text-gray-600 md:text-[20px] xs:text-[10px]" />
+                      <p className="ml-1 text-[10px] text-gray-800 md:text-[20px]">
+                        {`${(parseInt(result.distance) / 1000).toFixed(2)}km`}
+                        {parseInt(result.distance) / 1000 <= 0.5 && parseInt(result.distance) / 1000 >= 0.1 && (
+                          <span className="ml-2 rounded-full border-2 bg-slate-200 px-2 py-1 text-gray-800">
+                            가까워요
+                          </span>
+                        )}
+                        {parseInt(result.distance) / 1000 > 0.5 && parseInt(result.distance) / 1000 <= 1.0 && (
+                          <span className="ml-2 rounded-full bg-green-500 px-2 py-1 text-white">조금 멀어요</span>
+                        )}
+                        {parseInt(result.distance) / 1000 > 1.0 && parseInt(result.distance) / 1000 <= 3.0 && (
+                          <span className="ml-2 rounded-full bg-indigo-500 px-2 py-1 text-white">많이 멀어요</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="flex items-center gap-1 text-[12px] md:text-[20px] xs:text-[10px]">
+                    <BsTelephone className="text-gray-800" />
+                    {result.number || '전화번호 없음'}
+                  </p>
+                  <p className="flex items-center gap-1 text-[12px] md:text-[20px] xs:text-[10px]">
+                    <HiLocationMarker className="text-gray-800" />
+                    {result.address}
+                  </p>
+                </div>
+                <div className="flex flex-col justify-center">
+                  <a
+                    href={
+                      currentPosition
+                        ? `https://map.kakao.com/link/from/${currentAddress},${currentPosition.lat},${currentPosition.lng}/to/${result.name},${result.y},${result.x}`
+                        : `https://map.kakao.com/link/to/${result.name},${result.y},${result.x}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 rounded-lg bg-sky-500 px-2 py-2 text-white transition-colors duration-200 ease-in-out hover:bg-sky-600 active:bg-sky-700"
+                    onClick={(e) => e.stopPropagation()}>
+                    <div className="flex flex-col items-center">
+                      <FaDirections className="text-[20px] md:text-[40px]" />
+                    </div>
+                  </a>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
