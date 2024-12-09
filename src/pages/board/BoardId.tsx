@@ -324,7 +324,7 @@ const BoardId = () => {
 
   return (
     <motion.div
-      className="relative mx-auto max-w-full overflow-y-scroll rounded-xl border-2 bg-white p-4 shadow-xl md:max-w-[1000px] xs:mb-20 xs:w-[400px]"
+      className="relative top-[200px] mx-auto max-w-full overflow-y-scroll rounded-xl border-2 bg-white p-4 shadow-xl md:max-w-[1000px] xs:mb-20 xs:w-[400px]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}>
