@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { IoIosArrowForward } from 'react-icons/io';
+import { MdRestaurantMenu } from 'react-icons/md';
 import FoodsCarousel from './FoodsCarousel';
 
 interface FoodSectionProps {
@@ -10,9 +11,18 @@ const FoodSection: React.FC<FoodSectionProps> = ({ spicy }) => {
   return (
     <div className="relative h-full w-full">
       <div className="flex items-center gap-5 p-4 pb-0">
-        <h2 className="text-[24px] font-bold">오늘 뭐 먹지?</h2>
-        <Link to={'/foods'} className="font-medium">
-          더보기
+        <h2 className="flex items-center text-[24px] font-bold">
+          <MdRestaurantMenu className="mr-2" />
+          <span className="relative">
+            오늘 뭐 먹지?
+            <span className="absolute bottom-0 left-0 h-[6px] w-full bg-yellow-300 opacity-50" />
+            <span className="absolute bottom-[-4px] left-0 h-[2px] w-full bg-yellow-400" />
+          </span>
+        </h2>
+        <Link
+          to={'/foods'}
+          className="flex w-[100px] items-center justify-center rounded-full border-2 px-2 py-2 font-medium hover:bg-green-500 hover:text-white">
+          더보기 <IoIosArrowForward className="ml-1" />
         </Link>
       </div>
       <FoodsCarousel spicy={spicy} />
