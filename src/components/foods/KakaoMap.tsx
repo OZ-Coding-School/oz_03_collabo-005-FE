@@ -11,6 +11,7 @@ declare global {
 
 interface KakaoMapProps {
   className?: string;
+  showCafes?: boolean;
 }
 
 interface PositionProps {
@@ -20,7 +21,7 @@ interface PositionProps {
 
 const { kakao } = window;
 
-function Map({ className }: KakaoMapProps) {
+function Map({ className, showCafes }: KakaoMapProps) {
   const mapClass = twMerge(className);
   const [map, setMap] = useState<any>(null);
   const [currentPosition, setCurrentPosition] = useState<PositionProps | null>(null);
@@ -28,6 +29,11 @@ function Map({ className }: KakaoMapProps) {
 
   const defaultMarkerImage = new kakao.maps.MarkerImage('/images/marker2.svg', new kakao.maps.Size(40, 45));
   const clickedMarkerImage = new kakao.maps.MarkerImage('/images/marker.svg', new kakao.maps.Size(40, 45));
+  const cafeMarkerImage = new kakao.maps.MarkerImage('/images/cafe_marker.svg', new kakao.maps.Size(40, 45));
+  const cafeClickedMarkerImage = new kakao.maps.MarkerImage(
+    '/images/cafe_marker_active.svg',
+    new kakao.maps.Size(40, 45),
+  );
 
   // 스토어에서 가져오기
   const { foodName, setSearchResults, selectedRestaurant, setSelectedRestaurant, setIsLoading } = useFoodStore();
@@ -48,19 +54,28 @@ function Map({ className }: KakaoMapProps) {
   const createMarker = (place: any) => {
     const marker = new kakao.maps.Marker({
       position: new kakao.maps.LatLng(place.y, place.x),
-      image: defaultMarkerImage,
+      image: showCafes ? cafeMarkerImage : defaultMarkerImage,
     });
-    marker.id = place.id; // 마커에 id 추가
-    marker.customOverlay = createCustomOverlay(place); // 마커에 커스텀 오버레이 추가
+    marker.id = place.id;
+    marker.customOverlay = createCustomOverlay(place);
     return marker;
   };
 
   // 커스텀 오버레이 생성
   const createCustomOverlay = (place: any) => {
-    const content =
-      `<a href=${place.url} target="_blank" class="customoverlay" style="background-color: white; padding: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 12px;">` +
-      `${place.name}` +
-      '</a>';
+    const content = `
+      <a href=${place.url} target="_blank" class="customoverlay" style="
+        background-color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        color: ${showCafes ? '#6B4F4F' : '#000'};
+        font-weight: 500;
+      ">
+        ${place.name}
+      </a>`;
     return new kakao.maps.CustomOverlay({
       position: new kakao.maps.LatLng(place.y, place.x),
       content: content,
@@ -71,7 +86,19 @@ function Map({ className }: KakaoMapProps) {
   // 마커 클릭 이벤트 생성
   const setupMarkerClickEvent = (marker: any) => {
     kakao.maps.event.addListener(marker, 'click', () => {
-      setSelectedRestaurant(marker.id); // 마커 클릭 시 선택된 식당 업데이트
+      setSelectedRestaurant(marker.id);
+    });
+
+    // 마우스 오버 이벤트
+    kakao.maps.event.addListener(marker, 'mouseover', () => {
+      marker.customOverlay.setMap(map);
+    });
+
+    // 마우스 아웃 이벤트
+    kakao.maps.event.addListener(marker, 'mouseout', () => {
+      if (marker.id !== selectedRestaurant) {
+        marker.customOverlay.setMap(null);
+      }
     });
   };
 
@@ -121,10 +148,10 @@ function Map({ className }: KakaoMapProps) {
 
   // 장소 검색
   const searchPlaces = () => {
-    if (!map || !currentPosition || !foodName) return;
+    if (!map || !currentPosition) return;
 
     removeAllMarkers();
-    setIsLoading(true); // 검색 시작 시 로딩 상태를 true로 설정
+    setIsLoading(true);
 
     const places = new kakao.maps.services.Places();
 
@@ -155,12 +182,21 @@ function Map({ className }: KakaoMapProps) {
       setIsLoading(false);
     };
 
-    places.keywordSearch(foodName, callback, {
-      location: new kakao.maps.LatLng(currentPosition.lat, currentPosition.lng),
-      radius: 2000,
-      sort: kakao.maps.services.SortBy.DISTANCE,
-      size: 15,
-    });
+    if (showCafes) {
+      places.keywordSearch('카페', callback, {
+        location: new kakao.maps.LatLng(currentPosition.lat, currentPosition.lng),
+        radius: 3000,
+        sort: kakao.maps.services.SortBy.DISTANCE,
+        size: 15,
+      });
+    } else {
+      places.keywordSearch(foodName, callback, {
+        location: new kakao.maps.LatLng(currentPosition.lat, currentPosition.lng),
+        radius: 2000,
+        sort: kakao.maps.services.SortBy.DISTANCE,
+        size: 15,
+      });
+    }
   };
 
   useEffect(() => {
@@ -176,13 +212,13 @@ function Map({ className }: KakaoMapProps) {
 
         markers.forEach((marker) => {
           if (marker.id === selectedRestaurant) {
-            marker.setImage(clickedMarkerImage);
+            marker.setImage(showCafes ? cafeClickedMarkerImage : clickedMarkerImage);
             // 선택된 마커의 커스텀 오버레이 표시
             if (marker.customOverlay) {
               marker.customOverlay.setMap(map);
             }
           } else {
-            marker.setImage(defaultMarkerImage);
+            marker.setImage(showCafes ? cafeMarkerImage : defaultMarkerImage);
             // 다른 마커의 커스텀 오버레이 숨기기
             if (marker.customOverlay) {
               marker.customOverlay.setMap(null);
@@ -191,7 +227,7 @@ function Map({ className }: KakaoMapProps) {
         });
       }
     }
-  }, [selectedRestaurant, map, markers]);
+  }, [selectedRestaurant, map, markers, showCafes]);
 
   useEffect(() => {
     refreshLocation(); // 컴포넌트 마운트 시 초기 위치 설정
@@ -206,10 +242,10 @@ function Map({ className }: KakaoMapProps) {
   }, [currentPosition]);
 
   useEffect(() => {
-    if (map && foodName) {
+    if (map && currentPosition) {
       searchPlaces();
     }
-  }, [map, foodName]);
+  }, [map, currentPosition, foodName, showCafes]);
 
   return (
     <div className="relative h-full w-full">

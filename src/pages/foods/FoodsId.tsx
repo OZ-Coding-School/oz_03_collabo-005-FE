@@ -7,15 +7,22 @@ import { HiLocationMarker } from 'react-icons/hi';
 import { TbRulerMeasure } from 'react-icons/tb';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FaDirections } from 'react-icons/fa';
+import { PiCoffee } from 'react-icons/pi';
+import { IoIosSearch } from 'react-icons/io';
 
 const FoodsId = () => {
-  const { setFoodName, searchResults, selectedRestaurant, setSelectedRestaurant, foodsList } = useFoodStore();
+  const { setFoodName, searchResults, selectedRestaurant, setSelectedRestaurant, foodsList, setSearchResults } =
+    useFoodStore();
   const location = useLocation();
   const { name } = location.state || {};
   const [selectedTab, setSelectedTab] = useState('전체');
   const [isLocationAllowed, setIsLocationAllowed] = useState<boolean>(false);
   const [currentAddress, setCurrentAddress] = useState<string>('');
   const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [showCafes, setShowCafes] = useState(false);
+  const [cafeResults, setCafeResults] = useState<any[]>([]);
+  const [mapKey] = useState(0);
+  const [setIsLoading] = useState(false);
 
   const handleRestaurantClick = (id: string) => {
     setSelectedRestaurant(id);
@@ -46,26 +53,86 @@ const FoodsId = () => {
     );
   }, []);
 
-  const filteredResults = searchResults.filter((result) => {
-    const distance = parseInt(result.distance) / 1000;
-    if (selectedTab === '가까워요') {
-      return distance <= 0.5 && distance >= 0.1;
-    } else if (selectedTab === '조금 멀어요') {
-      return distance > 0.5 && distance <= 1.0;
-    } else if (selectedTab === '많이 멀어요') {
-      return distance > 1.0 && distance <= 3.0;
+  const togglePlaceType = () => {
+    if (showCafes) {
+      // 음식점으로 전환
+      setShowCafes(false);
+      setCafeResults([]);
+      setSelectedRestaurant('');
+      if (name) {
+        setFoodName(name);
+      }
+    } else {
+      // 카페 검색 실행
+      setFoodName('');
+      searchNearByCafes();
     }
-    return true;
-  });
+  };
+
+  const searchNearByCafes = () => {
+    if (!currentPosition) return;
+
+    setIsLoading(true);
+    const places = new window.kakao.maps.services.Places();
+    const callback = (result: any, status: any) => {
+      if (status === window.kakao.maps.services.Status.OK) {
+        const formattedResults = result.map((place: any) => ({
+          id: place.id,
+          name: place.place_name,
+          address: place.address_name,
+          number: place.phone,
+          distance: place.distance,
+          x: place.x,
+          y: place.y,
+          url: place.place_url,
+        }));
+        setCafeResults(formattedResults);
+        setSearchResults(formattedResults);
+        setShowCafes(true);
+        setSelectedTab('전체');
+      }
+      setIsLoading(false);
+    };
+
+    places.keywordSearch('카페', callback, {
+      location: new window.kakao.maps.LatLng(currentPosition.lat, currentPosition.lng),
+      radius: 3000,
+      sort: window.kakao.maps.services.SortBy.DISTANCE,
+    });
+  };
+
+  const filteredResults = showCafes
+    ? cafeResults.filter((result) => {
+        const distance = parseInt(result.distance) / 1000;
+        if (selectedTab === '가까워요') {
+          return distance <= 0.5 && distance >= 0.1;
+        } else if (selectedTab === '조금 멀어요') {
+          return distance > 0.5 && distance <= 1.0;
+        } else if (selectedTab === '많이 멀어요') {
+          return distance > 1.0 && distance <= 3.0;
+        }
+        return true;
+      })
+    : searchResults.filter((result) => {
+        const distance = parseInt(result.distance) / 1000;
+        if (selectedTab === '가까워요') {
+          return distance <= 0.5 && distance >= 0.1;
+        } else if (selectedTab === '조금 멀어요') {
+          return distance > 0.5 && distance <= 1.0;
+        } else if (selectedTab === '많이 멀어요') {
+          return distance > 1.0 && distance <= 3.0;
+        }
+        return true;
+      });
 
   return (
     <div className="relative flex h-[calc(100vh-72px)] flex-col overflow-y-hidden xs:h-[calc(100vh-52px)]">
       {isLocationAllowed ? (
         <>
-          <Map className="z-10 grow" />
+          <Map className="z-10 grow" key={mapKey} showCafes={showCafes} />
           {currentAddress && (
-            <div className="absolute z-20 rounded-r-lg bg-white px-2 py-2 shadow-lg">
-              <p className="text-[10px] text-gray-800">내 주변위치는 {currentAddress} 입니다.</p>
+            <div className="absolute z-30 rounded-r-lg bg-white px-2 py-2 shadow-lg">
+              <p className="text-[17px] text-gray-800">내 주변위치는 {currentAddress} 입니다.</p>
             </div>
           )}
         </>
@@ -76,7 +143,30 @@ const FoodsId = () => {
       )}
       <div className="z-20 flex max-h-[80%] min-h-[140px] w-full flex-col rounded-t-[16px] bg-white shadow-[0_-2px_21px_0_rgba(0,0,0,0.25)]">
         <div className="mx-auto mb-[20px] mt-[12px] h-[6px] min-h-[6px] w-[66px] rounded-full bg-gray-d9" />
-
+        <div className="mb-[20px] flex gap-4 xs:mb-[10px] xs:gap-2">
+          <button className="mb-[20px] ml-3 h-[50px] w-[260px] rounded-lg bg-gray-500 px-4 py-2 text-white shadow-lg transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95 md:text-[18px] xs:ml-2 xs:w-[250px] xs:text-[14px]">
+            <div className="flex items-center justify-center gap-2">
+              <IoIosSearch className="text-xl" />
+              음식점 직접 검색
+            </div>
+          </button>
+          <button
+            onClick={togglePlaceType}
+            className="mb-[20px] h-[50px] w-[250px] rounded-lg bg-gray-500 px-4 py-2 text-white shadow-lg transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95 md:text-[18px] xs:mr-2 xs:w-[250px] xs:text-[14px]">
+            <div className="flex items-center justify-center gap-2">
+              {showCafes ? (
+                <>
+                  <IoIosSearch className="text-xl" />
+                  음식점 보기
+                </>
+              ) : (
+                <>
+                  <PiCoffee className="text-xl" />내 주변 카페
+                </>
+              )}
+            </div>
+          </button>
+        </div>
         <div className="mb-2 flex gap-2 px-[12px]">
           {['전체', '가까워요', '조금 멀어요', '많이 멀어요'].map((tab) => (
             <button
@@ -107,13 +197,10 @@ const FoodsId = () => {
             현재위치에서 거리가 1.0km~3km 이하입니다.
           </p>
         )}
-
         <div className="mb-2 ml-1 flex items-center gap-1 px-[12px] text-gray-600 md:text-[20px] xs:text-[12px]">
           가게정보를 보려면 <AiOutlineInfoCircle className="text-gray-600" /> 아이콘을 눌러주세요.
         </div>
-
         <div className="mb-2 h-[1px] w-full bg-gray-200" />
-
         <div className="flex flex-col overflow-y-scroll scrollbar-hide">
           {filteredResults.map((result) => (
             <div
