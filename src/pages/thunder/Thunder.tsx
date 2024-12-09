@@ -114,7 +114,7 @@ const Thunder: React.FC = () => {
 
   return (
     <div className="relative mx-auto w-full p-4 pt-0 md:mx-auto md:max-w-[1000px]">
-      <div className="fixed top-[72px] z-20 w-full max-w-[1000px] bg-white pr-8 xs:top-[52px]">
+      <div className="fixed top-[150px] z-20 w-full max-w-[970px] rounded-xl bg-white pr-8 xs:top-[52px]">
         <h1 className="my-[12px] ml-1 min-w-[300px] text-2xl font-bold text-gray-800 xs:text-xl">
           음식으로 시작되는 인연
         </h1>
@@ -138,7 +138,7 @@ const Thunder: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="mb-[72px] mt-[110px] flex w-auto flex-col items-center overflow-y-scroll rounded-xl border-2 shadow-xl">
+        <div className="mb-[72px] mt-[220px] flex w-auto flex-col items-center overflow-y-scroll rounded-xl border-2 shadow-xl">
           {currentMeetings.map((item) => (
             <ThunderCard
               key={item.uuid}
@@ -158,7 +158,7 @@ const Thunder: React.FC = () => {
       )}
       <div
         onClick={checkLogin}
-        className="fixed bottom-[120px] right-[calc(50%-260px)] z-50 cursor-pointer md:right-[calc(50%-480px)] md:top-[100px] xs:bottom-[100px] xs:right-[5%]">
+        className="fixed bottom-[120px] right-[calc(50%-260px)] z-50 cursor-pointer md:right-[calc(50%-480px)] md:top-[170px] xs:bottom-[100px] xs:right-[5%]">
         <div className="flex h-[63px] w-[63px] items-center justify-center rounded-full bg-white shadow-xl transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]">
           <img src="/images/plusCircle.svg" alt="Plus Circle" className="h-[63px] w-[63px] xs:h-[63px] xs:w-[63px]" />
         </div>

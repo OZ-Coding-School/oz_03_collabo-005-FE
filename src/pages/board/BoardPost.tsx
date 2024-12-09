@@ -216,7 +216,7 @@ const BoardPost = () => {
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}>
-      <div className="relative mx-auto max-w-full rounded-2xl border-2 bg-white p-4 shadow-2xl md:mx-auto md:max-w-[1000px] md:pt-2 xs:mb-20">
+      <div className="relative top-[100px] mx-auto max-w-full rounded-2xl border-2 bg-white p-4 shadow-2xl md:mx-auto md:max-w-[1000px] md:pt-2 xs:mb-20">
         <div className="mb-2 flex items-center font-semibold">1. 카테고리를 선택해주세요.</div>
         <div className="mb-2 flex flex-wrap items-center">
           {categories.map((category: Category) => (

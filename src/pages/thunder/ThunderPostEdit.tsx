@@ -315,7 +315,7 @@ const ThunderPostEdit = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}>
-        <div className="relative mx-auto w-full max-w-full rounded-2xl border-2 bg-white p-4 pt-0 shadow-2xl md:mx-auto md:max-w-[1000px] md:pt-2 xs:mb-20">
+        <div className="relative top-[100px] mx-auto w-full max-w-full rounded-2xl border-2 bg-white p-4 pt-0 shadow-2xl md:mx-auto md:max-w-[1000px] md:pt-2 xs:mb-20">
           <div className="mb-2 flex flex-wrap items-center font-semibold">
             <span>1. 지불 방식을 선택해주세요</span>
           </div>

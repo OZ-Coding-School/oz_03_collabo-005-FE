@@ -15,6 +15,7 @@ const Signin = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showDevelopmentModal, setShowDevelopmentModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -87,7 +88,7 @@ const Signin = () => {
   }, [navigate]);
 
   return (
-    <div className="relative mx-auto w-full max-w-full rounded-2xl border-2 bg-white p-4 px-[16px] shadow-2xl md:mx-auto md:max-w-[700px] md:pt-2 xs:mb-20">
+    <div className="relative top-[200px] mx-auto w-full max-w-full rounded-2xl border-2 bg-white p-4 px-[16px] shadow-2xl md:mx-auto md:max-w-[700px] md:pt-2 xs:mb-20">
       <ModalCenter
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
@@ -149,12 +150,25 @@ const Signin = () => {
           이메일로 간편 가입
         </Button>
       </form>
+      <ModalCenter
+        isOpen={showDevelopmentModal}
+        onClose={() => setShowDevelopmentModal(false)}
+        title1="'비밀번호 찾기' 기능은 현재 개발 중인 기능입니다."
+        title2="">
+        <Button
+          buttonSize="normal"
+          bgColor="filled"
+          className="mt-4 h-12 font-bold transition-transform duration-300 ease-in-out hover:bg-orange-600 active:bg-orange-700"
+          onClick={() => setShowDevelopmentModal(false)}>
+          확인
+        </Button>
+      </ModalCenter>
       <p className="mt-[16px] text-center text-[12px] text-gray-98">
         로그인(가입) 시 이용약관 및 개인정보 처리방침에 동의하는 것으로 간주합니다.
       </p>
       <p className="mt-[38px] flex items-center justify-center text-[14px] font-bold text-[#999999]">
         <FaLock className="mr-2" />
-        <span onClick={() => navigate('/signin/resetpasswordmain')} className="cursor-pointer hover:underline">
+        <span onClick={() => setShowDevelopmentModal(true)} className="cursor-pointer hover:underline">
           비밀번호를 잊어버렸거나 재설정이 필요하신가요?
         </span>
       </p>

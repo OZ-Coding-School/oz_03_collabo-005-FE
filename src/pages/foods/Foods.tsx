@@ -70,7 +70,7 @@ const Foods = () => {
 
   return (
     <div>
-      <h1 className="mb-[12px] mt-[20px] px-[16px] text-[28px] md:ml-[80px]">맛있는 발견의 시작✨</h1>
+      <h1 className="mb-[12px] mt-[100px] px-[16px] text-[28px] md:ml-[80px]">맛있는 발견의 시작✨</h1>
       <div className="flex gap-[12px] overflow-x-scroll px-[12px] py-[8px] scrollbar-hide md:ml-[80px]">
         {filter.map((item) => (
           <Tag
@@ -85,7 +85,7 @@ const Foods = () => {
           </Tag>
         ))}
       </div>
-      <div className="flex flex-col gap-[20px] px-[16px] py-[12px] md:grid md:w-full md:grid-cols-2 md:flex-wrap md:gap-[50px] md:px-[100px] lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+      <div className="mb-[50px] flex flex-col gap-[20px] px-[16px] py-[12px] md:grid md:w-full md:grid-cols-2 md:flex-wrap md:gap-[50px] md:px-[100px] lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {Array.isArray(filteredFoods) &&
           filteredFoods.map((item, index) => (
             <div

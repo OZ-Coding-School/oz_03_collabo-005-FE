@@ -89,7 +89,7 @@ const Board = () => {
 
   return (
     <div className="relative w-full p-4 pt-0 md:mx-auto md:max-w-[1000px]">
-      <div className="fixed top-[72px] z-20 w-full max-w-[1000px] justify-center bg-white pr-8 xs:top-[52px]">
+      <div className="fixed top-[150px] z-20 w-full max-w-[970px] justify-center rounded-xl bg-white pr-8 xs:top-[52px]">
         <h1 className="my-[12px] ml-2 text-2xl font-bold text-gray-800 xs:text-xl">맛있는 이야기의 시작</h1>
 
         <div className="my-2 flex w-full max-w-[600px] items-center justify-between" />
@@ -110,7 +110,7 @@ const Board = () => {
 
       <div
         onClick={checkLogin} // 링크 대신 onClick으로 로그인 체크
-        className="fixed bottom-[120px] right-[calc(50%-260px)] z-50 cursor-pointer md:right-[calc(50%-480px)] md:top-[100px] xs:bottom-[100px] xs:right-[5%]">
+        className="fixed bottom-[120px] right-[calc(50%-260px)] z-50 cursor-pointer md:right-[calc(50%-480px)] md:top-[170px] xs:bottom-[100px] xs:right-[5%]">
         <div className="flex h-[63px] w-[63px] items-center justify-center rounded-full bg-white shadow-xl transition-transform duration-200 ease-in-out hover:scale-110 active:scale-90 xs:h-[53px] xs:w-[53px]">
           <img src="/images/plusCircle.svg" alt="Plus Circle" className="h-[63px] w-[63px] xs:h-[63px] xs:w-[63px]" />
         </div>
@@ -126,7 +126,7 @@ const Board = () => {
           </p>
         </div>
       ) : (
-        <div className="mb-[120px] mt-[120px] flex w-auto flex-col items-center overflow-y-scroll rounded-xl border-2 shadow-xl">
+        <div className="mb-[120px] mt-[250px] flex w-auto flex-col items-center overflow-y-scroll rounded-xl border-2 shadow-xl">
           {currentItems.map((item) => {
             if (!item) return null;
             return (
@@ -143,10 +143,10 @@ const Board = () => {
               />
             );
           })}
-          <BoardPagination 
-            currentPage={currentPage} 
-            totalPages={Math.ceil(filteredBoardList.length / itemsPerPage)} 
-            onPageChange={handlePageChange} 
+          <BoardPagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredBoardList.length / itemsPerPage)}
+            onPageChange={handlePageChange}
           />
         </div>
       )}
