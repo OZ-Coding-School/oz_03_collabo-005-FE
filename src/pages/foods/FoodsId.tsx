@@ -9,6 +9,7 @@ import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FaDirections } from 'react-icons/fa';
 import { PiCoffee } from 'react-icons/pi';
 import { IoIosSearch } from 'react-icons/io';
+import ModalCenter from '../../components/common/ModalCenter';
 
 const FoodsId = () => {
   const { setFoodName, searchResults, selectedRestaurant, setSelectedRestaurant, foodsList, setSearchResults } =
@@ -23,6 +24,7 @@ const FoodsId = () => {
   const [cafeResults, setCafeResults] = useState<any[]>([]);
   const [mapKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   const handleRestaurantClick = (id: string) => {
     setSelectedRestaurant(id);
@@ -55,7 +57,7 @@ const FoodsId = () => {
 
   const togglePlaceType = () => {
     if (showCafes) {
-      // 음식점으로 전환
+      // 현재위치에서 음식점으로 전환
       setShowCafes(false);
       setCafeResults([]);
       setSelectedRestaurant('');
@@ -63,7 +65,7 @@ const FoodsId = () => {
         setFoodName(name);
       }
     } else {
-      // 카페 검색 실행
+      // 기능 구현중 - 카페 검색 실행
       setFoodName('');
       searchNearByCafes();
     }
@@ -144,7 +146,9 @@ const FoodsId = () => {
       <div className="z-20 flex max-h-[80%] min-h-[140px] w-full flex-col rounded-t-[16px] bg-white shadow-[0_-2px_21px_0_rgba(0,0,0,0.25)]">
         <div className="mx-auto mb-[20px] mt-[12px] h-[6px] min-h-[6px] w-[66px] rounded-full bg-gray-d9" />
         <div className="mb-[20px] flex gap-4 xs:mb-[10px] xs:gap-2">
-          <button className="mb-[20px] ml-3 h-[50px] w-[260px] rounded-lg bg-gray-500 px-4 py-2 text-white shadow-lg transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95 md:text-[18px] xs:ml-2 xs:w-[250px] xs:text-[14px]">
+          <button
+            className="mb-[20px] ml-3 h-[50px] w-[260px] rounded-lg bg-gray-500 px-4 py-2 text-white shadow-lg transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95 md:text-[18px] xs:ml-2 xs:w-[250px] xs:text-[14px]"
+            onClick={() => setIsSearchModalOpen(true)}>
             <div className="flex items-center justify-center gap-2">
               <IoIosSearch className="text-xl" />
               음식점 직접 검색
@@ -270,6 +274,19 @@ const FoodsId = () => {
           )}
         </div>
       </div>
+      <ModalCenter
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        title1="이 기능은 현재 개발중입니다"
+        title2="">
+        <div className="mt-4">
+          <button
+            onClick={() => setIsSearchModalOpen(false)}
+            className="w-[300px] rounded-lg bg-primary px-4 py-2 text-white transition-colors duration-200 ease-in-out hover:bg-orange-600">
+            확인
+          </button>
+        </div>
+      </ModalCenter>
     </div>
   );
 };
