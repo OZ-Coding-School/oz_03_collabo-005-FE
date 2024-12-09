@@ -1,0 +1,36 @@
+{
+  "name": "밥피엔스",
+  "short_name": "밥피엔스",
+  "start_url": "/",
+  "display": "standalone",
+  "description": "당신의 입맛에 꼭 맞는 메뉴를 추천받고, 소셜 다이닝을 즐겨보세요! 지금 밥피엔스와 함께 새로운 맛의 세계를 경험하세요.",
+  "lang": "ko",
+  "dir": "auto",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/images/manifest-icon-192.maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/images/manifest-icon-512.maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://s3.ap-northeast-2.amazonaws.com/www.babpiens.com/Title/babpiens_title.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "description": "밥피엔스 메인 화면"
+    }
+  ],
+  "prefer_related_applications": false,
+  "gcm_sender_id": "103953800507"
+}

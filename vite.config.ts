@@ -1,10 +1,11 @@
 import * as path from 'path'; // 경로 처리를 위해 import
 import react from '@vitejs/plugin-react'; // React 플러그인을 사용하기 위해 import
 import { defineConfig } from 'vite'; // Vite 설정을 정의하기 위해 import
+import mkcert from 'vite-plugin-mkcert'; // mkcert 추가
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()], // React 플러그인을 Vite 설정에 추가
+  plugins: [react(), mkcert()], // React 플러그인을 Vite 설정에 추가, mkcert 플러그인 추가
   resolve: {
     alias: {
       '@': path.resolve(process.cwd(), './src'), // '@' 별칭을 'src' 디렉토리로 설정
@@ -23,5 +24,9 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000, // chunk 크기 경고 한계를 1000으로 설정
+  },
+  server: {
+    https: {},
+    host: true,
   },
 });
