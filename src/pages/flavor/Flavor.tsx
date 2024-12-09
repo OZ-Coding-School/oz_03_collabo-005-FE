@@ -29,7 +29,7 @@ const Flavor = () => {
   };
 
   return (
-    <div className="mt-[200px] flex h-[300px] flex-col items-center justify-center bg-white xs:mt-[150px]">
+    <div className="mt-[290px] flex h-[300px] flex-col items-center justify-center bg-white xs:mt-[150px]">
       <div className="relative w-full items-center md:max-w-[1200px]" />
       <div className="flex flex-col items-center">
         {!isImageLoaded && (
