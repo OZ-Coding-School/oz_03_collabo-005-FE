@@ -49,12 +49,12 @@ const Nav = () => {
   }
 
   return (
-    <div className="fixed bottom-0 z-50 flex h-[75px] w-full max-w-[600px] justify-around bg-white bg-opacity-80 backdrop-blur-lg md:hidden xs:h-[65px]">
+    <div className="fixed bottom-0 z-50 flex h-[90px] w-full max-w-[600px] justify-around bg-white bg-opacity-80 backdrop-blur-lg md:hidden xs:h-[90px]">
       <Link
         to="/"
         className="flex w-1/4 flex-col items-center justify-center rounded-xl text-center transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-slate-100 active:scale-95 xs:gap-2">
         <img
-          className="mb-2 h-[20px] w-[20px] xs:mb-0 xs:w-[18px]"
+          className="-mt-2 h-[20px] w-[20px] xs:w-[18px]"
           src={isHomePath ? '/images/Home.svg' : '/images/HomeInactive.svg'}
           alt="홈"
         />
@@ -67,7 +67,7 @@ const Nav = () => {
         to="/thunder"
         className="flex w-1/4 flex-col items-center justify-center rounded-xl text-center transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-slate-100 active:scale-95 xs:gap-2">
         <img
-          className="mb-2 h-[20px] w-[20px] xs:mb-0 xs:w-[18px]"
+          className="-mt-2 h-[20px] w-[20px] xs:w-[18px]"
           src={isThunderPath ? '/images/SocialDiningActive.svg' : '/images/SocialDining.svg'}
           alt="소셜 다이닝"
         />
@@ -81,7 +81,7 @@ const Nav = () => {
         to="/board"
         className="flex w-1/4 flex-col items-center justify-center rounded-xl text-center transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-slate-100 active:scale-95 xs:gap-2">
         <img
-          className="mb-2 h-[20px] w-[20px] xs:mb-0 xs:w-[18px]"
+          className="-mt-2 h-[20px] w-[20px] xs:w-[18px]"
           src={isBoardPath ? '/images/DeliciousInFinder.svg' : '/images/DeliciousFinder.svg'}
           alt="맛있는 발견"
         />
@@ -94,7 +94,7 @@ const Nav = () => {
         to="/myprofile"
         className="flex w-1/4 flex-col items-center justify-center rounded-xl text-center transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-slate-100 active:scale-95 xs:gap-2">
         <img
-          className="mb-2 h-[20px] w-[20px] xs:mb-0 xs:w-[18px]"
+          className="-mt-2 h-[20px] w-[20px] xs:w-[18px]"
           src={isMyProfilePath ? '/images/ProfileActive.svg' : '/images/ProfileInactive.svg'}
           alt="프로필"
         />
