@@ -169,7 +169,7 @@ const Signin = () => {
       <p className="mt-[38px] flex items-center justify-center text-[14px] font-bold text-[#999999]">
         <FaLock className="mr-2" />
         <span onClick={() => setShowDevelopmentModal(true)} className="cursor-pointer hover:underline">
-          비밀번호를 잊어버렸거나 재설정이 필요하신가요?
+          (개발중) 비밀번호를 잊어버렸거나 재설정이 필요하신가요?
         </span>
       </p>
     </div>
