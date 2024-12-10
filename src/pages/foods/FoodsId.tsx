@@ -11,17 +11,45 @@ import { PiCoffee } from 'react-icons/pi';
 import { IoIosSearch } from 'react-icons/io';
 import ModalCenter from '../../components/common/ModalCenter';
 
+interface Position {
+  lat: number;
+  lng: number;
+}
+
+interface Place {
+  id: string;
+  name: string;
+  place_name: string;
+  address_name: string;
+  phone: string;
+  distance: string;
+  x: string;
+  y: string;
+  place_url: string;
+}
+
+interface FormattedResult {
+  id: string;
+  name: string;
+  address: string;
+  number: string;
+  distance: string;
+  x: string;
+  y: string;
+  url: string;
+}
+
 const FoodsId = () => {
   const { setFoodName, searchResults, selectedRestaurant, setSelectedRestaurant, foodsList, setSearchResults } =
     useFoodStore();
   const location = useLocation();
   const { name } = location.state || {};
   const [selectedTab, setSelectedTab] = useState('전체');
-  const [isLocationAllowed, setIsLocationAllowed] = useState<boolean>(false);
-  const [currentAddress, setCurrentAddress] = useState<string>('');
-  const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [isLocationAllowed, setIsLocationAllowed] = useState(false);
+  const [currentAddress, setCurrentAddress] = useState('');
+  const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
   const [showCafes, setShowCafes] = useState(false);
-  const [cafeResults, setCafeResults] = useState<any[]>([]);
+  const [cafeResults, setCafeResults] = useState<FormattedResult[]>([]);
   const [mapKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -31,28 +59,32 @@ const FoodsId = () => {
   };
 
   useEffect(() => {
-    setFoodName(name);
-  }, [setFoodName, foodsList]);
-
-  useEffect(() => {
-    // 현재 위치 표시 - getCurrentPosition
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setIsLocationAllowed(true);
-        setCurrentPosition({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        const geocoder = new window.kakao.maps.services.Geocoder();
-        geocoder.coord2Address(position.coords.longitude, position.coords.latitude, (result: any, status: any) => {
-          if (status === window.kakao.maps.services.Status.OK) {
-            const address = result[0].address.address_name;
-            setCurrentAddress(address);
-          }
-        });
-      },
-      () => setIsLocationAllowed(false),
-    );
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position: GeolocationPosition) => {
+          setIsLocationAllowed(true);
+          setCurrentPosition({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+          const geocoder = new window.kakao.maps.services.Geocoder();
+          geocoder.coord2Address(
+            position.coords.longitude,
+            position.coords.latitude,
+            (result: any[], status: any) => {
+              if (status === window.kakao.maps.services.Status.OK) {
+                const address = result[0].address.address_name;
+                setCurrentAddress(address);
+              }
+            }
+          );
+        },
+        (error) => {
+          setIsLocationAllowed(false);
+          console.error('Error getting location:', error);
+        }
+      );
+    }
   }, []);
 
   const togglePlaceType = () => {
@@ -76,9 +108,9 @@ const FoodsId = () => {
 
     setIsLoading(true);
     const places = new window.kakao.maps.services.Places();
-    const callback = (result: any, status: any) => {
+    const callback = (result: Place[], status: any) => {
       if (status === window.kakao.maps.services.Status.OK) {
-        const formattedResults = result.map((place: any) => ({
+        const formattedResults = result.map((place: Place) => ({
           id: place.id,
           name: place.place_name,
           address: place.address_name,
@@ -106,26 +138,34 @@ const FoodsId = () => {
   const filteredResults = showCafes
     ? cafeResults.filter((result) => {
         const distance = parseInt(result.distance) / 1000;
-        if (selectedTab === '가까워요') {
-          return distance <= 0.5 && distance >= 0.1;
-        } else if (selectedTab === '조금 멀어요') {
-          return distance > 0.5 && distance <= 1.0;
-        } else if (selectedTab === '많이 멀어요') {
-          return distance > 1.0 && distance <= 3.0;
+        switch (selectedTab) {
+          case '가까워요':
+            return distance <= 0.5 && distance >= 0.1;
+          case '조금 멀어요':
+            return distance > 0.5 && distance <= 1.0;
+          case '많이 멀어요':
+            return distance > 1.0 && distance <= 3.0;
+          default:
+            return true;
         }
-        return true;
       })
     : searchResults.filter((result) => {
         const distance = parseInt(result.distance) / 1000;
-        if (selectedTab === '가까워요') {
-          return distance <= 0.5 && distance >= 0.1;
-        } else if (selectedTab === '조금 멀어요') {
-          return distance > 0.5 && distance <= 1.0;
-        } else if (selectedTab === '많이 멀어요') {
-          return distance > 1.0 && distance <= 3.0;
+        switch (selectedTab) {
+          case '가까워요':
+            return distance <= 0.5 && distance >= 0.1;
+          case '조금 멀어요':
+            return distance > 0.5 && distance <= 1.0;
+          case '많이 멀어요':
+            return distance > 1.0 && distance <= 3.0;
+          default:
+            return true;
         }
-        return true;
       });
+
+  useEffect(() => {
+    setFoodName(name);
+  }, [setFoodName, foodsList]);
 
   return (
     <div className="relative flex h-[calc(100vh-72px)] flex-col overflow-y-hidden xs:h-[calc(100vh-52px)]">
